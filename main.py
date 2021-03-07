@@ -25,8 +25,6 @@ create_and_save_entity()
 """
 
 
-
-
 print(os.getcwd())
 # MONGODB_URL = os.environ['MONGODB_URL']
 # MONGODB_NAME = os.environ['MONGODB_NAME']

@@ -6,24 +6,34 @@ from flask import Flask, render_template, request
 import pymongo
 import os 
 import json
+from google.cloud import datastore
+
+datastore_client = datastore.Client()
 
 
-"""
-def create_and_save_entity():
-    from google.cloud import datastore
-    datastore_client = datastore.Client()
+def create_and_save_quantity():
     kind = "Task"
     name = "sampletask1"
     task_key = datastore_client.key(kind, name)
     task = datastore.Entity(key=task_key)
-    task["description"] = "Buy milk"
+    task["quantity"] = 0
     datastore_client.put(task)
+
+def update_quantity():
     key = datastore_client.key("Task", "sampletask1")
     task = datastore_client.get(key)
-    print("done", task)
-create_and_save_entity()
-"""
+    task['quantity'] = task['quantity'] + 1
+    datastore_client.put(task)
 
+def print_quantity():
+    key = datastore_client.key("Task", "sampletask1")
+    task = datastore_client.get(key)
+    print("quantity:", task)
+
+create_and_save_quantity()
+print_quantity()
+update_quantity()
+print_quantity()
 
 print(os.getcwd())
 # MONGODB_URL = os.environ['MONGODB_URL']
@@ -56,6 +66,10 @@ def trying():
     if request.method == "POST":
         kwargs = json.loads(request.form.get('data'))
         print(kwargs)
+
+        update_quantity()
+        print_quantity()
+
         return {"success": True}
 
 

@@ -30,9 +30,9 @@ def root():
 
     return render_template('index.html', times=dummy_times)
     
-# @app.route('/myscripts.js')
-# def script():
-#     return render_template('myscripts.js', color='pink')
+@app.route('/posting_scripts')
+def script():
+    return render_template("js/myscripts.js", color='pink')
 
 @app.route('/trying/', methods=['GET','POST'])
 def trying():

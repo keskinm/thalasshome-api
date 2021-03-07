@@ -8,6 +8,25 @@ import os
 import json
 
 
+"""
+def create_and_save_entity():
+    from google.cloud import datastore
+    datastore_client = datastore.Client()
+    kind = "Task"
+    name = "sampletask1"
+    task_key = datastore_client.key(kind, name)
+    task = datastore.Entity(key=task_key)
+    task["description"] = "Buy milk"
+    datastore_client.put(task)
+    key = datastore_client.key("Task", "sampletask1")
+    task = datastore_client.get(key)
+    print("done", task)
+create_and_save_entity()
+"""
+
+
+
+
 print(os.getcwd())
 # MONGODB_URL = os.environ['MONGODB_URL']
 # MONGODB_NAME = os.environ['MONGODB_NAME']

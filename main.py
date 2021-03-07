@@ -23,10 +23,9 @@ def create_app():
     def homepage():
         return render_template('index.html')
 
-    @app.route('/scripts.js')
+    @app.route('/scripts_in_templates.js')
     def script():
-        return render_template('scripts.js', color='pink')
-
+        return render_template('scripts_in_templates.js', color='pink')
 
     @app.route('/trying/', methods=['GET','POST'])
     def trying():

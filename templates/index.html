@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>tests_debug</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../dist/tavo-calendar.css">
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+        </style>
+    </head>
+    <body>
+
+    <label for="choix_location">Choisir votre location</label>
+    <input list="locations" type="text" id="choix_locations" onblur="validate()">
+    <datalist id="locations">
+        <option value="Loire">
+        <option value="Île-de-France">
+        <option value="Canton de Genève"> 
+        <option value="Pays de Gex"> 
+    </datalist>
+
+    <div class='custom_calender'>
+    
+      <input type="date" id="start" name="trip-start"
+      value="2021-01-01"
+      min="2021-01-01" max="2022-12-31">
+    
+      <input type="date" id="end" name="trip-end"
+        value="2021-01-01"
+        min="2021-01-01" max="2022-12-31">
+    
+      </div>
+
+      <!-- <script language="JavaScript" type="text/javascript" src="/js/jquery-1.2.6.min.js"></script>
+        <script language="JavaScript" type="text/javascript" src="/js/jquery-ui-personalized-1.5.2.packed.js"></script>
+        <script language="JavaScript" type="text/javascript" src="/js/sprinkle.js"></script> -->
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+        <script src="scripts.js" ></script>
+
+
+    </body>
+</html>
+

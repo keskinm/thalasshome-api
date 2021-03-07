@@ -35,18 +35,15 @@ def print_quantity():
     print("quantity:", task)
 
 print(os.getcwd())
-# MONGODB_URL = os.environ['MONGODB_URL']
-# MONGODB_NAME = os.environ['MONGODB_NAME']
-
-# MONGODB_URL='127.0.0.1:27019'
-# MONGODB_NAME='mydb'
-
-# client = pymongo.MongoClient(MONGODB_URL)
-# collections = client[MONGODB_NAME]
 
 app = Flask(__name__)
+
+# @todo make it restrictive for obvious security reasons
 CORS(app)
 
+# @cross_origin()
+# just after the @app.route or 
+# cors = CORS(app, resources={r"/trying/*": {"origins": "*"}})
 
 
 @app.route('/')
@@ -64,17 +61,19 @@ def script():
 
 @app.route('/trying/', methods=['GET','POST'])
 def trying():
-    try:
-        if request.method == "POST":
+    if request.method == "POST":
+        try:
             kwargs = json.loads(request.form.get('data'))
             print(kwargs)
 
             update_quantity()
             print_quantity()
+            
+        except:
+            return {'fail': True}
 
-            return {"success": True}
-    except:
-        return {'success': True}
+        return {"success": True}
+
 
 # return app
 

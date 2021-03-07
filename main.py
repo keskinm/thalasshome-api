@@ -60,15 +60,17 @@ def script():
 
 @app.route('/trying/', methods=['GET','POST'])
 def trying():
-    if request.method == "POST":
-        kwargs = json.loads(request.form.get('data'))
-        print(kwargs)
+    try:
+        if request.method == "POST":
+            kwargs = json.loads(request.form.get('data'))
+            print(kwargs)
 
-        update_quantity()
-        print_quantity()
+            update_quantity()
+            print_quantity()
 
-        return {"success": True}
-
+            return {"success": True}
+    except:
+        return {'success': True}
 
 # return app
 

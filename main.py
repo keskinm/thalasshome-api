@@ -18,6 +18,8 @@ def create_and_save_quantity():
     task = datastore.Entity(key=task_key)
     task["quantity"] = 0
     datastore_client.put(task)
+# create_and_save_quantity()
+
 
 def update_quantity():
     key = datastore_client.key("Task", "sampletask1")
@@ -29,11 +31,6 @@ def print_quantity():
     key = datastore_client.key("Task", "sampletask1")
     task = datastore_client.get(key)
     print("quantity:", task)
-
-create_and_save_quantity()
-print_quantity()
-update_quantity()
-print_quantity()
 
 print(os.getcwd())
 # MONGODB_URL = os.environ['MONGODB_URL']

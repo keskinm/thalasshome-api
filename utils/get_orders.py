@@ -11,13 +11,14 @@ def print_hardcode_updated_order():
     print("order", order)
 
 
-print_hardcode_updated_order()
+# print_hardcode_updated_order()
 
 
 def retrieve_all_entities(kind="orders"):
     query = datastore.Client().query(kind=kind)
     all_keys = query.fetch() #fetches all the entities from the datastore
     d = list(all_keys)
-    print(d)
+    print(len(d))
 
-# retrieve_all_entities()
+
+retrieve_all_entities()

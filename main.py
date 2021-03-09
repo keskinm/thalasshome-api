@@ -43,6 +43,20 @@ def root():
                    ]
 
     return render_template('index.html', times=dummy_times)
+
+
+def verify_webhook(data, hmac_header):
+    SECRET = 'hush'
+    # SECRET = 'cc226b71cdbaea95db7f42e1d05503f92282097b4fa6409ce8063b81b8727b48'
+    digest = hmac.new(SECRET, data.encode('utf-8'), hashlib.sha256).digest()
+    computed_hmac = base64.b64encode(digest)
+
+@app.route('/order_creation_webhook', methods=['POST'])
+def handle_order_creation_webhook():
+    print("IN ORDER CREATION WEBHOOK")
+    data = request.get_data()
+    verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
+
     
 @app.route('/posting_scripts')
 def script():

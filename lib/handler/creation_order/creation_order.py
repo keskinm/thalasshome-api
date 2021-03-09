@@ -1,5 +1,8 @@
 from lib.parser.creation_order.creation_order import CreationOrderParser
 from lib.handler.base_handler import BaseHandler
+from google.cloud import datastore
+datastore_client = datastore.Client()
+
 
 class CreationOrderHandler(CreationOrderParser, BaseHandler):
     def __init__(self):

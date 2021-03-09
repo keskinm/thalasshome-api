@@ -1,20 +1,16 @@
 # [START gae_python38_render_template]
 # [START gae_python3_render_template]
-import datetime
 
+import datetime
 from flask import Flask, render_template, request
 from flask_cors import CORS
-
 import os
 import json
-from google.cloud import datastore
 import hmac
 import hashlib
 import base64
 
 from lib.handler.creation_order.creation_order import CreationOrderHandler
-
-datastore_client = datastore.Client()
 
 
 print(os.getcwd())
@@ -62,7 +58,21 @@ def handle_order_creation_webhook():
     # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
 
     handler = CreationOrderHandler()
-    order = handler.parse_data(data.decode("utf-8"))
+
+    order = None
+
+    try:
+        order = handler.parse_data(json.loads(data.decode("utf-8")))
+        print("succeed in 1")
+    except:
+        print("fail in 1")
+
+    try:
+        order = handler.parse_data(data)
+        print("succeed in 2")
+    except:
+        print("fail in 2")
+
     handler.insert_received_webhook_to_datastore(order)
 
 

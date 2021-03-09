@@ -23,7 +23,7 @@ def create_and_save_order_test():
     task = datastore.Entity(key=task_key)
     task["employee"] = 'mario'
     datastore_client.put(task)
-create_and_save_order_test()
+# create_and_save_order_test()
 
 
 print(os.getcwd())
@@ -69,8 +69,9 @@ def handle_order_creation_webhook():
     
     print("IN ORDER CREATION WEBHOOK")
     data = request.get_data()
-    insert_received_webhook_to_datastore(data)
-    print("data: ", data.encode('utf-8'))
+    print("data: ", data)
+    print("decoded", data.decode("utf-8") )
+    # insert_received_webhook_to_datastore(data)
     print("verified:", verified)
 
     verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))

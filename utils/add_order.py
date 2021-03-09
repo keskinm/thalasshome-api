@@ -67,8 +67,8 @@ def add_order_samples(orders):
 
     for order in orders:
         name = order['id']
-        task_key = datastore_client.key(kind, name)
-        c_order = datastore.Entity(key=task_key)
+        key = datastore_client.key(kind, name)
+        c_order = datastore.Entity(key=key)
         for k, v in order.items():
             c_order[k] = v
         datastore_client.put(c_order)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-export GOOGLE_APPLICATION_CREDENTIALS="/home/mustafa-cleverdoc/.config/gcloud/legacy_credentials/keskin.mustafa.42@gmail.com/adc.json"
-export GCLOUD_PROJECT="locations-ecommerce"
+export GOOGLE_APPLICATION_CREDENTIALS="~/.config/gcloud/legacy_credentials/spa.detente.france@gmail.com/adc.json"
+export GCLOUD_PROJECT="employees-dashboard-307021"
 

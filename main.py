@@ -13,6 +13,8 @@ import hmac
 import hashlib
 import base64
 
+from lib.handler.creation_order.creation_order import CreationOrderHandler
+
 datastore_client = datastore.Client()
 
 
@@ -56,26 +58,20 @@ def verify_webhook(data, hmac_header):
     # SECRET = 'cc226b71cdbaea95db7f42e1d05503f92282097b4fa6409ce8063b81b8727b48'
     digest = hmac.new(SECRET, data.encode('utf-8'), hashlib.sha256).digest()
     computed_hmac = base64.b64encode(digest)
+    verified = hmac.compare_digest(computed_hmac, hmac_header.encode('utf-8'))
+    
+    print("verified", verified)
+    if not verified:
+        abort(401)
+
+    return verified
 
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
-    def insert_received_webhook_to_datastore(data):
-        kind = "Orders"
-        name = "RECEIVED_WEBHOOK"
-        task_key = datastore_client.key(kind, name)
-        task = datastore.Entity(key=task_key)
-        task["data"] = data
-        datastore_client.put(task)
-    
-    print("IN ORDER CREATION WEBHOOK")
     data = request.get_data()
-    print("data: ", data)
-    print("decoded", data.decode("utf-8") )
-    # insert_received_webhook_to_datastore(data)
-    print("verified:", verified)
 
-    verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-
+    # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
+    order = CreationOrderHandler().parse_data(data.decode("utf-8"))
 
 @app.route('/posting_scripts')
 def script():

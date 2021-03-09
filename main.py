@@ -9,6 +9,9 @@ import pymongo
 import os 
 import json
 from google.cloud import datastore
+import hmac
+import hashlib
+import base64
 
 datastore_client = datastore.Client()
 
@@ -68,7 +71,9 @@ def handle_order_creation_webhook():
     print("IN ORDER CREATION WEBHOOK")
     data = request.get_data()
     verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-    
+    print("data: ", data)
+    print("verified:", verified)
+
 @app.route('/posting_scripts')
 def script():
     return render_template("js/myscripts.js", color='pink')

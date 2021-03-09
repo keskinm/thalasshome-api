@@ -5,8 +5,7 @@ import datetime
 from flask import Flask, render_template, request
 from flask_cors import CORS
 
-import pymongo
-import os 
+import os
 import json
 from google.cloud import datastore
 import hmac
@@ -18,19 +17,8 @@ from lib.handler.creation_order.creation_order import CreationOrderHandler
 datastore_client = datastore.Client()
 
 
-def create_and_save_order_test():
-    kind = "Orders"
-    name = "harcoded_id_01"
-    task_key = datastore_client.key(kind, name)
-    task = datastore.Entity(key=task_key)
-    task["employee"] = 'mario'
-    datastore_client.put(task)
-# create_and_save_order_test()
-
-
 print(os.getcwd())
 print("\n\n\n\n---------------------------------------------------------------\n\n\n\n")
-
 print("GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 
 app = Flask(__name__)
@@ -66,16 +54,22 @@ def verify_webhook(data, hmac_header):
 
     return verified
 
+
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
     data = request.get_data()
 
     # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-    order = CreationOrderHandler().parse_data(data.decode("utf-8"))
+
+    handler = CreationOrderHandler()
+    order = handler.parse_data(data.decode("utf-8"))
+    handler.insert_received_webhook_to_datastore(order)
+
 
 @app.route('/posting_scripts')
 def script():
     return render_template("js/myscripts.js", color='pink')
+
 
 @app.route('/trying/', methods=['GET','POST'])
 def trying():
@@ -84,16 +78,11 @@ def trying():
             kwargs = json.loads(request.form.get('data'))
             print(kwargs)
 
-            update_quantity()
-            print_quantity()
-            
         except:
             return {'fail': True}
 
         return {"success": True}
 
-
-# return app
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

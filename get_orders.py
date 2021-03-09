@@ -9,11 +9,11 @@ def print_hardcode_updated_order():
     print("order", task)
 
 
-def print_received_webhook():
+def print_created_order_sample():
     key = datastore_client.key("Orders", "RECEIVED_WEBHOOK")
     task = datastore_client.get(key)
     print("received_webhook", task)
 
 
 print_hardcode_updated_order()
-print_received_webhook()
+print_created_order_sample()

@@ -59,20 +59,22 @@ def verify_webhook(data, hmac_header):
 
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
-    def insert_received_webhook_to_datastore():
+    def insert_received_webhook_to_datastore(data):
         kind = "Orders"
         name = "RECEIVED_WEBHOOK"
         task_key = datastore_client.key(kind, name)
         task = datastore.Entity(key=task_key)
-        task["None"] = 'void'
+        task["data"] = data
         datastore_client.put(task)
     
-    insert_received_webhook_to_datastore()
     print("IN ORDER CREATION WEBHOOK")
     data = request.get_data()
-    verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-    print("data: ", data)
+    insert_received_webhook_to_datastore(data)
+    print("data: ", data.encode('utf-8'))
     print("verified:", verified)
+
+    verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
+
 
 @app.route('/posting_scripts')
 def script():

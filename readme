@@ -1,12 +1,5 @@
 
+In local mode: 
+source venv/bin/activate
 source env.sh 
 
-
-DEBUG MODE:
-flask run 
-
-
-Execute it on PUBLIC mode (listen on all all public IPs):
-flask run --host=0.0.0.0
-ou 
-flask run --host=192.168.1.20 (?)

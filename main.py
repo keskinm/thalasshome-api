@@ -24,6 +24,9 @@ create_and_save_order_test()
 
 
 print(os.getcwd())
+print("\n\n\n\n---------------------------------------------------------------\n\n\n\n")
+
+print("GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 
 app = Flask(__name__)
 
@@ -53,10 +56,18 @@ def verify_webhook(data, hmac_header):
 
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
+    def insert_received_webhook_to_datastore():
+        kind = "Orders"
+        name = "RECEIVED_WEBHOOK"
+        task_key = datastore_client.key(kind, name)
+        task = datastore.Entity(key=task_key)
+        task["None"] = 'void'
+        datastore_client.put(task)
+    
+    insert_received_webhook_to_datastore()
     print("IN ORDER CREATION WEBHOOK")
     data = request.get_data()
     verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-
     
 @app.route('/posting_scripts')
 def script():

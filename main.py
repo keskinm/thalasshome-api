@@ -1,7 +1,3 @@
-# [START gae_python38_render_template]
-# [START gae_python3_render_template]
-
-import datetime
 from flask import Flask, render_template, request
 from flask_cors import CORS
 import os
@@ -29,12 +25,7 @@ CORS(app)
 
 @app.route('/')
 def root():
-    dummy_times = [datetime.datetime(2018, 1, 1, 10, 0, 0),
-                   datetime.datetime(2018, 1, 2, 10, 30, 0),
-                   datetime.datetime(2018, 1, 3, 11, 0, 0),
-                   ]
-
-    return render_template('index.html', times=dummy_times)
+    return render_template('index.html')
 
 
 def verify_webhook(data, hmac_header):
@@ -76,25 +67,5 @@ def handle_order_creation_webhook():
     handler.insert_received_webhook_to_datastore(order)
 
 
-@app.route('/posting_scripts')
-def script():
-    return render_template("js/myscripts.js", color='pink')
-
-
-@app.route('/trying/', methods=['GET','POST'])
-def trying():
-    if request.method == "POST":
-        try:
-            kwargs = json.loads(request.form.get('data'))
-            print(kwargs)
-
-        except:
-            return {'fail': True}
-
-        return {"success": True}
-
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
-# [END gae_python3_render_template]
-# [END gae_python38_render_template]
+    app.run(host='127.0.0.1', port=5000, debug=True)

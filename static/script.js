@@ -1,12 +1,19 @@
 
-// [START gae_python38_log]
-// [START gae_python3_log]
-'use strict';
+function makeSortable(id) {
 
-window.addEventListener('load', function () {
+    var el = document.getElementById(id);
+    var sortable = Sortable.create(el, {
+        animation: 150,
+        group: 'lists'
+    });
 
-  console.log("Hello World!");
+}
+
+$(function (){
+
+    makeSortable("ask");
+    makeSortable("in_progress");
+    makeSortable("done");
+    makeSortable("canceled");
 
 });
-// [END gae_python3_log]
-// [END gae_python38_log]

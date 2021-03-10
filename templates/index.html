@@ -1,44 +1,189 @@
-<!doctype html>
+
+<!DOCTYPE html>
+
 <html>
+
 <head>
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-  <title>Datastore and Firebase Auth Example</title>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="../static/style.css" rel="stylesheet">
+  <meta charset="utf-8">
+  <title>Livraisons</title>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+          integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+          crossorigin="anonymous"></script>
+
+  <script src="../static/Sortable.js"></script>
+  <script src="../static/script.js"> </script>
 </head>
+
 <body>
 
-  <h1>Datastore and Firebase Auth Example</h1>
+<header class="masthead">
 
-  <h2>Last 10 visits</h2>
-  {% for time in times %}
-    <p>{{ time }}</p>
-  {% endfor %}
+	<div class="boards-menu">
 
+		<button class="boards-btn btn"><i class="fab fa-trello boards-btn-icon"></i>SPA</button>
 
-  <label for="choix_location">Choisir votre location</label>
-  <input list="locations" type="text" id="choix_locations" onblur="validate()">
-  <datalist id="locations">
-      <option value="Loire">
-      <option value="Île-de-France">
-      <option value="Canton de Genève"> 
-      <option value="Pays de Gex"> 
-  </datalist>
+		<div class="board-search">
+			<input type="search" class="board-search-input" aria-label="Board Search">
+			<i class="fas fa-search search-icon" aria-hidden="true"></i>
+		</div>
 
-  <div class='custom_calender'>
-  
-    <input type="date" id="start" name="trip-start"
-    value="2021-01-01"
-    min="2021-01-01" max="2022-12-31">
-  
-    <input type="date" id="end" name="trip-end"
-      value="2021-01-01"
-      min="2021-01-01" max="2022-12-31">
-  
-    </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="posting_scripts"></script>
+	</div>
 
+	<div class="logo">
+
+		<h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i></h1>
+
+	</div>
+
+	<div class="user-settings">
+
+		<button class="user-settings-btn btn" aria-label="Create">
+			<i class="fas fa-plus" aria-hidden="true"></i>
+		</button>
+
+		<button class="user-settings-btn btn" aria-label="Information">
+			<i class="fas fa-info-circle" aria-hidden="true"></i>
+		</button>
+
+		<button class="user-settings-btn btn" aria-label="Notifications">
+			<i class="fas fa-bell" aria-hidden="true"></i>
+		</button>
+
+		<button class="user-settings-btn btn" aria-label="User Settings">
+			<i class="fas fa-user-circle" aria-hidden="true"></i>
+		</button>
+
+	</div>
+
+</header>
+
+<section class="board-info-bar">
+
+	<div class="board-controls">
+
+		<button class="board-title btn">
+			<h2>Livraisons</h2>
+		</button>
+
+		<button class="personal-btn btn">Lyon</button>
+
+		<button class="private-btn btn"><i class="fas fa-briefcase private-btn-icon" aria-hidden="true"></i>Paris</button>
+
+	</div>
+
+	<button class="menu-btn btn"><i class="fas fa-ellipsis-h menu-btn-icon" aria-hidden="true"></i>Show Menu</button>
+
+</section>
+
+<section class="lists-container">
+
+	<div class="list">
+
+		<h3 class="list-title">Demandes</h3>
+
+		<ul class="list-items" id="ask">
+          <li><span class="item-name">Modèle L1</span>
+            <br />
+            <span class="item-date">• 20-4-2021</span>
+            <br />
+            <span class="item-date">• 25-4-2020</span>
+          </li>
+        </ul>
+
+		<button class="add-card-btn btn">Ajouter une demande</button>
+
+	</div>
+
+	<div class="list">
+
+		<h3 class="list-title">En cours de traitement</h3>
+
+		<ul class="list-items" id="in_progress">
+		  <li><span class="item-name">Modèle M2</span>
+            <br />
+            <span class="item-date">• 5-3-2021</span>
+            <br />
+            <span class="item-date">• 25-3-2020</span>
+          </li>
+		  <li><span class="item-name">Modèle 3C</span>
+            <br />
+            <span class="item-date">• 2-3-2021</span>
+            <br />
+            <span class="item-date">• 18-3-2020</span>
+          </li>
+		  <li><span class="item-name">Modèle 5F</span>
+            <br />
+            <span class="item-date">• 4-3-2021</span>
+            <br />
+            <span class="item-date">• 17-3-2020</span>
+          </li>
+		  <li><span class="item-name">Modèle G3</span>
+            <br />
+            <span class="item-date">• 7-3-2021</span>
+            <br />
+            <span class="item-date">• 12-3-2020</span>
+          </li>
+		  <li><span class="item-name">Modèle D4</span>
+            <br />
+            <span class="item-date">• 9-3-2021</span>
+            <br />
+            <span class="item-date">• 20-4-2020</span>
+          </li>
+		</ul>
+
+	</div>
+
+	<div class="list">
+
+		<h3 class="list-title">Commandes terminées</h3>
+
+		<ul class="list-items" id="done">
+		  <li><span class="item-name">Modèle 3C</span>
+            <br />
+            <span class="item-date">• 1-3-2021</span>
+            <br />
+            <span class="item-date">• 7-3-2020</span>
+          </li>
+		  <li><span class="item-name">Modèle F5</span>
+            <br />
+            <span class="item-date">• 10-2-2021</span>
+            <br />
+            <span class="item-date">• 24-2-2020</span>
+          </li>
+		  <li><span class="item-name">Modèle L1</span>
+            <br />
+            <span class="item-date">• 4-2-2021</span>
+            <br />
+            <span class="item-date">• 9-2-2020</span>
+          </li>
+		  <li><span class="item-name">Modèle 4D</span>
+            <br />
+            <span class="item-date">• 5-2-2021</span>
+            <br />
+            <span class="item-date">• 21-2-2020</span>
+          </li>
+		</ul>
+
+	</div>
+
+	<div class="list">
+
+		<h3 class="list-title">Commandes annulées</h3>
+
+		<ul class="list-items" id="canceled">
+		  <li><span class="item-name">Modèle L1</span>
+            <br />
+            <span class="item-date">• 12-4-2021</span>
+            <br />
+            <span class="item-date">• 22-4-2020</span>
+          </li>
+		</ul>
+
+	</div>
+
+</section>
 
 </body>
 </html>

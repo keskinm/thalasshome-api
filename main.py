@@ -1,3 +1,5 @@
+import random
+
 from flask import Flask, render_template, request
 from flask_cors import CORS
 import os
@@ -6,8 +8,10 @@ import hmac
 import hashlib
 import base64
 
-from lib.handler.creation_order.creation_order import CreationOrderHandler
+from google.cloud import datastore
 
+from lib.handler.creation_order.creation_order import CreationOrderHandler
+from utils.maps.maps import zip_codes_to_locations, employees_to_location
 
 print(os.getcwd())
 print("\n\n\n\n---------------------------------------------------------------\n\n\n\n")
@@ -17,15 +21,77 @@ app = Flask(__name__)
 
 # @todo make it restrictive for obvious security reasons
 CORS(app)
+client = datastore.Client()
 
 # @cross_origin()
 # just after the @app.route or 
 # cors = CORS(app, resources={r"/trying/*": {"origins": "*"}})
 
 
+def find_zone(zip):
+    for zone, v in zip_codes_to_locations.items():
+        for z_prefix in v:
+            if zip.startswith(z_prefix):
+                return zone
+    return None
+
+
+def select_employee(item):
+    zip = item['shipping_address']['zip']
+    selected = 'None'
+    found_zone = find_zone(zip)
+
+    if found_zone and found_zone in employees_to_location:
+        possible_list = employees_to_location[found_zone]
+        selected = random.choice(possible_list)
+
+    item['employee'] = selected
+    client.put(item)  # update db
+
+    return selected
+
 @app.route('/')
 def root():
-    return render_template('index.html')
+    query = client.query(kind="orders")
+    all_keys = query.fetch()
+    res = {}
+
+    for item in all_keys:
+        status = item['status'] if 'status' in item else 'ask'  # def status = ask
+
+        if 'status' not in item:
+            item['status'] = status
+            client.put(item)
+
+        if 'employee' in item:
+            empl = item['employee']
+        else:
+            empl = select_employee(item)
+
+        replace = item['replace'] if 'replace' in item else 'Aucun'
+
+        adr_item = item['shipping_address']
+        adr = ' '.join([adr_item['city'], adr_item['zip'], adr_item['address1'], adr_item['address2']])
+
+        ship = ""
+        if 'line_items' in item:
+            d_items = item['line_items']
+            for d_i in d_items:
+                ship += d_i['name'] + " "
+                prop = {p['name']: p['value'] for p in d_i['properties']}
+                ship += ' '.join([prop['From'], prop['start-time'], prop['To'], prop['finish-time']])
+                ship += " "
+        else:
+            ship += "Aucun"
+
+        res.setdefault(status, [])
+        res[status].append({
+            'address': adr,
+            'def_empl': empl,
+            'rep_empl': replace,
+            'shipped': ship
+        })
+    return render_template('index.html', **res)
 
 
 def verify_webhook(data, hmac_header):

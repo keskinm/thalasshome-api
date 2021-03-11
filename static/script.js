@@ -12,7 +12,9 @@ function makeSortable(id) {
 $(function (){
 
     makeSortable("ask");
-    makeSortable("in_progress");
+    makeSortable("delivery");
+    makeSortable("client");
+    makeSortable("stock");
     makeSortable("done");
     makeSortable("canceled");
 

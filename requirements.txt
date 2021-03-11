@@ -6,3 +6,5 @@ Flask==1.1.2
 google-cloud-datastore==2.1.0
 gunicorn==19.3.0
 Flask-Cors==3.0.10
+aiohttp==3.7.4.post0
+python-socketio==5.1.0

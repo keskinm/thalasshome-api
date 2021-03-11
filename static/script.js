@@ -31,7 +31,6 @@ const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 const socket = io.connect('http://' + document.domain + ':8000/');
 socket.on('update', function(msg) {
 
-    console.log(msg)
     const it = msg;
 
     for (let i = 0; i < cat.length; i++) {
@@ -51,7 +50,6 @@ socket.on('update', function(msg) {
         for (let j = 0; j < i_list.length; j++) {
             const cur_item = i_list[j];
 
-            console.log(cur_item);
             new_content += `<li>\
                 ${ cur_item.address } <br />\
                 Employé: ${ cur_item.def_empl } <br />\
@@ -62,7 +60,6 @@ socket.on('update', function(msg) {
         }
 
         cont.innerHTML = new_content;
-        console.log(new_content);
     }
 
 });

@@ -7,6 +7,7 @@ import json
 import hmac
 import hashlib
 import base64
+import socketio
 
 from google.cloud import datastore
 
@@ -109,10 +110,12 @@ def get_cards(zone=None):
         })
     return res
 
+
 @app.route('/')
 def root():
     res = get_cards()
     return render_template('index.html', **res)
+
 
 @app.route('/empl')
 def empl():
@@ -157,6 +160,12 @@ def handle_order_creation_webhook():
         print("fail in 2")
 
     handler.insert_received_webhook_to_datastore(order)
+
+    #  update currently connected clients
+
+    sio = socketio.Client()
+    sio.connect('http://localhost:8000')
+    sio.emit('trigger_update', {'key': 'update'})
 
 
 if __name__ == '__main__':

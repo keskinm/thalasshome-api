@@ -5,6 +5,7 @@
         Employé: {{ item.def_empl }} <br />
         Remplacant: {{ item.rep_empl }} <br />
         Objets: {{ item.shipped }}
+        <p hidden>{{ item.ent_id }}</p>
     </li>
 {% endmacro %}
 
@@ -20,8 +21,9 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
           integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
           crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.0/socket.io.js"></script>
 
-  <script src="../static/Sortable.js"></script>
+    <script src="../static/Sortable.js"></script>
   <script src="../static/script.js"> </script>
 </head>
 
@@ -145,7 +147,7 @@
 		<h3 class="list-title">Commandes terminées</h3>
 
 		<ul class="list-items" id="done">
-            {% for item in over %}
+            {% for item in done %}
                 {{ display_item(item) }}
             {% endfor %}
 		</ul>

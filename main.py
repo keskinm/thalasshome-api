@@ -89,7 +89,8 @@ def root():
             'address': adr,
             'def_empl': empl,
             'rep_empl': replace,
-            'shipped': ship
+            'shipped': ship,
+            'ent_id': item.id
         })
     return render_template('index.html', **res)
 

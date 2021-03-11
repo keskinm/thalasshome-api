@@ -50,8 +50,20 @@ def select_employee(item):
 
     return selected
 
-@app.route('/')
-def root():
+
+def check_zone(zone, zip):
+    if not zone:
+        return False
+
+    zips = zip_codes_to_locations[zone]
+    for z in zips:
+        if zip.startswith(z):
+            return False
+
+    return True
+
+
+def get_cards(zone=None):
     query = client.query(kind="orders")
     all_keys = query.fetch()
     res = {}
@@ -73,6 +85,9 @@ def root():
         adr_item = item['shipping_address']
         adr = ' '.join([adr_item['city'], adr_item['zip'], adr_item['address1'], adr_item['address2']])
 
+        if check_zone(zone, adr_item['zip']):
+            continue
+
         ship = ""
         if 'line_items' in item:
             d_items = item['line_items']
@@ -92,7 +107,17 @@ def root():
             'shipped': ship,
             'ent_id': item.id
         })
+    return res
+
+@app.route('/')
+def root():
+    res = get_cards()
     return render_template('index.html', **res)
+
+@app.route('/empl')
+def empl():
+    res = get_cards()
+    return render_template('empl.html', **res)
 
 
 def verify_webhook(data, hmac_header):

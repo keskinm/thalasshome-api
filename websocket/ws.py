@@ -2,6 +2,8 @@ import aiohttp
 import socketio
 from google.cloud import datastore
 
+from main import get_cards
+
 
 class Namespace(socketio.AsyncNamespace):
 
@@ -22,6 +24,13 @@ class Namespace(socketio.AsyncNamespace):
         for i in all_keys:
             i['status'] = data['category']
             self.client.put(i)
+
+    async def on_ask_zone(self, sid, data):
+        print(data)
+        cards = get_cards(data['zone'])
+        print('data =', cards)
+
+        await sio.emit('update', data=cards, to=sid)
 
 
 if __name__ == "__main__":

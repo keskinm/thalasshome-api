@@ -1,15 +1,15 @@
 
 function makeSortable(id, socket) {
 
-    var el = document.getElementById(id);
-    var sortable = Sortable.create(el, {
+    const el = document.getElementById(id);
+    const sortable = Sortable.create(el, {
         animation: 150,
         group: 'lists',
         onAdd: function (ev) {
-            var cld = ev.item.childNodes;
-            var item_id = undefined;
+            const cld = ev.item.childNodes;
+            let item_id = undefined;
 
-            for (var i = 0; i < cld.length; i++) {
+            for (let i = 0; i < cld.length; i++) {
                 if (cld[i].localName === "p") {
                     item_id = cld[i].textContent;
                     break;
@@ -25,23 +25,57 @@ function makeSortable(id, socket) {
 
 }
 
+const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
+
+
+const socket = io.connect('http://' + document.domain + ':8000/');
+socket.on('update', function(msg) {
+
+    console.log(msg)
+    const it = msg;
+
+    for (let i = 0; i < cat.length; i++) {
+        const i_list = it[cat[i]];
+        const cont = document.getElementById(cat[i]);
+
+        /*while (cont.firstChild)
+            cont.removeChild(cont.lastChild);*/
+
+        if (i_list === undefined) {
+            cont.innerHTML = "";
+            continue;
+        }
+
+        let new_content = "";
+
+        for (let j = 0; j < i_list.length; j++) {
+            const cur_item = i_list[j];
+
+            console.log(cur_item);
+            new_content += `<li>\
+                ${ cur_item.address } <br />\
+                Employé: ${ cur_item.def_empl } <br />\
+                Remplacant: ${ cur_item.rep_empl } <br />\
+                Objets: ${ cur_item.shipped }\
+                <p hidden>${ cur_item.ent_id }</p>\
+            </li>`
+        }
+
+        cont.innerHTML = new_content;
+        console.log(new_content);
+    }
+
+});
+
+function selectOnly(zone) {
+    socket.emit('ask_zone', {
+        zone: zone
+    })
+}
+
 $(function (){
 
-    var socket = io.connect('http://' + document.domain + ':8000/');
-
-    socket.on('endpoint', function(msg) {
-        alert('Received: ' + msg.data);
-    });
-    /*$('form').submit(function(event) {
-        socket.emit('add_to_queue', {data: $('#data').val()});
-        return false;
-    });*/
-
-    makeSortable("ask", socket);
-    makeSortable("delivery", socket);
-    makeSortable("client", socket);
-    makeSortable("stock", socket);
-    makeSortable("done", socket);
-    makeSortable("canceled", socket);
+    for (let i = 0; i < cat.length; i++)
+        makeSortable(cat[i], socket);
 
 });

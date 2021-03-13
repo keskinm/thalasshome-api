@@ -58,7 +58,7 @@ for k, v in order.items():
         order1[k] = 3662977106105
     elif k == "shipping_address":
         v["zip"] = "75000"
-        order[k] = v
+        order1[k] = v
     else:
         order1[k] = v
 

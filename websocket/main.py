@@ -4,7 +4,7 @@ from flask import Flask, render_template, request
 from flask_cors import CORS
 from google.cloud import datastore
 
-from ws import run_ws
+from ws import my_web_app
 
 print("\n\n\n\n-------------------------GO !---------------------------\n\n\n\n")
 
@@ -21,7 +21,7 @@ client = datastore.Client()
 
 @app.route('/')
 def root():
-    run_ws()
+    my_web_app()
 
     print("running ws!")
 

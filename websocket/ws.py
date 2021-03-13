@@ -105,7 +105,6 @@ def get_cards(zone=None):
 
 # ------------------------------- END DUPLICATES ---------------------------------
 
-
 class Namespace(socketio.AsyncNamespace):
     def __init__(self, sio):
         super(Namespace, self).__init__(namespace='/')
@@ -163,17 +162,11 @@ class Namespace(socketio.AsyncNamespace):
         await self.sio.emit('update', data=cards, to=sid)
 
 
-async def index(request):
-    return aiohttp.web.Response(text="Welcome home!")
-
-
-async def my_web_app():
+def my_web_app():
     aio_app = aiohttp.web.Application()
-    aio_app.router.add_get('/', index)
 
     sio = socketio.AsyncServer(cors_allowed_origins='*')
-    n = Namespace(sio)
-    sio.register_namespace(n)
+    sio.register_namespace(Namespace(sio))
     sio.attach(aio_app)
 
     aiohttp.web.run_app(aio_app, port=8000)

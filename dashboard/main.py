@@ -2,7 +2,6 @@ import random
 
 from flask import Flask, render_template, request
 from flask_cors import CORS
-import os
 import json
 import hmac
 import hashlib
@@ -14,9 +13,7 @@ from google.cloud import datastore
 from lib.handler.creation_order.creation_order import CreationOrderHandler
 from utils.maps.maps import zip_codes_to_locations, employees_to_location
 
-print(os.getcwd())
-print("\n\n\n\n---------------------------------------------------------------\n\n\n\n")
-print("GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+print("\n\n\n\n-------------------------GO !---------------------------\n\n\n\n")
 
 app = Flask(__name__)
 

@@ -11,8 +11,8 @@ import socketio
 
 from google.cloud import datastore
 
-from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
-from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location
+from lib.handler.creation_order.creation_order import CreationOrderHandler
+from utils.maps.maps import zip_codes_to_locations, employees_to_location
 
 print(os.getcwd())
 print("\n\n\n\n---------------------------------------------------------------\n\n\n\n")

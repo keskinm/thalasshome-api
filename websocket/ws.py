@@ -161,21 +161,14 @@ class Namespace(socketio.AsyncNamespace):
 
         await self.sio.emit('update', data=cards, to=sid)
 
-async def index(request):
-    return aiohttp.web.Response(text="Welcome home!")
 
-async def my_web_app():
-    aio_app = aiohttp.web.Application()
-    aio_app.router.add_get('/', index)
+from sanic import Sanic
 
-    sio = socketio.AsyncServer(cors_allowed_origins='*')
-    sio.register_namespace(Namespace(sio))
-    sio.attach(aio_app)
+app = Sanic(name='my_web_app')
 
-    # aiohttp.web.run_app(aio_app, port=8000)
+sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='sanic')
+sio.register_namespace(Namespace(sio))
+sio.attach(app)
 
-    return aio_app
-
-# my_web_app()
-
-entry_command = 'gunicorn -b 0.0.0.0:8080 ws:my_web_app --worker-class aiohttp.GunicornWebWorker'
+app.config['CORS_SUPPORTS_CREDENTIALS'] = True
+entry_command = 'gunicorn -b 0.0.0.0:8080 ws:app --worker-class sanic.worker.GunicornWorker'

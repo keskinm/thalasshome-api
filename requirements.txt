@@ -11,3 +11,6 @@ eventlet==0.30.2
 gevent-websocket==0.10.1
 zope.event==4.5.0
 gunicorn==19.9.0
+sanic==20.12.2
+Sanic-Plugins-Framework==0.9.5
+

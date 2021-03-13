@@ -18,6 +18,7 @@ def retrieve_all_entities(kind="orders"):
     query = datastore.Client().query(kind=kind)
     all_keys = query.fetch() #fetches all the entities from the datastore
     d = list(all_keys)
+    d
     print(len(d))
 
 

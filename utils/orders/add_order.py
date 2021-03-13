@@ -54,10 +54,13 @@ order = {
 
 order1 = {}
 for k, v in order.items():
-    if k != "id":
-        order1[k] = v
+    if k == "id":
+        order1[k] = 3662977106105
+    elif k == "shipping_address":
+        v["zip"] = "75000"
+        order[k] = v
     else:
-        order1[k] = 3662977106104
+        order1[k] = v
 
 orders = [order, order1]
 

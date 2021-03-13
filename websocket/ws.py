@@ -1,6 +1,6 @@
-import socketio
 from google.cloud import datastore
-
+import aiohttp
+import socketio
 
 class Namespace(socketio.AsyncNamespace):
 
@@ -59,3 +59,13 @@ class Namespace(socketio.AsyncNamespace):
         await sio.emit('update', data=cards, to=sid)
 
 
+
+def run_ws():
+    aio_app = aiohttp.web.Application()
+    sio = socketio.AsyncServer(cors_allowed_origins='*')
+
+    n = Namespace()
+    sio.register_namespace(n)
+    sio.attach(aio_app)
+
+    aiohttp.web.run_app(aio_app, port=8000)

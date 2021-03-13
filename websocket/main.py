@@ -1,12 +1,10 @@
 #  @todo replace this Flask by uwsgi
 
-import aiohttp
-import socketio
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from google.cloud import datastore
 
-from ws import Namespace
+from ws import run_ws
 
 print("\n\n\n\n-------------------------GO !---------------------------\n\n\n\n")
 
@@ -23,13 +21,7 @@ client = datastore.Client()
 
 @app.route('/')
 def root():
-
-    aio_app = aiohttp.web.Application()
-    sio = socketio.AsyncServer(cors_allowed_origins='*')
-    n = Namespace()
-    sio.register_namespace(n)
-    sio.attach(aio_app)
-    aiohttp.web.run_app(aio_app, port=8000)
+    run_ws()
 
     print("running ws!")
 

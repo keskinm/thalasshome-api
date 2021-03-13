@@ -27,8 +27,15 @@ function makeSortable(id, socket) {
 
 const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 
+// let local_mode = false;
+// if (local_mode == true) {
+//     const socket = io.connect('http://localhost:8080/');
+// }
+// else{
+//     const socket = io.connect('http://websocket-dot-employees-dashboard-307021.ew.r.appspot.com:8080/');
+//     }
 
-const socket = io.connect('http://127.0.0.1:8080/');
+const socket = io.connect('http://websocket-dot-employees-dashboard-307021.ew.r.appspot.com:8080/');
 socket.on('update', function(msg) {
 
     const it = msg;

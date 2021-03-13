@@ -161,9 +161,12 @@ class Namespace(socketio.AsyncNamespace):
 
         await self.sio.emit('update', data=cards, to=sid)
 
+async def index(request):
+    return aiohttp.web.Response(text="Welcome home!")
 
-def my_web_app():
+async def my_web_app():
     aio_app = aiohttp.web.Application()
+    aio_app.router.add_get('/', index)
 
     sio = socketio.AsyncServer(cors_allowed_origins='*')
     sio.register_namespace(Namespace(sio))
@@ -175,4 +178,4 @@ def my_web_app():
 
 # my_web_app()
 
-entry_command = 'gunicorn -b 127.0.0.1:8080 ws:my_web_app'
+entry_command = 'gunicorn -b 127.0.0.1:8080 ws:my_web_app --worker-class aiohttp.GunicornWebWorker'

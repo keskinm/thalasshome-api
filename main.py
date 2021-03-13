@@ -145,20 +145,7 @@ def handle_order_creation_webhook():
 
     handler = CreationOrderHandler()
 
-    order = None
-
-    try:
-        order = handler.parse_data(json.loads(data.decode("utf-8")))
-        print("succeed in 1")
-    except:
-        print("fail in 1")
-
-    try:
-        order = handler.parse_data(data)
-        print("succeed in 2")
-    except:
-        print("fail in 2")
-
+    order = handler.parse_data(json.loads(data.decode("utf-8")))
     handler.insert_received_webhook_to_datastore(order)
 
     #  update currently connected clients

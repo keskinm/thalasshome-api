@@ -156,5 +156,5 @@ if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
 
 
-entry_command = 'gunicorn -b 127.0.0.1:5000 main:app'
+entry_command = 'gunicorn -b 0.0.0.0:5000 main:app'
 

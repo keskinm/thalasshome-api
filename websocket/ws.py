@@ -178,4 +178,4 @@ async def my_web_app():
 
 # my_web_app()
 
-entry_command = 'gunicorn -b 127.0.0.1:8080 ws:my_web_app --worker-class aiohttp.GunicornWebWorker'
+entry_command = 'gunicorn -b 0.0.0.0:8080 ws:my_web_app --worker-class aiohttp.GunicornWebWorker'

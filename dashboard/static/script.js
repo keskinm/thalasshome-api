@@ -35,7 +35,7 @@ const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 //     const socket = io.connect('http://websocket-dot-employees-dashboard-307021.ew.r.appspot.com:8080/');
 //     }
 
-const socket = io.connect('http://127.0.0.1:8080/');
+const socket = io.connect('http://0.0.0.0:8080/');
 socket.on('update', function(msg) {
 
     const it = msg;

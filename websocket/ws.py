@@ -171,6 +171,8 @@ def my_web_app():
 
     aiohttp.web.run_app(aio_app, port=8000)
 
-    # return aiohttp
+    return aiohttp
 
 my_web_app()
+
+entry_command = 'gunicorn -b :8080 ws:aiohttp'

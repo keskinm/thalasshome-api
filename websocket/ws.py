@@ -2,7 +2,7 @@ import aiohttp
 import socketio
 from google.cloud import datastore
 
-from main import get_cards
+from dashboard.main import get_cards
 
 
 class Namespace(socketio.AsyncNamespace):

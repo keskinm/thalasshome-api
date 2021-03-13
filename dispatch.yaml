@@ -1,0 +1,6 @@
+dispatch:
+  - url: "*/dashboard"
+    service: dashboard
+
+  - url: "*/websocket"
+    service: websocket

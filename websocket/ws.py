@@ -169,10 +169,10 @@ def my_web_app():
     sio.register_namespace(Namespace(sio))
     sio.attach(aio_app)
 
-    aiohttp.web.run_app(aio_app, port=8000)
+    # aiohttp.web.run_app(aio_app, port=8000)
 
-    return aiohttp
+    return aio_app
 
-my_web_app()
+# my_web_app()
 
-entry_command = 'gunicorn -b :8080 ws:aiohttp'
+entry_command = 'gunicorn -b 127.0.0.1:8080 ws:my_web_app'

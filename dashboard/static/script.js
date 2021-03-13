@@ -28,7 +28,7 @@ function makeSortable(id, socket) {
 const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 
 
-const socket = io.connect('http://' + document.domain + ':8000/');
+const socket = io.connect('http://127.0.0.1:8080/');
 socket.on('update', function(msg) {
 
     const it = msg;

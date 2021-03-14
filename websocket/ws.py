@@ -164,12 +164,9 @@ class Namespace(socketio.AsyncNamespace):
 
 from sanic import Sanic
 from sanic.response import redirect
-from sanic_sslify import SSLify
+from sanic import response
 
 
-
-
-app = Sanic(name='my_web_app')
 
 
 def redirect_to_ssl(request):
@@ -209,6 +206,12 @@ def set_https_redirections():
 
 
 # set_https_redirections()
+
+
+app = Sanic(name='my_web_app')
+@app.route("/hello")
+async def index(request):
+    return response.html("<h1>Hello World</h1>")
 
 sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='sanic')
 sio.register_namespace(Namespace(sio))

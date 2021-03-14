@@ -7,4 +7,4 @@ else
     echo ""
 fi
 
-zip -r ../th.zip . -x '*/venv/*'
+zip -r ../th.zip .. -x '*/venv/*'

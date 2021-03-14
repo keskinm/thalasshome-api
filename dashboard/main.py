@@ -2,7 +2,6 @@ import random
 
 from flask import Flask, render_template, request
 from flask_cors import CORS
-import os
 import json
 import hmac
 import hashlib
@@ -11,14 +10,10 @@ import socketio
 
 from google.cloud import datastore
 
-from lib.handler.creation_order.creation_order import CreationOrderHandler
-from utils.maps.maps import zip_codes_to_locations, employees_to_location
+from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
+from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location
 
-print("\n\n\n\n----------------GOOOOOOOOOOO----------------------------------\n\n\n\n")
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f"{os.getenv('HOME')}/.config/gcloud/legacy_credentials/spa.detente.france@gmail.com/adc.json"
-os.environ["GCLOUD_PROJECT"] = "employees-dashboard-307021"
-
+print("\n\n\n\n-------------------------GO !---------------------------\n\n\n\n")
 
 app = Flask(__name__)
 
@@ -153,9 +148,13 @@ def handle_order_creation_webhook():
     #  update currently connected clients
 
     sio = socketio.Client()
-    sio.connect('http://localhost:8000')
+    sio.connect('https://35.242.159.190:1337/')
     sio.emit('trigger_update', {'key': 'update'})
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=8000, debug=True)
+
+
+entry_command = 'gunicorn -b 0.0.0.0:8000 dashboard.main:app'
+

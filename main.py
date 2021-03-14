@@ -14,9 +14,11 @@ from google.cloud import datastore
 from lib.handler.creation_order.creation_order import CreationOrderHandler
 from utils.maps.maps import zip_codes_to_locations, employees_to_location
 
-print(os.getcwd())
-print("\n\n\n\n---------------------------------------------------------------\n\n\n\n")
-print("GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+print("\n\n\n\n----------------GOOOOOOOOOOO----------------------------------\n\n\n\n")
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f"{os.getenv('HOME')}/.config/gcloud/legacy_credentials/spa.detente.france@gmail.com/adc.json"
+os.environ["GCLOUD_PROJECT"] = "employees-dashboard-307021"
+
 
 app = Flask(__name__)
 

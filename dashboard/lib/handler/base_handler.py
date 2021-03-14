@@ -1,4 +1,4 @@
-from lib.parser.base_parser import BaseParser
+from dashboard.lib.parser.base_parser import BaseParser
 
 
 class BaseHandler(BaseParser):

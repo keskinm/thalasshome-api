@@ -10,8 +10,8 @@ import socketio
 
 from google.cloud import datastore
 
-from lib.handler.creation_order.creation_order import CreationOrderHandler
-from utils.maps.maps import zip_codes_to_locations, employees_to_location
+from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
+from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location
 
 print("\n\n\n\n-------------------------GO !---------------------------\n\n\n\n")
 
@@ -156,5 +156,5 @@ if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)
 
 
-entry_command = 'gunicorn -b 0.0.0.0:8000 main:app'
+entry_command = 'gunicorn -b 0.0.0.0:8000 dashboard.main:app'
 

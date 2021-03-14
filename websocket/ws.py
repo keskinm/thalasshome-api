@@ -227,5 +227,8 @@ sio.attach(app)
 
 app.config['CORS_SUPPORTS_CREDENTIALS'] = True
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000)
+
 
 entry_command = 'gunicorn -b 0.0.0.0:8080 ws:app --worker-class sanic.worker.GunicornWorker'

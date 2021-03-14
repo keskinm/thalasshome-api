@@ -153,8 +153,8 @@ def handle_order_creation_webhook():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=8000, debug=True)
 
 
-entry_command = 'gunicorn -b 0.0.0.0:5000 main:app'
+entry_command = 'gunicorn -b 0.0.0.0:8000 main:app'
 

@@ -209,9 +209,11 @@ def set_https_redirections():
 
 
 app = Sanic(name='my_web_app')
-@app.route("/hello")
+
 async def index(request):
     return response.html("<h1>Hello World</h1>")
+
+app.add_route(index, "/hello")
 
 sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='sanic')
 sio.register_namespace(Namespace(sio))

@@ -163,12 +163,58 @@ class Namespace(socketio.AsyncNamespace):
 
 
 from sanic import Sanic
+from sanic.response import redirect
+from sanic_sslify import SSLify
+
+
+
 
 app = Sanic(name='my_web_app')
+
+
+def redirect_to_ssl(request):
+    attributes = [attr for attr in dir(request)
+                  if not attr.startswith('__')]
+    print("ICI", attributes, '\n\n\n')
+
+    # request.headers['Access-Control-Allow-Origin'] = '*'
+    print("HEADER", request.headers, '\n\n')
+    print("URL", request.url, '\n\n')
+
+    # Should we redirect?
+    criteria = [
+        request.scheme == 'https',
+        request.headers.get('X-Forwarded-Proto', 'http') == 'https'
+    ]
+
+    if not any(criteria):
+        if request.url.startswith('http://'):
+            url = request.url.replace('http://', 'https://', 1)
+            status = 302
+            r = redirect(url, status=status)
+            return r
+
+
+def set_hsts_header(request, response):
+    """Adds HSTS header to each response."""
+    # Should we add STS header?
+    response.headers.setdefault('Strict-Transport-Security', 'max-age={0}'.format(31536000))
+    # response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+
+def set_https_redirections():
+    app.request_middleware.append(redirect_to_ssl)
+    app.response_middleware.append(set_hsts_header)
+
+
+# set_https_redirections()
 
 sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='sanic')
 sio.register_namespace(Namespace(sio))
 sio.attach(app)
 
 app.config['CORS_SUPPORTS_CREDENTIALS'] = True
+
+
 entry_command = 'gunicorn -b 0.0.0.0:8080 ws:app --worker-class sanic.worker.GunicornWorker'

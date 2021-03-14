@@ -1,4 +1,15 @@
 service: dashboard
-runtime: python39
+runtime: python
 entrypoint: gunicorn -b :8080 main:app
 
+runtime_config:
+  python_version: 3
+
+env: flex
+manual_scaling:
+  instances: 1
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10
+threadsafe: yes

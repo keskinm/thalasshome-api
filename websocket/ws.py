@@ -114,13 +114,16 @@ class Namespace(socketio.AsyncNamespace):
         self.sio = sio
 
     async def on_connect(self, sid, *_):
+        print("\n ----ON CONECT------ \n")
         self.connected[sid] = 'all'
 
     async def on_disconnect(self, sid, *_):
+        print("\n ----ON DISCONECT------ \n")
         if sid in self.connected:
             self.connected.pop(sid)
 
     async def on_category(self, sid, data):
+        print("\n ----ON CATEGORY------ \n")
         query = self.client.query(kind="orders")
         query.add_filter("__key__", "=", self.client.key('orders', int(data['item'])))
         all_keys = query.fetch()
@@ -136,6 +139,7 @@ class Namespace(socketio.AsyncNamespace):
         await self.broadcast_update(sid)
 
     async def broadcast_update(self, x_sid=None):
+        print("\n ----BROADCASTING------ \n")
         cards_z = {'all': get_cards()}  # buffer
 
         for sid, zone in self.connected.items():
@@ -148,6 +152,7 @@ class Namespace(socketio.AsyncNamespace):
             await self.sio.emit('update', data=cards_z[zone], to=sid)
 
     async def on_trigger_update(self, sid, data):
+        print("\n ----ON TRIGGER UPDATE------ \n")
         if data['key'] != 'update':
             return
 
@@ -156,6 +161,7 @@ class Namespace(socketio.AsyncNamespace):
         await self.broadcast_update(sid)
 
     async def on_ask_zone(self, sid, data):
+        print("\n ----ON ASK ZONES------ \n")
         cards = get_cards(data['zone'])
         self.connected[sid] = data['zone']
 

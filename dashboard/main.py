@@ -148,7 +148,7 @@ def handle_order_creation_webhook():
     #  update currently connected clients
 
     sio = socketio.Client()
-    sio.connect('//localhost:8000')
+    sio.connect('https://35.242.159.190:1337/')
     sio.emit('trigger_update', {'key': 'update'})
 
 

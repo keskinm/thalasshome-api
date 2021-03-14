@@ -27,7 +27,7 @@ function makeSortable(id, socket) {
 
 const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 
-const socket = io.connect('http://35.242.159.190:1337/');
+const socket = io.connect('https://35.242.159.190:1337/');
 
 socket.on('update', function(msg) {
 

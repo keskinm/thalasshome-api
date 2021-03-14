@@ -54,7 +54,9 @@ socket.on('update', function(msg) {
                 ${ cur_item.address } <br />\
                 Employé: ${ cur_item.def_empl } <br />\
                 Remplacant: ${ cur_item.rep_empl } <br />\
-                Objets: ${ cur_item.shipped }\
+                Objets: ${ cur_item.shipped } <br />\ 
+                Du: {{ item.start_time }} <br />\
+                Au: {{ item.end_time }}\
                 <p hidden>${ cur_item.ent_id }</p>\
             </li>`
         }

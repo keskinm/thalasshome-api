@@ -97,14 +97,22 @@ def get_cards(zone=None):
         else:
             ship += "Aucun"
 
+
+        start_time = item['properties'][0]['value']+'--'+item['properties'][1]['value'] if 'properties' in item else ''
+        end_time = item['properties'][2]['value']+'--'+item['properties'][3]['value'] if 'properties' in item else ''
+
         res.setdefault(status, [])
         res[status].append({
             'address': adr,
             'def_empl': empl,
             'rep_empl': replace,
             'shipped': ship,
-            'ent_id': item.id
+            'ent_id': item.id,
+            'start_time': start_time,
+            'end_time': end_time
         })
+
+    res
     return res
 
 

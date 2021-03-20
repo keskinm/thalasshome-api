@@ -87,19 +87,17 @@ def get_cards(zone=None):
             continue
 
         ship = ""
+
         if 'line_items' in item:
             d_items = item['line_items']
             for d_i in d_items:
                 ship += d_i['name'] + " "
                 prop = {p['name']: p['value'] for p in d_i['properties']}
-                ship += ' '.join([prop['From'], prop['start-time'], prop['To'], prop['finish-time']])
+                ship += ' '.join(['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]).replace("\\", "")
                 ship += " "
+
         else:
             ship += "Aucun"
-
-
-        start_time = item['properties'][0]['value']+'--'+item['properties'][1]['value'] if 'properties' in item else ''
-        end_time = item['properties'][2]['value']+'--'+item['properties'][3]['value'] if 'properties' in item else ''
 
         res.setdefault(status, [])
         res[status].append({
@@ -108,11 +106,8 @@ def get_cards(zone=None):
             'rep_empl': replace,
             'shipped': ship,
             'ent_id': item.id,
-            'start_time': start_time,
-            'end_time': end_time
         })
 
-    res
     return res
 
 
@@ -142,6 +137,7 @@ def verify_webhook(data, hmac_header):
     return verified
 
 
+#  @todo debug why not working on compute engine mode (works only with google app)
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
     data = request.get_data()
@@ -155,9 +151,9 @@ def handle_order_creation_webhook():
 
     #  update currently connected clients
 
-    sio = socketio.Client()
-    sio.connect('https://35.242.159.190:1337/')
-    sio.emit('trigger_update', {'key': 'update'})
+    # sio = socketio.Client()
+    # sio.connect('https://35.242.159.190:1337/')
+    # sio.emit('trigger_update', {'key': 'update'})
 
 
 if __name__ == '__main__':

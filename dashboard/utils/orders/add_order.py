@@ -14,22 +14,81 @@ order = {
     "subtotal_price": "80.00",
     "title": "4 places 1 nuit",
     "quantity": 1,
-    "properties": [
+
+    "line_items": [
         {
-            "name": "From",
-            "value": "03\/19\/2021"
-        },
-        {
-            "name": "start-time",
-            "value": "07:00"
-        },
-        {
-            "name": "To",
-            "value": "03\/20\/2021"
-        },
-        {
-            "name": "finish-time",
-            "value": "07:00"
+            "id": 9632848117943,
+            "variant_id": 39329036861623,
+            "title": "4 places 1 nuit",
+            "quantity": 1,
+            "sku": "0",
+            "variant_title": "",
+            "vendor": "spa-detente",
+            "fulfillment_service": "manual",
+            "product_id": 6280065515703,
+            "requires_shipping": True,
+            "taxable": True,
+            "gift_card": False,
+            "name": "4 places 1 nuit",
+            "variant_inventory_management": None,
+            "properties": [
+                {
+                    "name": "From",
+                    "value": "03\/19\/2021"
+                },
+                {
+                    "name": "start-time",
+                    "value": "07:00"
+                },
+                {
+                    "name": "To",
+                    "value": "03\/20\/2021"
+                },
+                {
+                    "name": "finish-time",
+                    "value": "07:00"
+                }
+            ],
+            "product_exists": True,
+            "fulfillable_quantity": 1,
+            "grams": 0,
+            "price": "80.00",
+            "total_discount": "0.00",
+            "fulfillment_status": None,
+            "price_set": {
+                "shop_money": {
+                    "amount": "80.00",
+                    "currency_code": "EUR"
+                },
+                "presentment_money": {
+                    "amount": "80.00",
+                    "currency_code": "EUR"
+                }
+            },
+            "total_discount_set": {
+                "shop_money": {
+                    "amount": "0.00",
+                    "currency_code": "EUR"
+                },
+                "presentment_money": {
+                    "amount": "0.00",
+                    "currency_code": "EUR"
+                }
+            },
+            "discount_allocations": [],
+            "duties": [],
+            "admin_graphql_api_id": "gid:\/\/shopify\/LineItem\/9632848117943",
+            "tax_lines": [],
+            "origin_location": {
+                "id": 2809464455351,
+                "country_code": "FR",
+                "province_code": "",
+                "name": "Thalass Home",
+                "address1": "102 Rue d'Estienne d'Orves",
+                "address2": "",
+                "city": "Verrières-le-Buisson",
+                "zip": "91370"
+            }
         }
     ],
 

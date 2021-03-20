@@ -28,6 +28,7 @@ function makeSortable(id, socket) {
 const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 
 const socket = io.connect('ws://35.242.159.190:1337/');
+// const socket = io.connect('http://0.0.0.0:1337/');
 
 socket.on('update', function(msg) {
 
@@ -54,9 +55,7 @@ socket.on('update', function(msg) {
                 ${ cur_item.address } <br />\
                 Employé: ${ cur_item.def_empl } <br />\
                 Remplacant: ${ cur_item.rep_empl } <br />\
-                Objets: ${ cur_item.shipped } <br />\ 
-                Du: {{ item.start_time }} <br />\
-                Au: {{ item.end_time }}\
+                Objets: ${ cur_item.shipped } \
                 <p hidden>${ cur_item.ent_id }</p>\
             </li>`
         }

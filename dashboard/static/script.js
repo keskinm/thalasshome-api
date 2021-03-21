@@ -25,10 +25,6 @@ function select_repl(select, item_id)
 function removeCards(list_id) {
     {
 
-    function l (ev) {
-        console.log('ici', ev)
-    }
-
     socket.emit('remove_cards', {
         list_id: list_id
     });

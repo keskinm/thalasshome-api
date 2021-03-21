@@ -5,6 +5,7 @@ datastore_client = datastore.Client()
 
 order = {
     "id": 3662977106103,
+    "status": "canceled",
     "email": "mouss42490@gmail.com",
     "created_at": "2021-03-09T18:45:08+01:00",
     "updated_at": "2021-03-09T18:45:09+01:00",

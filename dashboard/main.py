@@ -1,4 +1,5 @@
 import random
+import os
 
 from flask import Flask, render_template, request
 from flask_cors import CORS
@@ -114,6 +115,10 @@ def get_cards(zone=None):
 @app.route('/')
 def root():
     res = get_cards()
+    env_variables = {k: os.getenv(k) for k in ['ws_address']}
+
+    res = {**res, **env_variables}
+
     return render_template('index.html', **res)
 
 
@@ -152,7 +157,7 @@ def handle_order_creation_webhook():
     #  update currently connected clients
 
     # sio = socketio.Client()
-    # sio.connect('https://35.242.159.190:1337/')
+    # sio.connect(f'https://{os.getenv("ws_address")}/')
     # sio.emit('trigger_update', {'key': 'update'})
 
 

@@ -13,7 +13,9 @@
 
 <html>
 
-{% include 'head.html' %}
+{% with ws_address=ws_address %}
+    {% include 'head.html' %}
+{% endwith %}
 
 <body>
 

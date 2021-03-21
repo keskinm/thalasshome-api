@@ -1,3 +1,5 @@
+var ws_address = document.getElementsByName('ws_address')[0].content;
+const socket = io.connect('ws://' + ws_address + '/');
 
 function makeSortable(id, socket) {
 
@@ -27,8 +29,6 @@ function makeSortable(id, socket) {
 
 const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 
-const socket = io.connect('ws://35.242.159.190:1337/');
-// const socket = io.connect('http://0.0.0.0:1337/');
 
 socket.on('update', function(msg) {
 

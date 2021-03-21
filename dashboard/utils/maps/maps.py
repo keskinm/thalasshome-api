@@ -11,7 +11,8 @@ employees_to_location = {
 
     'loire': ['mustafa_keskin', 'romain_tabard', 'elyes_lami'],
     'ile_de_france': ['mehdi_lami'],
-    'pays_de_gex': ['mustafa_genevois']
+    'pays_de_gex': ['mustafa_genevois'],
+    'vide': ['Aucun']
 }
 
 

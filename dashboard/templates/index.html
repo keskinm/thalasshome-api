@@ -1,9 +1,19 @@
+{% macro get_repls(item) %}
+    <select id="select_repl">
+        <option value="{{ item.rep_empl }}" selected> {{ item.rep_empl }} </option>
+        {% for employee in employees %}
+            <option value="{{ employee }}"> {{ employee }} </option>
+        {% endfor %}
+        <option value="test"> test </option>
+    </select>
+{%  endmacro %}
+
 
 {% macro display_item(item) %}
     <li>
         {{ item.address }} <br />
         Employé: {{ item.def_empl }} <br />
-        Remplacant: {{ item.rep_empl }} <br />
+        Remplacant: {{ get_repls(item) }} <br />
         Objets: {{ item.shipped }}
         <p hidden>{{ item.ent_id }}</p>
     </li>

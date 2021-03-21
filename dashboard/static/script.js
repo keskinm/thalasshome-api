@@ -146,34 +146,18 @@ socket.on('ask_zone_client', function(msg) {
 
 socket.on('remove_cards_client', function(msg) {
 
-    // const it = msg;
-    //
-    // const i_list = it['cards'][it['list_id']];
-    // const cont = document.getElementById(it['list_id']);
-    //
-    // /*while (cont.firstChild)
-    //     cont.removeChild(cont.lastChild);*/
-    //
-    // // if (i_list === undefined) {
-    // //     cont.innerHTML = "";
-    // //     continue;
-    // // }
-    //
-    // let new_content = "";
-    //
-    // for (let j = 0; j < i_list.length; j++) {
-    //     const cur_item = i_list[j];
-    //
-    //     new_content += `<li>\
-    //         ${ cur_item.address } <br />\
-    //         Employé: ${ cur_item.def_empl } <br />\
-    //         Remplacant: ${ cur_item.rep_empl } <br />\
-    //         Objets: ${ cur_item.shipped } \
-    //         <p hidden>${ cur_item.ent_id }</p>\
-    //     </li>`
-    // }
-    //
-    // cont.innerHTML = new_content;
+    const it = msg;
+
+    const a = it['cards'];
+    const b = it['list_id'];
+
+    const i_list = it['cards'][it['list_id']];
+
+    console.log('a', a);
+    console.log('b', b);
+    console.log('i_list', i_list);
 
 
+    const cont = document.getElementById(it['list_id']);
+    cont.innerHTML = "";
 });

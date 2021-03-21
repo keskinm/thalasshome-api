@@ -66,6 +66,24 @@ class Namespace(socketio.AsyncNamespace):
 
         await self.sio.emit('update', data=cards, to=sid)
 
+    async def on_remove_card(self, sid, data):
+        print("\n ----ON REMOVE CARDS------ \n")
+        pass
+
+    async def on_remove_cards(self, sid, data):
+        list_id = data['list_id']
+        print("\n ----ON REMOVE CARDS------ \n")
+
+        query = self.client.query(kind="orders")
+        query.add_filter("status", "=", list_id)
+        orders = query.fetch()
+
+        for order in orders:
+            self.client.delete(order.key)
+
+        # self.connected[sid] = data['zone']
+        # await self.sio.emit('update', data=cards, to=sid)
+
 
 from sanic import Sanic
 from sanic.response import redirect

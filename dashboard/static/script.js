@@ -1,5 +1,21 @@
+const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
+
 var ws_address = document.getElementsByName('ws_address')[0].content;
 const socket = io.connect('ws://' + ws_address + '/');
+
+
+function removeCards(list_id) {
+    {
+
+    function l (ev) {
+        console.log('ici', ev)
+    }
+
+    socket.emit('remove_cards', {
+        list_id: list_id
+    });
+}
+}
 
 function makeSortable(id, socket) {
 
@@ -8,6 +24,7 @@ function makeSortable(id, socket) {
         animation: 150,
         group: 'lists',
         onAdd: function (ev) {
+            console.log('on_add', ev);
             const cld = ev.item.childNodes;
             let item_id = undefined;
 
@@ -22,12 +39,46 @@ function makeSortable(id, socket) {
                 item: item_id,
                 category: ev.to.id
             });
-        }
+        },
+
+        // onRemove: function (ev) {
+        //     console.log('on_remove', ev);
+        //     if (ev.to.id=='canceled') {
+        //         console.log('in if statement', ev);
+        //         const cld = ev.item.childNodes;
+        //         let item_id = undefined;
+        //
+        //         for (let i = 0; i < cld.length; i++) {
+        //             if (cld[i].localName === "p") {
+        //                 item_id = cld[i].textContent;
+        //                 break;
+        //             }
+        //         }
+        //
+        //         socket.emit('remove_card', {
+        //             item: item_id,
+        //             category: ev.to.id
+        //     });
+        //
+        //     }
+        // }
+
     });
 
 }
 
-const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
+function selectOnly(zone) {
+    socket.emit('ask_zone', {
+        zone: zone
+    })
+}
+
+$(function (){
+
+    for (let i = 0; i < cat.length; i++)
+        makeSortable(cat[i], socket);
+
+});
 
 
 socket.on('update', function(msg) {
@@ -62,18 +113,5 @@ socket.on('update', function(msg) {
 
         cont.innerHTML = new_content;
     }
-
-});
-
-function selectOnly(zone) {
-    socket.emit('ask_zone', {
-        zone: zone
-    })
-}
-
-$(function (){
-
-    for (let i = 0; i < cat.length; i++)
-        makeSortable(cat[i], socket);
 
 });

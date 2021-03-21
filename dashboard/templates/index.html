@@ -88,6 +88,8 @@
 
 		<h3 class="list-title">Commandes annulées</h3>
 
+        <button class="flush-canceled" onclick="removeCards('canceled')">Vider la liste</button>
+
 		<ul class="list-items" id="canceled">
             {% for item in canceled %}
                 {{ display_item(item) }}

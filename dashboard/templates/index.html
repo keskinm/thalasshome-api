@@ -8,7 +8,7 @@
 
 
 {% macro get_repls(item) %}
-    <select onchange=select_repl(this)>
+    <select onchange="select_repl(this, {{ item.ent_id }})">
         <option value="{{ item.rep_empl }}" selected> {{ item.rep_empl }} </option>
         {% for employee in employees %}
             <option value="{{ employee }}"> {{ employee }} </option>

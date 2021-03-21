@@ -4,7 +4,7 @@ var ws_address = document.getElementsByName('ws_address')[0].content;
 const socket = io.connect('ws://' + ws_address + '/');
 
 
-function select_repl(select)
+function select_repl(select, item_id)
     {
      let select_label = undefined;
 
@@ -16,10 +16,9 @@ function select_repl(select)
     }
 
      socket.emit('select_repl', {
-        select_label: select_label
+        select_label: select_label,
+        item_id: item_id,
     });
-
-    console.log('emited', select_label)
 
     }
 

@@ -50,14 +50,14 @@ class Namespace(socketio.AsyncNamespace):
 
             await self.sio.emit('update', data=cards_z[zone], to=sid)
 
-    async def on_trigger_update(self, sid, data):
-        print("\n ----ON TRIGGER UPDATE------ \n")
-        if data['key'] != 'update':
-            return
-
-        print('TRIGGER UPDATE')
-
-        await self.broadcast_update(sid)
+    # async def on_trigger_update(self, sid, data):
+    #     print("\n ----ON TRIGGER UPDATE------ \n")
+    #     if data['key'] != 'update':
+    #         return
+    #
+    #     print('TRIGGER UPDATE')
+    #
+    #     await self.broadcast_update(sid)
 
     async def on_ask_zone(self, sid, data):
         print("\n ----ON ASK ZONES------ \n")
@@ -87,7 +87,19 @@ class Namespace(socketio.AsyncNamespace):
     async def on_select_repl(self, sid, data):
         print("\n ----ON SELECT REPL------ \n")
         select_label = data['select_label']
+        item_id = data['item_id']
+
         print("select_label", select_label)
+
+        query = self.client.query(kind="orders")
+        query.add_filter("__key__", "=", self.client.key('orders', int(item_id)))
+        orders = query.fetch()
+
+        for order in orders:
+            order['replace'] = select_label
+            self.client.put(order)
+
+        # await self.sio.emit('update', )
 
 
 from sanic import Sanic

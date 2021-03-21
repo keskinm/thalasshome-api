@@ -23,17 +23,20 @@ class Namespace(socketio.AsyncNamespace):
 
     async def on_category(self, sid, data):
         print("\n ----ON CATEGORY------ \n")
+        item_id = int(data['item'])
         query = self.client.query(kind="orders")
-        query.add_filter("__key__", "=", self.client.key('orders', int(data['item'])))
-        all_keys = query.fetch()
+        query.add_filter("__key__", "=", self.client.key('orders', item_id))
+        orders = query.fetch()
 
-        for i in all_keys:
-            i['status'] = data['category']
+        for order in orders:
+            order['status'] = data['category']
 
-            if i['status'] not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled']:
+            if order['status'] not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled']:
+                print(f"{order['status']} not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'], "
+                      f"continuing")
                 continue
 
-            self.client.put(i)
+            self.client.put(order)
 
         await self.broadcast_update(sid)
 
@@ -81,8 +84,8 @@ class Namespace(socketio.AsyncNamespace):
         for order in orders:
             self.client.delete(order.key)
 
-        # self.connected[sid] = data['zone']
-        # await self.sio.emit('update', data=cards, to=sid)
+        # no need broadcast here?
+        # await self.broadcast_update(sid)
 
     async def on_select_repl(self, sid, data):
         print("\n ----ON SELECT REPL------ \n")
@@ -99,7 +102,8 @@ class Namespace(socketio.AsyncNamespace):
             order['replace'] = select_label
             self.client.put(order)
 
-        # await self.sio.emit('update', )
+        # no need broadcast here?
+        # await self.broadcast_update(sid)
 
 
 from sanic import Sanic

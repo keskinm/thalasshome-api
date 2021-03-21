@@ -84,6 +84,11 @@ class Namespace(socketio.AsyncNamespace):
         # self.connected[sid] = data['zone']
         # await self.sio.emit('update', data=cards, to=sid)
 
+    async def on_select_repl(self, sid, data):
+        print("\n ----ON SELECT REPL------ \n")
+        select_label = data['select_label']
+        print("select_label", select_label)
+
 
 from sanic import Sanic
 from sanic.response import redirect

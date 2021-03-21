@@ -4,6 +4,25 @@ var ws_address = document.getElementsByName('ws_address')[0].content;
 const socket = io.connect('ws://' + ws_address + '/');
 
 
+function select_repl(select)
+    {
+     let select_label = undefined;
+
+     for (let i = 0; i < select.length; i++) {
+         if (select[i].selected === true) {
+             select_label = select[i].label;
+             break;
+         }
+    }
+
+     socket.emit('select_repl', {
+        select_label: select_label
+    });
+
+    console.log('emited', select_label)
+
+    }
+
 function removeCards(list_id) {
     {
 

@@ -1,5 +1,14 @@
+<!DOCTYPE html>
+
+<html>
+
+{% with ws_address=ws_address %}
+    {% include 'head.html' %}
+{% endwith %}
+
+
 {% macro get_repls(item) %}
-    <select id="select_repl">
+    <select onchange=select_repl(this)>
         <option value="{{ item.rep_empl }}" selected> {{ item.rep_empl }} </option>
         {% for employee in employees %}
             <option value="{{ employee }}"> {{ employee }} </option>
@@ -19,13 +28,7 @@
     </li>
 {% endmacro %}
 
-<!DOCTYPE html>
 
-<html>
-
-{% with ws_address=ws_address %}
-    {% include 'head.html' %}
-{% endwith %}
 
 <body>
 

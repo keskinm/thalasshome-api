@@ -9,17 +9,13 @@ class Namespace(socketio.AsyncNamespace):
         super(Namespace, self).__init__(namespace='/')
 
         self.client = datastore.Client()
-        self.connected = {}
         self.sio = sio
 
     async def on_connect(self, sid, *_):
         print("\n ----ON CONECT------ \n")
-        self.connected[sid] = 'all'
 
     async def on_disconnect(self, sid, *_):
         print("\n ----ON DISCONECT------ \n")
-        if sid in self.connected:
-            self.connected.pop(sid)
 
     async def on_category(self, sid, data):
         print("\n ----ON CATEGORY------ \n")
@@ -38,21 +34,6 @@ class Namespace(socketio.AsyncNamespace):
 
             self.client.put(order)
 
-        await self.broadcast_update(sid)
-
-    async def broadcast_update(self, x_sid=None):
-        print("\n ----BROADCASTING------ \n")
-        cards_z = {'all': get_cards()}  # buffer
-
-        for sid, zone in self.connected.items():
-            if sid == x_sid:
-                continue
-
-            if zone not in cards_z:
-                cards_z[zone] = get_cards(zone)
-
-            await self.sio.emit('update', data=cards_z[zone], to=sid)
-
     # async def on_trigger_update(self, sid, data):
     #     print("\n ----ON TRIGGER UPDATE------ \n")
     #     if data['key'] != 'update':
@@ -65,7 +46,6 @@ class Namespace(socketio.AsyncNamespace):
     async def on_ask_zone(self, sid, data):
         print("\n ----ON ASK ZONES------ \n")
         cards = get_cards(data['zone'])
-        self.connected[sid] = data['zone']
 
         await self.sio.emit('update', data=cards, to=sid)
 
@@ -84,9 +64,6 @@ class Namespace(socketio.AsyncNamespace):
         for order in orders:
             self.client.delete(order.key)
 
-        # no need broadcast here?
-        # await self.broadcast_update(sid)
-
     async def on_select_repl(self, sid, data):
         print("\n ----ON SELECT REPL------ \n")
         select_label = data['select_label']
@@ -102,8 +79,6 @@ class Namespace(socketio.AsyncNamespace):
             order['replace'] = select_label
             self.client.put(order)
 
-        # no need broadcast here?
-        # await self.broadcast_update(sid)
 
 
 from sanic import Sanic

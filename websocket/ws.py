@@ -47,7 +47,7 @@ class Namespace(socketio.AsyncNamespace):
         print("\n ----ON ASK ZONES------ \n")
         cards = get_cards(data['zone'])
 
-        await self.sio.emit('update', data=cards, to=sid)
+        await self.sio.emit('ask_zone_client', data=cards, to=sid)
 
     async def on_remove_card(self, sid, data):
         print("\n ----ON REMOVE CARDS------ \n")

@@ -95,7 +95,7 @@ $(function (){
 });
 
 
-socket.on('update', function(msg) {
+socket.on('ask_zone_client', function(msg) {
 
     const it = msg;
 

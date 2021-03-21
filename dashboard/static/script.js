@@ -1,7 +1,14 @@
+// ----------------------------------- GLOBAL VARS -----------------------------------------------
+
+
 const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 
 var ws_address = document.getElementsByName('ws_address')[0].content;
 const socket = io.connect('ws://' + ws_address + '/');
+
+
+
+// ----------------------------------- EVENT FUNCTIONS -----------------------------------------------
 
 
 function select_repl(select, item_id)
@@ -30,6 +37,15 @@ function removeCards(list_id) {
     });
 }
 }
+
+
+function selectOnly(zone) {
+    socket.emit('ask_zone', {
+        zone: zone
+    })
+}
+
+// ----------------------------------- GENERAL -----------------------------------------------
 
 function makeSortable(id, socket) {
 
@@ -81,11 +97,6 @@ function makeSortable(id, socket) {
 
 }
 
-function selectOnly(zone) {
-    socket.emit('ask_zone', {
-        zone: zone
-    })
-}
 
 $(function (){
 
@@ -94,6 +105,8 @@ $(function (){
 
 });
 
+
+// ----------------------------------- SOCKET RESPONSES -----------------------------------------------
 
 socket.on('ask_zone_client', function(msg) {
 
@@ -127,5 +140,40 @@ socket.on('ask_zone_client', function(msg) {
 
         cont.innerHTML = new_content;
     }
+
+});
+
+
+socket.on('remove_cards_client', function(msg) {
+
+    // const it = msg;
+    //
+    // const i_list = it['cards'][it['list_id']];
+    // const cont = document.getElementById(it['list_id']);
+    //
+    // /*while (cont.firstChild)
+    //     cont.removeChild(cont.lastChild);*/
+    //
+    // // if (i_list === undefined) {
+    // //     cont.innerHTML = "";
+    // //     continue;
+    // // }
+    //
+    // let new_content = "";
+    //
+    // for (let j = 0; j < i_list.length; j++) {
+    //     const cur_item = i_list[j];
+    //
+    //     new_content += `<li>\
+    //         ${ cur_item.address } <br />\
+    //         Employé: ${ cur_item.def_empl } <br />\
+    //         Remplacant: ${ cur_item.rep_empl } <br />\
+    //         Objets: ${ cur_item.shipped } \
+    //         <p hidden>${ cur_item.ent_id }</p>\
+    //     </li>`
+    // }
+    //
+    // cont.innerHTML = new_content;
+
 
 });

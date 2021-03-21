@@ -64,6 +64,8 @@ class Namespace(socketio.AsyncNamespace):
         for order in orders:
             self.client.delete(order.key)
 
+        await self.sio.emit('remove_cards_client', data={'cards': get_cards(), 'list_id': list_id}, to=sid)
+
     async def on_select_repl(self, sid, data):
         print("\n ----ON SELECT REPL------ \n")
         select_label = data['select_label']

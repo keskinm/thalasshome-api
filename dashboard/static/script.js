@@ -39,9 +39,10 @@ function removeCards(list_id) {
 }
 
 
-function selectOnly(zone) {
+function selectOnly(zone, country) {
     socket.emit('ask_zone', {
-        zone: zone
+        zone: zone,
+        country: country
     })
 }
 

@@ -27,8 +27,8 @@ client = datastore.Client()
 # cors = CORS(app, resources={r"/trying/*": {"origins": "*"}})
 
 
-def find_zone(zip):
-    for zone, v in zip_codes_to_locations.items():
+def find_zone(zip, country):
+    for zone, v in zip_codes_to_locations[country].items():
         for z_prefix in v:
             if zip.startswith(z_prefix):
                 return zone
@@ -36,9 +36,10 @@ def find_zone(zip):
 
 
 def select_employee(item):
+    country = item['shipping_address']['country']
     zip = item['shipping_address']['zip']
     selected = 'None'
-    found_zone = find_zone(zip)
+    found_zone = find_zone(zip, country)
 
     if found_zone and found_zone in employees_to_location:
         possible_list = employees_to_location[found_zone]
@@ -50,11 +51,11 @@ def select_employee(item):
     return selected
 
 
-def check_zone(zone, zip):
-    if not zone:
+def check_zone(query_zone, query_country, zip):
+    if not query_zone or not query_country:
         return False
 
-    zips = zip_codes_to_locations[zone]
+    zips = zip_codes_to_locations[query_country][query_zone]
     for z in zips:
         if zip.startswith(z):
             return False
@@ -62,7 +63,7 @@ def check_zone(zone, zip):
     return True
 
 
-def get_cards(zone=None):
+def get_cards(query_zone=None, query_country=None):
     query = client.query(kind="orders")
     all_keys = query.fetch()
     res = {}
@@ -84,7 +85,7 @@ def get_cards(zone=None):
         adr_item = item['shipping_address']
         adr = ' '.join([adr_item['city'], adr_item['zip'], adr_item['address1'], adr_item['address2']])
 
-        if check_zone(zone, adr_item['zip']):
+        if check_zone(query_zone, query_country, adr_item['zip']):
             continue
 
         ship = ""

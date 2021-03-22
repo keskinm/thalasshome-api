@@ -117,8 +117,9 @@ for k, v in order.items():
     if k == "id":
         order1[k] = 3662977106105
     elif k == "shipping_address":
-        v["zip"] = "75000"
-        order1[k] = v
+        order1[k] = v.copy()
+        order1[k]["country"] = "Switzerland"
+        order1[k]["zip"] = "12500"
     else:
         order1[k] = v
 

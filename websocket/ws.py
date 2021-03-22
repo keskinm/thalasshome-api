@@ -45,7 +45,10 @@ class Namespace(socketio.AsyncNamespace):
 
     async def on_ask_zone(self, sid, data):
         print("\n ----ON ASK ZONES------ \n")
-        cards = get_cards(data['zone'])
+
+        ask_zone = data['zone']
+        ask_country = data['country']
+        cards = get_cards(ask_zone, ask_country)
 
         await self.sio.emit('ask_zone_client', data=cards, to=sid)
 

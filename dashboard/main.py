@@ -12,7 +12,7 @@ from dashboard.lib.patch.hooks import Hooks
 from google.cloud import datastore
 
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
-from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location
+from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location, employees
 
 print("\n\n\n\n-------------------------GO !---------------------------\n\n\n\n")
 
@@ -118,12 +118,9 @@ def root():
     res = get_cards()
     env_variables = {k: os.getenv(k) for k in ['ws_address']}
 
-    employees_values = []
-    for x in list(employees_to_location.values()):
-        employees_values += x
-    employees = {'employees': employees_values}
+    empl = {'employees': employees}
 
-    res = {**res, **env_variables, **employees}
+    res = {**res, **env_variables, **empl}
 
     return render_template('index.html', **res)
 

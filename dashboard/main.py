@@ -142,7 +142,7 @@ def verify_webhook(data, hmac_header):
     
     print("verified", verified)
     if not verified:
-        abort(401)
+        return 'fail verification of hook', 401
 
     return verified
 
@@ -150,6 +150,7 @@ def verify_webhook(data, hmac_header):
 #  @todo debug why not working on compute engine mode (works only with google app)
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
+    print("RECEIVED HOOK")
     data = request.get_data()
 
     # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
@@ -164,7 +165,7 @@ def handle_order_creation_webhook():
     # sio = socketio.Client()
     # sio.connect(f'https://{os.getenv("ws_address")}/')
     # sio.emit('trigger_update', {'key': 'update'})
-
+    return 'ok', 200
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)

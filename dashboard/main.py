@@ -153,6 +153,7 @@ def handle_order_creation_webhook():
     print("RECEIVED HOOK")
 
     data = request.get_data()
+    print("header:", request.headers)
 
     try:
         verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))

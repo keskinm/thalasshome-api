@@ -152,6 +152,7 @@ secure_hooks = Hooks()
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
     print("RECEIVED HOOK")
+    secure_hooks.flush()
 
     data = request.get_data()
     # print("header:", request.headers)

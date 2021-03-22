@@ -1,4 +1,4 @@
-
+foo = 'Switzerland', 'France'
 
 zip_codes_to_locations = {
     'ile_de_france': ['75', '77', '78', '95', '94', '93', '92', '91'],

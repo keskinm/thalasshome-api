@@ -7,8 +7,8 @@ import json
 import hmac
 import hashlib
 import base64
-import socketio
 
+from dashboard.lib.patch.hooks import Hooks
 from google.cloud import datastore
 
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
@@ -134,8 +134,8 @@ def empl():
 
 
 def verify_webhook(data, hmac_header):
-    SECRET = 'hush'
-    # SECRET = 'cc226b71cdbaea95db7f42e1d05503f92282097b4fa6409ce8063b81b8727b48'
+    # SECRET = 'hush'
+    SECRET = 'cc226b71cdbaea95db7f42e1d05503f92282097b4fa6409ce8063b81b8727b48'
     digest = hmac.new(SECRET, data.encode('utf-8'), hashlib.sha256).digest()
     computed_hmac = base64.b64encode(digest)
     verified = hmac.compare_digest(computed_hmac, hmac_header.encode('utf-8'))
@@ -147,13 +147,14 @@ def verify_webhook(data, hmac_header):
     # return verified
 
 
+secure_hooks = Hooks()
 #  @todo debug why not working on compute engine mode (works only with google app)
 @app.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
     print("RECEIVED HOOK")
 
     data = request.get_data()
-    print("header:", request.headers)
+    # print("header:", request.headers)
 
     try:
         verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
@@ -162,15 +163,22 @@ def handle_order_creation_webhook():
 
     handler = CreationOrderHandler()
 
-    order = handler.parse_data(json.loads(data.decode("utf-8")))
-    handler.insert_received_webhook_to_datastore(order)
+    if secure_hooks.check_request(request):
+        order = handler.parse_data(json.loads(data.decode("utf-8")))
+        handler.insert_received_webhook_to_datastore(order)
 
-    #  update currently connected clients
+        print("ok ;)")
 
-    # sio = socketio.Client()
-    # sio.connect(f'https://{os.getenv("ws_address")}/')
-    # sio.emit('trigger_update', {'key': 'update'})
-    return 'ok', 200
+        #  update currently connected clients
+
+        # sio = socketio.Client()
+        # sio.connect(f'https://{os.getenv("ws_address")}/')
+        # sio.emit('trigger_update', {'key': 'update'})
+        return 'ok', 200
+
+    else:
+        return 'you already sent me this hook!', 404
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)

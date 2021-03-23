@@ -19,10 +19,16 @@ CORS(app)
 app.add_url_rule('/', view_func=m.root)
 app.add_url_rule('/empl', view_func=m.empl)
 
-
-# @app.route('/order_creation_webhook', methods=['POST'])
+# @todo check the "post" is correctly passed with this way
 app.add_url_rule('/order_creation_webhook', view_func=m.handle_order_creation_webhook, methods=['POST'])
+app.add_url_rule('/logout', view_func=m.logout, methods=['POST', 'GET'])
+app.add_url_rule('/login', view_func=m.do_admin_login, methods=['POST'])
 
+
+import os
+
+# @todo used in the login tutorial, investigate what's the utility of this?
+app.secret_key = os.urandom(12)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)

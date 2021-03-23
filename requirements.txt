@@ -13,4 +13,6 @@ zope.event==4.5.0
 gunicorn==19.9.0
 sanic==20.12.2
 Sanic-Plugins-Framework==0.9.5
+Flask-SQLAlchemy==2.5.1
+SQLAlchemy==1.4.2
 

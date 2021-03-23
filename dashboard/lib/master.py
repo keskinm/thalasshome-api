@@ -5,7 +5,8 @@ import json
 import hmac
 import hashlib
 import base64
-from flask import render_template, request
+from flask import Flask, flash, redirect, render_template, request, session, abort
+
 
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
@@ -105,15 +106,41 @@ class Master:
 
         return res
 
+    def logout(self):
+        session['logged_in'] = False
+        return self.root()
+
     def root(self):
-        res = self.get_cards()
-        env_variables = {k: os.getenv(k) for k in ['ws_address']}
+        if not session.get('logged_in'):
+            print("0!")
+            return render_template('login.html')
+        else:
+            res = self.get_cards()
+            env_variables = {k: os.getenv(k) for k in ['ws_address']}
 
-        empl = {'employees': employees}
+            empl = {'employees': employees}
 
-        res = {**res, **env_variables, **empl}
+            res = {**res, **env_variables, **empl}
 
-        return render_template('index.html', **res)
+            print("1!")
+            return render_template('index.html', **res)
+
+    def do_admin_login(self):
+        from sqlalchemy.orm import sessionmaker
+        from dashboard.db.dummy import engine, User
+
+        POST_USERNAME = str(request.form['username'])
+        POST_PASSWORD = str(request.form['password'])
+
+        Session = sessionmaker(bind=engine)
+        s = Session()
+        query = s.query(User).filter(User.username.in_([POST_USERNAME]), User.password.in_([POST_PASSWORD]))
+        result = query.first()
+        if result:
+            session['logged_in'] = True
+        else:
+            flash('wrong password!')
+        return self.root()
 
     def empl(self):
         res = self.get_cards()

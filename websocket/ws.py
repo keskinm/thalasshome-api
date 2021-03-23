@@ -1,7 +1,7 @@
 from google.cloud import datastore
 import socketio
 
-from dashboard.main import get_cards
+from dashboard.lib.master import Master
 
 
 class Namespace(socketio.AsyncNamespace):
@@ -48,7 +48,7 @@ class Namespace(socketio.AsyncNamespace):
 
         ask_zone = data['zone']
         ask_country = data['country']
-        cards = get_cards(ask_zone, ask_country)
+        cards = Master().get_cards(ask_zone, ask_country)
 
         await self.sio.emit('ask_zone_client', data=cards, to=sid)
 
@@ -67,7 +67,7 @@ class Namespace(socketio.AsyncNamespace):
         for order in orders:
             self.client.delete(order.key)
 
-        await self.sio.emit('remove_cards_client', data={'cards': get_cards(), 'list_id': list_id}, to=sid)
+        await self.sio.emit('remove_cards_client', data={'cards': Master().get_cards(), 'list_id': list_id}, to=sid)
 
     async def on_select_repl(self, sid, data):
         print("\n ----ON SELECT REPL------ \n")
@@ -85,12 +85,9 @@ class Namespace(socketio.AsyncNamespace):
             self.client.put(order)
 
 
-
 from sanic import Sanic
 from sanic.response import redirect
 from sanic import response
-
-
 
 
 def redirect_to_ssl(request):

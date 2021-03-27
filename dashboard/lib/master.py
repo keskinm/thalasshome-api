@@ -86,11 +86,12 @@ class Master:
                 d_items = item['line_items']
                 for d_i in d_items:
                     ship += d_i['name'] + " "
-                    prop = {p['name']: p['value'] for p in d_i['properties']}
-                    ship += ' '.join(
-                        ['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]).replace("\\",
-                                                                                                                   "")
-                    ship += " "
+                    if d_i['properties']:
+                        prop = {p['name']: p['value'] for p in d_i['properties']}
+                        ship += ' '.join(
+                            ['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]).\
+                            replace("\\", "")
+                    ship += "| + |"
 
             else:
                 ship += "Aucun"

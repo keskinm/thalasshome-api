@@ -84,14 +84,14 @@ class Master:
 
             if 'line_items' in item:
                 d_items = item['line_items']
-                for d_i in d_items:
+                for start_separator, d_i in enumerate(d_items):
+                    ship += " --+-- " if start_separator else ''
                     ship += d_i['name'] + " "
                     if d_i['properties']:
                         prop = {p['name']: p['value'] for p in d_i['properties']}
                         ship += ' '.join(
                             ['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]).\
                             replace("\\", "")
-                    ship += "| + |"
 
             else:
                 ship += "Aucun"

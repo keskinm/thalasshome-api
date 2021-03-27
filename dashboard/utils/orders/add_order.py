@@ -2,7 +2,6 @@ from google.cloud import datastore
 
 datastore_client = datastore.Client()
 
-
 order = {
     "id": 3662977106103,
     "status": "canceled",
@@ -111,7 +110,6 @@ order = {
         "province_code": None}
 }
 
-
 order1 = {}
 for k, v in order.items():
     if k == "id":
@@ -123,7 +121,58 @@ for k, v in order.items():
     else:
         order1[k] = v
 
-orders = [order, order1]
+mixed_order = {'total_price': '105.00',
+               'id': '3704443175095',
+               'employee': 'None',
+               'created_at': '2021-03-27T14:34:30+01:00',
+               'email': 'mouss42490@gmail.com',
+               "status": "canceled",
+               'line_items': [
+                   {'gift_card': False, 'fulfillable_quantity': '1', 'discount_allocations': [], 'product_exists': True,
+                    'price_set': {'shop_money': {'currency_code': 'EUR', 'amount': '25.00'},
+                                  'presentment_money': {'currency_code': 'EUR', 'amount': '25.00'}}, 'price': '25.00',
+                    'variant_inventory_management': 'shopify', 'properties': [], 'fulfillment_service': 'manual',
+                    'fulfillment_status': None, 'sku': '', 'duties': [], 'id': '9719090053303',
+                    'total_discount': '0.00',
+                    'origin_location': {'id': '2809464455351', 'city': 'Verrières-le-Buisson',
+                                        'address1': "102 Rue d'Estienne d'Orves", 'zip': '91370', 'address2': '',
+                                        'name': 'Thalass Home', 'country_code': 'FR', 'province_code': ''},
+                    'requires_shipping': True, 'admin_graphql_api_id': 'gid://shopify/LineItem/9719090053303',
+                    'total_discount_set': {'shop_money': {'currency_code': 'EUR', 'amount': '0.00'},
+                                           'presentment_money': {'amount': '0.00', 'currency_code': 'EUR'}},
+                    'vendor': 'Espace Détente', 'product_id': '6280863678647', 'grams': '0', 'tax_lines': [],
+                    'name': 'Pack Love',
+                    'quantity': '1', 'variant_id': '38162774360247', 'title': 'Pack Love', 'taxable': True,
+                    'variant_title': ''},
+                   {'fulfillment_service': 'manual', 'discount_allocations': [], 'vendor': 'spa-detente',
+                    'name': '4 places 1 nuit', 'price': '80.00', 'taxable': True, 'variant_id': '39329036861623',
+                    'id': '9719090086071',
+                    'origin_location': {'country_code': 'FR', 'id': '2809464455351',
+                                        'address1': "102 Rue d'Estienne d'Orves",
+                                        'name': 'Thalass Home', 'address2': '', 'city': 'Verrières-le-Buisson',
+                                        'zip': '91370',
+                                        'province_code': ''}, 'title': '4 places 1 nuit', 'quantity': '1',
+                    'admin_graphql_api_id': 'gid://shopify/LineItem/9719090086071', 'duties': [], 'sku': '0',
+                    'gift_card': False,
+                    'price_set': {'presentment_money': {'amount': '80.00', 'currency_code': 'EUR'},
+                                  'shop_money': {'currency_code': 'EUR', 'amount': '80.00'}},
+                    'properties': [{'value': '03/27/2021', 'name': 'From'}, {'name': 'start-time', 'value': '17:00'},
+                                   {'value': '03/28/2021', 'name': 'To'}, {'name': 'finish-time', 'value': '07:00'}],
+                    'fulfillment_status': None, 'product_exists': True, 'product_id': '6280065515703',
+                    'total_discount_set': {'shop_money': {'amount': '0.00', 'currency_code': 'EUR'},
+                                           'presentment_money': {'amount': '0.00', 'currency_code': 'EUR'}},
+                    'fulfillable_quantity': '1', 'tax_lines': [], 'grams': '0', 'total_discount': '0.00',
+                    'requires_shipping': True, 'variant_title': '', 'variant_inventory_management': None}],
+               'shipping_address': {'company': None, 'first_name': 'Mustafa', 'phone': None, 'latitude': 45.3971276,
+                                    'province_code': None, 'last_name': 'Keskin', 'province': None, 'address2': '',
+                                    'zip': '42500', 'country_code': 'FR', 'country': 'France',
+                                    'address1': '3 Rue du Onze Novembre', 'longitude': 4.3294953,
+                                    'city': 'Chambon Feugerolles',
+                                    'name': 'Mustafa Keskin'}, 'gateway': 'Cash on Delivery (COD)',
+               'updated_at': '2021-03-27T14:34:31+01:00'}
+
+
+orders = [order, order1, mixed_order]
 
 
 def add_order_samples(orders):

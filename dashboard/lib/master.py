@@ -87,7 +87,7 @@ class Master:
                 for start_separator, d_i in enumerate(d_items):
                     ship += " --+-- " if start_separator else ''
                     ship += d_i['name'] + " "
-                    if d_i['properties']:
+                    if d_i['properties'] and 'from' in d_i['properties']:
                         prop = {p['name']: p['value'] for p in d_i['properties']}
                         ship += ' '.join(
                             ['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]).\

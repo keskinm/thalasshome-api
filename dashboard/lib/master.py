@@ -189,7 +189,7 @@ class Master:
         #
         # return verified
 
-    #  @todo debug why not working on compute engine mode (works only with google app)
+    #  @todo Make gcloud compute run over https to use it through compute engine instead of gcloud app engine.
     def handle_order_creation_webhook(self):
         print("RECEIVED HOOK")
         self.secure_hooks.flush()

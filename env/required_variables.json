@@ -1,0 +1,4 @@
+
+{"dev_required":  ["ws_address", "flask_address", "GOOGLE_APPLICATION_CREDENTIALS", "GCLOUD_PROJECT", "email_sender_password"],
+"compute_engine_required":  ["ws_address", "flask_address", "email_sender_password"],
+"app_engine_required":  ["email_sender_password", "flask_address"]}

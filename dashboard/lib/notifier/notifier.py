@@ -61,16 +61,14 @@ class Notifier:
 
             text = """\
             Bonjour, une nouvelle commande à livrer est disponible ! 
-            Accepter : http://www.{ws_adress}.com/accept/{token_id}
-            Refuser : http://www.{ws_adress}.com/refuser/{token_id}""".format(ws_adress=None, token_id=token)
+            Pour accepter la commande : http://www.{ws_adress}.com/accept/{token_id}""".format(ws_adress=None, token_id=token)
 
             html = """\
             <html>
               <body>
                 <p>Hi,<br>
                    Bonjour, une nouvelle commande à livrer est disponible !<br>
-                   <a href="http://www.{ws_adress}.com/accept/{token_id}">Real Python</a><br>
-                   <a href="http://www.{ws_adress}.com/refuser/{token_id}">Real Python</a><br>
+                   <a href="http://www.{ws_adress}.com/accept/{token_id}">Je me charge de cette commande !</a><br>
                 </p>
               </body>
             </html>
@@ -136,9 +134,8 @@ class Notifier:
 
     def accept_command(self, token_id):
         self.notify_accept_provider(token_id)
-
-    def decline_command(self, token_id):
-        pass
+        return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail 
+        contenant des informations supplémentaires pour votre commande. A bientôt ! """
 
     @staticmethod
     def test_notification():

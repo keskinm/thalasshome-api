@@ -16,11 +16,18 @@ class User(Base):
     username = Column(String)
     password = Column(String)
     email = Column(String(100), unique=True)
+    country = Column(String)
+    zone = Column(String)
+    phone_number = Column(String)
 
-    def __init__(self, username, password, email):
+    def __init__(self, username, password, email, country, zone, phone_number):
         self.username = username
         self.password = password
         self.email = email
+        self.country = country
+        self.zone = zone
+        self.phone_number = phone_number
 
 # create tables
 Base.metadata.create_all(engine)
+

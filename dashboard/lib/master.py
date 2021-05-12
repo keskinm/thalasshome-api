@@ -10,11 +10,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy.orm import sessionmaker
 
-from dashboard.db.add_some_basic_users import engine, User
+from sqlalchemy import create_engine
+from dashboard.db.tabledef import User
 
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
 from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location, employees
+
+engine = create_engine('sqlite:///providers.db', echo=True)
 
 
 client = datastore.Client()

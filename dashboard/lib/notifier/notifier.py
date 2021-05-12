@@ -12,15 +12,14 @@ from dashboard.lib.utils.utils import find_zone
 
 engine = create_engine('sqlite:///providers.db', echo=True)
 
-flask_address = os.getenv('flask_address')
-
 
 class Notifier:
     def __init__(self):
         self.protocol = 'http'
         self.orders_collection_name = "orders"
-        self.email_sender_password = os.getenv('email_sender_password')
         self.sender_email = "spa.detente.france@gmail.com"
+        self.flask_address = os.getenv('flask_address')
+        self.email_sender_password = os.getenv('email_sender_password')
 
     def get_providers(self, order):
         providers = []
@@ -45,7 +44,7 @@ class Notifier:
     def create_tokens(self, order_id, providers):
         tokens = []
         for provider in providers:
-            tokens.append(order_id+'|'+provider.username)
+            tokens.append(str(order_id)+'|'+provider.username)
         return tokens
 
     def notify_providers(self, providers, tokens, order):
@@ -82,7 +81,7 @@ class Notifier:
             text = """\
             Bonjour, une nouvelle commande à livrer est disponible ! 
             Pour accepter la commande : {protocol}://{flask_address}/commands/accept/{token_id}""".format(protocol=self.protocol,
-                                                                                                          flask_address=flask_address,
+                                                                                                          flask_address=self.flask_address,
                                                                                                           token_id=token)
 
             html = """\
@@ -95,7 +94,7 @@ class Notifier:
                 </p>
               </body>
             </html>
-            """.format(ship=ship, adr=adr, protocol=self.protocol, flask_address=flask_address, token_id=token)
+            """.format(ship=ship, adr=adr, protocol=self.protocol, flask_address=self.flask_address, token_id=token)
 
             part1 = MIMEText(text, "plain")
             part2 = MIMEText(html, "html")

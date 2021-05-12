@@ -28,6 +28,7 @@ client = datastore.Client()
 class Master:
     def __init__(self):
         self.secure_hooks = Hooks()
+        self.notifier = Notifier()
 
     def select_employee(self, item):
         command_country = item['shipping_address']['country']
@@ -206,6 +207,8 @@ class Master:
         if self.secure_hooks.check_request(request):
             order = handler.parse_data(json.loads(data.decode("utf-8")))
             handler.insert_received_webhook_to_datastore(order)
+
+            self.notifier(order)
 
             print("ok ;)")
 

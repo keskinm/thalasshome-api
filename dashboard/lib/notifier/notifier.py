@@ -115,17 +115,16 @@ class Notifier:
 
         datastore_client = datastore.Client()
         order_id, provider_username = token_id.split('|')
+
         key = datastore_client.key(self.orders_collection_name, order_id)
         order = datastore_client.get(key)
-
-        print("token_id", token_id)
-        print("order id", order_id)
-        print("provider_username", provider_username)
-        print("key", key)
-        print("order", order)
-
         if order is None:
-            return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
+            order_id = int(order_id)
+            key = datastore_client.key(self.orders_collection_name, order_id)
+            order = datastore_client.get(key)
+            if order is None:
+                print("order_id", order_id)
+                return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
 
         if 'provider' in order:
             return 'La commande a déjà été accepté par un autre livreur.'

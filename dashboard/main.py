@@ -28,8 +28,8 @@ app.add_url_rule('/login', view_func=m.do_admin_login, methods=['POST'])
 app.add_url_rule('/signup', view_func=m.render_signup, methods=['POST', 'GET'])
 app.add_url_rule('/signup_post', view_func=m.signup_post, methods=['POST'])
 
-app.add_url_rule('/commands/accept/<token_id>', view_func=notifier.accept_command, methods=['POST'])
-app.add_url_rule('/test_notification', view_func=notifier.test_notification, methods=['POST', 'GET'])
+app.add_url_rule('/commands/accept/<token_id>', view_func=notifier.accept_command, methods=['GET'])
+app.add_url_rule('/test_notification', view_func=notifier.test_notification, methods=['GET'])
 
 
 app.secret_key = os.urandom(12)

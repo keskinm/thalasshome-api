@@ -55,7 +55,7 @@ class Notifier:
             receiver_email = provider.email
 
             message = MIMEMultipart("alternative")
-            message["Subject"] = "multipart test"
+            message["Subject"] = "Une nouvelle commande ThalassHome !"
             message["From"] = sender_email
             message["To"] = receiver_email
 
@@ -107,7 +107,7 @@ class Notifier:
         receiver_email = provider_email
 
         message = MIMEMultipart("alternative")
-        message["Subject"] = "multipart test"
+        message["Subject"] = "Une nouvelle commande ThalassHome !"
         message["From"] = sender_email
         message["To"] = receiver_email
 

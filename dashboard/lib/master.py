@@ -137,6 +137,9 @@ class Master:
         email = request.form.get('email')
         name = request.form.get('name')
         password = request.form.get('password')
+        phone_number = request.form.get('numero_de_telephone')
+        country = request.form.get('country')
+        zone = request.form.get('zone')
 
         db_session = sessionmaker(bind=engine)()
 
@@ -148,7 +151,8 @@ class Master:
             return self.render_signup()
 
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-        new_user = User(email=email, username=name, password=generate_password_hash(password, method='sha256'))
+        new_user = User(email=email, username=name, password=generate_password_hash(password, method='sha256'),
+                        phone_number=phone_number, country=country, zone=zone)
 
         # add the new user to the database
         db_session.add(new_user)

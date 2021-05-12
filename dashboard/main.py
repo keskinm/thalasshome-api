@@ -23,6 +23,8 @@ app.add_url_rule('/empl', view_func=m.empl)
 app.add_url_rule('/order_creation_webhook', view_func=m.handle_order_creation_webhook, methods=['POST'])
 app.add_url_rule('/logout', view_func=m.logout, methods=['POST', 'GET'])
 app.add_url_rule('/login', view_func=m.do_admin_login, methods=['POST'])
+app.add_url_rule('/signup', view_func=m.render_signup, methods=['POST', 'GET'])
+app.add_url_rule('/signup_post', view_func=m.signup_post, methods=['POST'])
 
 
 import os

@@ -3,22 +3,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dashboard.db.tabledef import User
 
-engine = create_engine('sqlite:///tutorial.db', echo=True)
+engine = create_engine('sqlite:///providers.db', echo=True)
 
-# create a Session
 Session = sessionmaker(bind=engine)
 session = Session()
 
-user = User("admin", "password")
+user = User("admin", "password", None)
 session.add(user)
 
-user = User("python", "python")
+user = User("python", "python", None)
 session.add(user)
 
-user = User("jumpiness", "python")
-session.add(user)
-
-# commit the record the database
 session.commit()
 
-session.commit()

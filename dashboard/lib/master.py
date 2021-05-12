@@ -5,8 +5,12 @@ import json
 import hmac
 import hashlib
 import base64
-from flask import Flask, flash, redirect, render_template, request, session, abort
+from flask import flash, redirect, render_template, request, session, url_for, abort, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 
+from sqlalchemy.orm import sessionmaker
+
+from dashboard.db.add_some_basic_users import engine, User
 
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
@@ -127,15 +131,39 @@ class Master:
             print("1!")
             return render_template('index.html', **res)
 
-    def do_admin_login(self):
-        from sqlalchemy.orm import sessionmaker
-        from dashboard.db.dummy import engine, User
+    @staticmethod
+    def render_signup():
+        return render_template('signup.html')
 
+    def signup_post(self):
+        email = request.form.get('email')
+        name = request.form.get('name')
+        password = request.form.get('password')
+
+        db_session = sessionmaker(bind=engine)()
+
+        user = db_session.query(User).filter_by(email=email).first()
+
+        if user:  # if a user is found, we want to redirect back to signup page so user can try again
+            # return redirect(url_for('/signup_post'))
+            flash('Email address already exists')
+            return self.render_signup()
+
+        # create a new user with the form data. Hash the password so the plaintext version isn't saved.
+        new_user = User(email=email, username=name, password=generate_password_hash(password, method='sha256'))
+
+        # add the new user to the database
+        db_session.add(new_user)
+        db_session.commit()
+
+        # return redirect(url_for('/login'))
+        return self.root()
+
+    def do_admin_login(self):
         POST_USERNAME = str(request.form['username'])
         POST_PASSWORD = str(request.form['password'])
 
-        Session = sessionmaker(bind=engine)
-        s = Session()
+        s = sessionmaker(bind=engine)()
         query = s.query(User).filter(User.username.in_([POST_USERNAME]), User.password.in_([POST_PASSWORD]))
         result = query.first()
         if result:

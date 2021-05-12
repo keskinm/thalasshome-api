@@ -4,7 +4,7 @@ from sqlalchemy import Column, Date, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
-engine = create_engine('sqlite:///tutorial.db', echo=True)
+engine = create_engine('sqlite:///providers.db', echo=True)
 Base = declarative_base()
 
 
@@ -15,11 +15,12 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String)
     password = Column(String)
+    email = Column(String(100), unique=True)
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, email):
         self.username = username
         self.password = password
-
+        self.email = email
 
 # create tables
 Base.metadata.create_all(engine)

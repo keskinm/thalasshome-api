@@ -124,6 +124,9 @@ class Notifier:
         print("key", key)
         print("order", order)
 
+        if order is None:
+            return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
+
         if 'provider' in order:
             return 'La commande a déjà été accepté par un autre livreur.'
 

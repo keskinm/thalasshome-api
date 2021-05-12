@@ -16,6 +16,8 @@ from dashboard.db.tabledef import User
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
 from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location, employees
+from dashboard.lib.notifier.notifier import Notifier
+from dashboard.lib.utils.utils import find_zone
 
 engine = create_engine('sqlite:///providers.db', echo=True)
 
@@ -27,19 +29,11 @@ class Master:
     def __init__(self):
         self.secure_hooks = Hooks()
 
-    @staticmethod
-    def find_zone(zip, country):
-        for zone, v in zip_codes_to_locations[country].items():
-            for z_prefix in v:
-                if zip.startswith(z_prefix):
-                    return zone
-        return None
-
     def select_employee(self, item):
-        country = item['shipping_address']['country']
-        zip = item['shipping_address']['zip']
+        command_country = item['shipping_address']['country']
+        command_zip = item['shipping_address']['zip']
         selected = 'None'
-        found_zone = self.find_zone(zip, country)
+        found_zone = find_zone(command_zip, command_country)
 
         if found_zone and found_zone in employees_to_location:
             possible_list = employees_to_location[found_zone]
@@ -173,6 +167,7 @@ class Master:
             session['logged_in'] = True
         else:
             flash('wrong password!')
+            print("wrong password")
         return self.root()
 
     def empl(self):

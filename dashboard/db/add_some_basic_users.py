@@ -8,7 +8,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-session.add(User("python", "python", None, None, None, None))
+session.add(User("python", "python", "none@gmail.com", "France", "None", "None"))
 session.add(User("spartie", "python", "contact@spartie.fr", "France", "toulouse", "+33761182659"))
 session.add(User("mehdi_lami", "python", "mehdi-lami@laposte.net", "France", "ile_de_france", "+33651323494"))
 session.add(User("zinaides", "python", "contact.homejacuzzievents@gmail.com", "France", "centre_val_de_loire", "+33756949358"))

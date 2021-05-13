@@ -15,7 +15,7 @@ from dashboard.db.tabledef import User
 
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
-from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location, employees
+from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location
 from dashboard.lib.notifier.notifier import Notifier
 from dashboard.lib.utils.utils import find_zone
 
@@ -122,6 +122,9 @@ class Master:
             res = self.get_cards()
             env_variables = {k: os.getenv(k) for k in ['ws_address']}
 
+            db_session = sessionmaker(bind=engine)()
+            table = db_session.query(User).filter()
+            employees = list(map(lambda provider: provider.username, list(table)))
             empl = {'employees': employees}
 
             res = {**res, **env_variables, **empl}

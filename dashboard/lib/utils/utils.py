@@ -1,5 +1,5 @@
 
-from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location, employees
+from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location
 
 
 def find_zone(command_zip, command_country):

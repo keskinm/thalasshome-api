@@ -21,7 +21,13 @@ class Notifier:
         self.flask_address = os.getenv('flask_address')
         self.email_sender_password = os.getenv('email_sender_password')
 
-    def get_providers(self, order):
+    def __call__(self, order):
+        providers = self.get_providers(order)
+        tokens = self.create_tokens(order['id'], providers)
+        self.notify_providers(providers, tokens, order)
+
+    @staticmethod
+    def get_providers(order):
         providers = []
 
         db_session = sessionmaker(bind=engine)()
@@ -36,12 +42,8 @@ class Notifier:
 
         return providers
 
-    def __call__(self, order):
-        providers = self.get_providers(order)
-        tokens = self.create_tokens(order['id'], providers)
-        self.notify_providers(providers, tokens, order)
-
-    def create_tokens(self, order_id, providers):
+    @staticmethod
+    def create_tokens(order_id, providers):
         tokens = []
         for provider in providers:
             tokens.append(str(order_id)+'|'+provider.username)

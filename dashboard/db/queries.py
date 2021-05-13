@@ -25,6 +25,8 @@ class Queries:
                 item_aggregated_list = list(map(lambda x: getattr(x, selection), item_aggregated_list))
             aggregated.update({item: item_aggregated_list})
 
+        return aggregated
+
     def check(self):
         db_session = sessionmaker(bind=self.engine)()
         user = db_session.query(User).filter()
@@ -32,5 +34,5 @@ class Queries:
         d
 
 
-# Queries().aggregate_by_column('zone')
-
+# agg = Queries().aggregate_by_column('zone')
+# print(agg)

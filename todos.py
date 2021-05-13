@@ -6,7 +6,7 @@
 - improve design
 - add sms notifications
 - refactor db attributes and add user parametrabilisation
-- add regular tests for notifications
+- add regular tests for notifications for all regions with toy mails (yopmail?)
 - Make sure everything for cross country employees is ok and maybe review "zones" working
 
 """

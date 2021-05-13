@@ -34,5 +34,5 @@ class Queries:
         d
 
 
-Queries().aggregate_by_column('zone')
+# Queries().aggregate_by_column('zone')
 

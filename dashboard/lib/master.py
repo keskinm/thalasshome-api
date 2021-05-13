@@ -37,7 +37,7 @@ class Master:
         selected = 'None'
         found_zone = find_zone(command_zip, command_country)
 
-        employees_by_location = Queries(User).aggregate_by_column(column='zone', selection='username')
+        employees_by_location = Queries(User).aggregate_by_column(column_name='zone', selection='username')
 
         if found_zone and found_zone in employees_by_location:
             possible_list = employees_by_location[found_zone]

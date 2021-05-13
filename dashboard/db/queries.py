@@ -9,23 +9,23 @@ class Queries:
         self.session = sessionmaker(bind=self.engine)()
         self.handing_class = handling_class
 
-    def unique(self, column):
+    def unique(self, column_name):
         providers_table = self.session.query(User).filter()
-        zones = list(map(lambda x: getattr(x, column), list(providers_table)))
+        zones = list(map(lambda x: getattr(x, column_name), list(providers_table)))
         zones = list(dict.fromkeys(list(zones)))
         return zones
 
-    def aggregate_by_column(self, column, selection=None):
-        zones = self.unique(column)
+    def aggregate_by_column(self, column_name, selection=None):
+        unique_column = self.unique(column_name)
 
-        zone_aggregated_providers = {}
-        for zone in zones:
-            zone_providers_list = list(self.session.query(User).filter(getattr(self.handing_class, column) == zone))
+        aggregated = {}
+        for item in unique_column:
+            item_aggregated_list = list(self.session.query(User).filter(getattr(self.handing_class, column_name) == item))
             if selection:
-                zone_providers_list = list(map(lambda x: getattr(x, selection), zone_providers_list))
-            zone_aggregated_providers.update({zone: zone_providers_list})
+                item_aggregated_list = list(map(lambda x: getattr(x, selection), item_aggregated_list))
+            aggregated.update({item: item_aggregated_list})
 
-        print(zone_aggregated_providers)
+        print(aggregated)
 
     def check(self):
         db_session = sessionmaker(bind=self.engine)()

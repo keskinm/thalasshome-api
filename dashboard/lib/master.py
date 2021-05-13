@@ -19,6 +19,7 @@ from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.notifier.notifier import Notifier
 from dashboard.lib.utils.utils import find_zone
 from dashboard.db.queries import Queries
+from dashboard.lib.parser.creation_order.creation_order import CreationOrderParser
 
 engine = create_engine('sqlite:///providers.db', echo=True)
 
@@ -79,28 +80,11 @@ class Master:
 
             replace = item['replace'] if 'replace' in item else 'Aucun'
 
-            adr_item = item['shipping_address']
-            adr = ' '.join([adr_item['city'], adr_item['zip'], adr_item['address1'], adr_item['address2']])
-
-            if self.check_zone(query_zone, query_country, adr_item['zip']):
+            if self.check_zone(query_zone, query_country, item['shipping_address']['zip']):
                 continue
 
-            ship = ""
-
-            if 'line_items' in item:
-                d_items = item['line_items']
-                for start_separator, d_i in enumerate(d_items):
-                    ship += " --+-- " if start_separator else ''
-                    ship += d_i['name'] + " "
-                    if d_i['properties']:
-                        prop = {p['name']: p['value'] for p in d_i['properties']}
-                        if 'From' in prop:
-                            ship += ' '.join(
-                                ['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]).\
-                                replace("\\", "")
-
-            else:
-                ship += "Aucun"
+            adr = CreationOrderParser().get_ship(item)
+            ship = CreationOrderParser().get_ship(item)
 
             res.setdefault(status, [])
             res[status].append({

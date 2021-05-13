@@ -2,7 +2,7 @@ import os
 import argparse
 
 
-def run(service, mode):
+def run(service, mode, quick):
     if mode == 'local':
         daemon = '--daemon'
         env = """
@@ -22,14 +22,19 @@ def run(service, mode):
     else:
         serving = '0.0.0.0:8000 dashboard.main:app'
 
+    if quick:
+        echo = 'echo'
+    else:
+        echo = ''
+
     command = """
-        gcloud auth login
-        gcloud config set project employees-dashboard-307021
-        sudo chmod +x env/env.sh
-        sudo chmod +x env/local_env.sh
+        {echo} gcloud auth login
+        {echo} gcloud config set project employees-dashboard-307021
+        {echo} sudo chmod +x env/env.sh
+        {echo} sudo chmod +x env/local_env.sh
         {env}
         gunicorn -b {serving} {daemon}
-        """.format(serving=serving, env=env, daemon=daemon)
+        """.format(echo=echo, serving=serving, env=env, daemon=daemon)
 
     print(command)
 
@@ -39,6 +44,7 @@ def run(service, mode):
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--service", type=str, choices=["websocket", "webserver"], default="websocket")
 parser.add_argument("-m", "--mode", type=str, choices=["local", "dev"], default="dev")
+parser.add_argument("-q", "--quick", type=bool, default=False)
 
 kwargs = vars(parser.parse_args())
 run(**kwargs)

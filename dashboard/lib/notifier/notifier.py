@@ -53,7 +53,7 @@ class Notifier:
     def notify_providers(self, providers, tokens, order):
         item = order
 
-        adr = CreationOrderParser().get_ship(item)
+        adr = CreationOrderParser().get_address(item)
         ship = CreationOrderParser().get_ship(item)
 
         for i in range(len(providers)):

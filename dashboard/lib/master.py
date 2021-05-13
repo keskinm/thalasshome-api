@@ -83,7 +83,7 @@ class Master:
             if self.check_zone(query_zone, query_country, item['shipping_address']['zip']):
                 continue
 
-            adr = CreationOrderParser().get_ship(item)
+            adr = CreationOrderParser().get_address(item)
             ship = CreationOrderParser().get_ship(item)
 
             res.setdefault(status, [])

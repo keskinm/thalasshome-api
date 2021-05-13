@@ -25,8 +25,6 @@ class Queries:
                 item_aggregated_list = list(map(lambda x: getattr(x, selection), item_aggregated_list))
             aggregated.update({item: item_aggregated_list})
 
-        print(aggregated)
-
     def check(self):
         db_session = sessionmaker(bind=self.engine)()
         user = db_session.query(User).filter()

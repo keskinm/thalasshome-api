@@ -111,8 +111,6 @@ class Notifier:
                 )
 
     def accept_command(self, token_id):
-        print("IN ACCEPT COMMAND!")
-
         datastore_client = datastore.Client()
         order_id, provider_username = token_id.split('|')
 
@@ -123,7 +121,6 @@ class Notifier:
             key = datastore_client.key(self.orders_collection_name, order_id)
             order = datastore_client.get(key)
             if order is None:
-                print("order_id", order_id)
                 return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
 
         if 'provider' in order:

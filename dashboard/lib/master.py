@@ -15,9 +15,10 @@ from dashboard.db.tabledef import User
 
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
-from dashboard.utils.maps.maps import zip_codes_to_locations, employees_to_location
+from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.notifier.notifier import Notifier
 from dashboard.lib.utils.utils import find_zone
+from dashboard.db.queries import Queries
 
 engine = create_engine('sqlite:///providers.db', echo=True)
 
@@ -36,8 +37,10 @@ class Master:
         selected = 'None'
         found_zone = find_zone(command_zip, command_country)
 
-        if found_zone and found_zone in employees_to_location:
-            possible_list = employees_to_location[found_zone]
+        employees_by_location = Queries(User).aggregate_by_column(column='zone', selection='username')
+
+        if found_zone and found_zone in employees_by_location:
+            possible_list = employees_by_location[found_zone]
             selected = random.choice(possible_list)
 
         item['employee'] = selected

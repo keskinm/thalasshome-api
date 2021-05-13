@@ -13,22 +13,3 @@ zip_codes_to_locations = {
 
 }
 
-
-# @todo delete employees_to_location variables and use only database.
-# @ŧodo also find one way to handle cross countries employees like Mustafa Habib
-
-employees_to_location = {
-    'France': {
-        'loire': ['mustafa_keskin', 'romain_tabard', 'elyes_lami'],
-        'ile_de_france': ['mehdi_lami'],
-        'pays_de_gex': ['mustafa_genevois'],
-    },
-
-    'Switzerland': {
-        'geneve': ['mustafa_genevois'],
-
-    },
-}
-
-
-

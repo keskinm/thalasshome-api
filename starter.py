@@ -3,18 +3,36 @@ import argparse
 
 
 def run(service, mode, quick):
+    if quick:
+        echo = 'echo'
+    else:
+        echo = ''
+
     if mode == 'local':
         daemon = '--daemon'
+
+        chmod = """
+        {echo} sudo chmod +x env/local_env.sh
+        {echo} sudo chmod +x env/passwords.sh
+        """
+
         env = """
-        . env/local_passwords.sh
+        . env/passwords.sh
         . env/local_env.sh
             """
     else:
         daemon = ''
+
+        chmod = """
+        {echo} sudo chmod +x env/env.sh
+        {echo} sudo chmod +x env/dev_env.sh
+        {echo} sudo chmod +x env/passwords.sh
+        """
+
         env = """
         . env/env.sh
         . env/dev_env.sh
-        . env/dev_passwords.sh
+        . env/passwords.sh
             """
 
     if service == 'websocket':
@@ -22,19 +40,13 @@ def run(service, mode, quick):
     else:
         serving = '0.0.0.0:8000 dashboard.main:app'
 
-    if quick:
-        echo = 'echo'
-    else:
-        echo = ''
-
     command = """
         {echo} gcloud auth login
         {echo} gcloud config set project employees-dashboard-307021
-        {echo} sudo chmod +x env/env.sh
-        {echo} sudo chmod +x env/local_env.sh
+        {chmod}
         {env}
         gunicorn -b {serving} {daemon}
-        """.format(echo=echo, serving=serving, env=env, daemon=daemon)
+        """.format(chmod=chmod, echo=echo, serving=serving, env=env, daemon=daemon)
 
     print(command)
 

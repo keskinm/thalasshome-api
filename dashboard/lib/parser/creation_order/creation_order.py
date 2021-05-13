@@ -29,9 +29,17 @@ class CreationOrderParser(BaseParser):
                 ship += d_i['name'] + " "
                 if d_i['properties']:
                     prop = {p['name']: p['value'] for p in d_i['properties']}
+
+                    # OLD VERSION (ENGLISH, WILL BE REMOVED)
                     if 'From' in prop:
                         ship += ' '.join(
                             ['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]). \
+                            replace("\\", "")
+
+                    # FRENCH VERSION
+                    elif 'Du' in prop:
+                        ship += ' '.join(
+                            ['Du', prop['Du'], prop["Heure d'arrivée"], '  Au', prop['Au'], prop['Heure de fin']]). \
                             replace("\\", "")
 
         else:

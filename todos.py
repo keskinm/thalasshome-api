@@ -7,6 +7,7 @@
 - add sms notifications
 - refactor db attributes and add user parametrabilisation
 - add regular tests for notifications for all regions with toy mails (yopmail?)
+- Set a limit of visible cards as in Asana and a way to see them all if one wants to do so
 - Make sure everything for cross country employees is ok and maybe review "zones" working
 
 """

@@ -24,6 +24,7 @@ def run(service, mode):
 
     command = """
         gcloud auth login
+        gcloud config set project employees-dashboard-307021
         sudo chmod +x env/env.sh
         sudo chmod +x env/local_env.sh
         {env}
@@ -32,7 +33,7 @@ def run(service, mode):
 
     print(command)
 
-    # os.system(command)
+    os.system(command)
 
 
 parser = argparse.ArgumentParser()

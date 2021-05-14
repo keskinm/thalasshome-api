@@ -158,22 +158,6 @@ class Notifier:
                 self.sender_email, receiver_email, message.as_string()
             )
 
-    @staticmethod
-    def test_notification():
-        from dashboard.utils.samples.orders.orders import mixed_order
-
-        datastore_client = datastore.Client()
-
-        name = mixed_order['id']
-        key = datastore_client.key("orders", name)
-        c_order = datastore.Entity(key=key)
-        for k, v in mixed_order.items():
-            c_order[k] = v
-        datastore_client.put(c_order)
-
-        Notifier()(mixed_order)
-        return 'SENT TEST NOTIFICATION :) !'
-
 
 
 

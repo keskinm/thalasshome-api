@@ -215,3 +215,20 @@ class Master:
 
         else:
             return 'you already sent me this hook!', 404
+
+    def test_notification(self):
+        from dashboard.utils.samples.orders.orders import mixed_order
+
+        datastore_client = datastore.Client()
+
+        name = mixed_order['id']
+        key = datastore_client.key("orders", name)
+        c_order = datastore.Entity(key=key)
+        for k, v in mixed_order.items():
+            c_order[k] = v
+        datastore_client.put(c_order)
+
+        self.notifier(mixed_order)
+        return self.root()
+
+

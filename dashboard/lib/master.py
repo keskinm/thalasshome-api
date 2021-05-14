@@ -67,6 +67,9 @@ class Master:
         res = {}
 
         for item in all_keys:
+            if self.check_zone(query_zone, query_country, item['shipping_address']['zip']):
+                continue
+
             status = item['status'] if 'status' in item else 'ask'  # def status = ask
 
             if 'status' not in item:
@@ -80,11 +83,8 @@ class Master:
 
             replace = item['replace'] if 'replace' in item else 'Aucun'
 
-            if self.check_zone(query_zone, query_country, item['shipping_address']['zip']):
-                continue
-
             adr = CreationOrderParser().get_address(item)
-            ship = CreationOrderParser().get_ship(item)
+            ship, amount = CreationOrderParser().get_ship(item)
 
             res.setdefault(status, [])
             res[status].append({
@@ -92,6 +92,7 @@ class Master:
                 'def_empl': empl,
                 'rep_empl': replace,
                 'shipped': ship,
+                'amount': amount,
                 'ent_id': item.id,
             })
 
@@ -166,8 +167,7 @@ class Master:
         return self.root()
 
     def empl(self):
-        res = self.get_cards()
-        return render_template('empl.html', **res)
+        return render_template('empl.html')
 
     @staticmethod
     def verify_webhook(data, hmac_header):

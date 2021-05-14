@@ -22,7 +22,8 @@
         {{ item.address }} <br />
         Employé: {{ item.def_empl }} <br />
         Remplacant: {{ get_repls(item) }} <br />
-        Objets: {{ item.shipped }}
+        Objets: {{ item.shipped }} <br />
+        Montant restant dû: {{ item.amount }}€ <br />
         <p hidden>{{ item.ent_id }}</p>
     </li>
 {% endmacro %}

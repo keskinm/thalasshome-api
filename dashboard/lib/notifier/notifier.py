@@ -54,7 +54,7 @@ class Notifier:
         item = order
 
         adr = CreationOrderParser().get_address(item)
-        ship = CreationOrderParser().get_ship(item)
+        ship, amount = CreationOrderParser().get_ship(item)
 
         for i in range(len(providers)):
             provider = providers[i]
@@ -69,9 +69,15 @@ class Notifier:
 
             text = """\
             Bonjour, une nouvelle commande à livrer est disponible ! 
+            Commande:  {ship}
+            Adresse de la commande : {adr}
+            Total restant pour vous : {amount}€
             Pour accepter la commande : {protocol}://{flask_address}/commands/accept/{token_id}""".format(protocol=self.protocol,
                                                                                                           flask_address=self.flask_address,
-                                                                                                          token_id=token)
+                                                                                                          token_id=token,
+                                                                                                          ship=ship,
+                                                                                                          adr=adr,
+                                                                                                          amount=amount)
 
             html = """\
             <html>
@@ -79,11 +85,13 @@ class Notifier:
                 <p>Bonjour, une nouvelle commande à livrer est disponible !<br>
                 ship: {ship} <br>
                 addr: {adr} <br>
+                <strong> Total restant pour vous: {amount}€ </strong>
                 <a href="{protocol}://{flask_address}/commands/accept/{token_id}">Je me charge de cette commande !</a><br>
                 </p>
               </body>
             </html>
-            """.format(ship=ship, adr=adr, protocol=self.protocol, flask_address=self.flask_address, token_id=token)
+            """.format(ship=ship, adr=adr, protocol=self.protocol, flask_address=self.flask_address, token_id=token,
+                       amount=amount)
 
             part1 = MIMEText(text, "plain")
             part2 = MIMEText(html, "html")

@@ -22,6 +22,8 @@ class CreationOrderParser(BaseParser):
     @staticmethod
     def get_ship(item):
         ship = ""
+        amount = 0
+
         if 'line_items' in item:
             d_items = item['line_items']
             for start_separator, d_i in enumerate(d_items):
@@ -42,9 +44,14 @@ class CreationOrderParser(BaseParser):
                             ['Du', prop['Du'], prop["Heure d'arrivée"], '  Au', prop['Au'], prop['Heure de fin']]). \
                             replace("\\", "")
 
-        else:
-            ship += "Aucun"
-        return ship
+                    if 'Grand Total' in prop:
+                        try:
+                            prop['Grand Total']
+                        except:
+                            print(prop)
+                        amount += float(prop['Grand Total'].split(' ')[1]) - float(prop['_part_payment_amount'])
+
+        return ship, amount
 
     @staticmethod
     def get_address(item):

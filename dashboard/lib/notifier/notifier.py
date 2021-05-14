@@ -85,7 +85,7 @@ class Notifier:
                 <p>Bonjour, une nouvelle commande à livrer est disponible !<br>
                 ship: {ship} <br>
                 addr: {adr} <br>
-                <strong> Total restant pour vous: {amount}€ </strong>
+                <strong> Total restant pour vous: {amount}€ </strong> <br>
                 <a href="{protocol}://{flask_address}/commands/accept/{token_id}">Je me charge de cette commande !</a><br>
                 </p>
               </body>

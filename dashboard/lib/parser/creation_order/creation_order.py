@@ -45,10 +45,6 @@ class CreationOrderParser(BaseParser):
                             replace("\\", "")
 
                     if 'Grand Total' in prop:
-                        try:
-                            prop['Grand Total']
-                        except:
-                            print(prop)
                         amount += float(prop['Grand Total'].split(' ')[1]) - float(prop['_part_payment_amount'])
 
         return ship, amount

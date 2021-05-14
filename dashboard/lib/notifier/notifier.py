@@ -60,13 +60,6 @@ class Notifier:
             provider = providers[i]
             token = tokens[i]
 
-            receiver_email = provider.email
-
-            message = MIMEMultipart("alternative")
-            message["Subject"] = "Une nouvelle commande ThalassHome !"
-            message["From"] = self.sender_email
-            message["To"] = receiver_email
-
             text = """\
             Bonjour, une nouvelle commande à livrer est disponible ! 
             Commande:  {ship}
@@ -93,19 +86,10 @@ class Notifier:
             """.format(ship=ship, adr=adr, protocol=self.protocol, flask_address=self.flask_address, token_id=token,
                        amount=amount)
 
-            part1 = MIMEText(text, "plain")
-            part2 = MIMEText(html, "html")
+            subject = "Une nouvelle commande ThalassHome !"
+            receiver_email = provider.email
 
-            message.attach(part1)
-            message.attach(part2)
-
-            context = ssl.create_default_context()
-
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-                server.login(self.sender_email, self.email_sender_password)
-                server.sendmail(
-                    self.sender_email, receiver_email, message.as_string()
-                )
+            self.send_mail(receiver_email, text, html, subject)
 
     def accept_command(self, token_id):
         datastore_client = datastore.Client()
@@ -126,43 +110,53 @@ class Notifier:
         else:
             db_session = sessionmaker(bind=engine)()
             user = db_session.query(User).filter_by(username=provider_username).first()
-
             order['provider'] = {'username': provider_username, 'email': user.email}
-
             datastore_client.put(order)
 
             receiver_email = user.email
 
-            message = MIMEMultipart("alternative")
-            message["Subject"] = "Une nouvelle commande ThalassHome !"
-            message["From"] = self.sender_email
-            message["To"] = receiver_email
+            html_customer_phone_number = 'Numéro du client : {phone} <br>'.format(phone=order["phone"]) if 'phone' in order else ''
+            html_customer_mail = 'E-mail : {mail} <br>'.format(mail=order["email"]) if 'email' in order else ''
+
+            text_customer_phone_number = 'Numéro du client : {phone} \n'.format(phone=order["phone"]) if 'phone' in order else ''
+            text_customer_mail = 'E-mail : {mail} \n'.format(mail=order["email"]) if 'email' in order else ''
 
             text = """\
-            Merci d'avoir accepté la commande ! Voici les détails : 
-            .... """
+                Merci d'avoir accepté la commande ! Voici les détails conçernant le client :
+                {customer_phone_number} 
+                {customer_mail}""".format(customer_phone_number=text_customer_phone_number, customer_mail=text_customer_mail)
             html = """\
-            <html>
-              <body>
-                <p>Merci d'avoir accepté la commande ! Voici les détails : ...</p>
-              </body>
-            </html>
-            """
-            part1 = MIMEText(text, "plain")
-            part2 = MIMEText(html, "html")
-            message.attach(part1)
-            message.attach(part2)
-
-            context = ssl.create_default_context()
-
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-                server.login(self.sender_email, self.email_sender_password)
-                server.sendmail(
-                    self.sender_email, receiver_email, message.as_string()
-                )
+                <html>
+                  <body>
+                    <p>Merci d'avoir accepté la commande ! Voici les détails conçernant le client : <br>
+                    {customer_phone_number} 
+                    {customer_mail}
+                    </p>
+                  </body>
+                </html>
+                """.format(customer_phone_number=html_customer_phone_number, customer_mail=html_customer_mail)
+            subject = "Détails sur votre commande ThalassHome"
+            self.send_mail(receiver_email, text, html, subject)
 
             return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail 
             contenant des informations supplémentaires pour votre commande. A bientôt ! """
+
+    def send_mail(self, receiver_email, text, html, subject):
+        message = MIMEMultipart("alternative")
+        message["Subject"] = subject
+        message["From"] = self.sender_email
+        message["To"] = receiver_email
+
+        part1 = MIMEText(text, "plain")
+        part2 = MIMEText(html, "html")
+        message.attach(part1)
+        message.attach(part2)
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(self.sender_email, self.email_sender_password)
+            server.sendmail(
+                self.sender_email, receiver_email, message.as_string()
+            )
 
     @staticmethod
     def test_notification():

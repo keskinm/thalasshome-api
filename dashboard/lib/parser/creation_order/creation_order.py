@@ -5,7 +5,7 @@ class CreationOrderParser(BaseParser):
     def __init__(self):
         BaseParser.__init__(self)
         self.interest_keys = ['id', 'email', 'created_at', 'updated_at', 'gateway', 'total_price', 'title',
-                              'line_items', 'shipping_address']
+                              'line_items', 'shipping_address', 'phone']
 
         self.spec_treatment_keys = []
         self.treatment_methods = {}

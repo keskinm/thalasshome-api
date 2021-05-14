@@ -1,6 +1,6 @@
 """
 
-- add customer number/mail in 2d mail
+- print quantity of items
 - notify also customer with provider number/mail
 - display balances of split payments
 - correct refresh issues (+ add a refresh button?)

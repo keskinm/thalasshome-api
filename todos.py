@@ -1,5 +1,7 @@
 """
 
+- add customer number/mail in 2d mail
+- notify also customer with provider number/mail
 - display balances of split payments
 - correct refresh issues (+ add a refresh button?)
 - make system work only with compute engine (with https for hook and bcz its better) or only with app engine (with ws calls working..)

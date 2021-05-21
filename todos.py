@@ -6,7 +6,7 @@
 - display balances of split payments
 - correct refresh issues (+ add a refresh button?)
 - make system work only with compute engine (with https for hook and bcz its better) or only with app engine (with ws calls working..)
-- improve design
+- improve design, emails, add names of customers on notif mails
 - refactor db attributes and add user parametrabilisation
 - add regular tests for notifications for all regions with toy mails (yopmail?)
 - Set a limit of visible cards as in Asana and a way to see them all if one wants to do so

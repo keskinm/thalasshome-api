@@ -5,6 +5,7 @@ zip_codes_to_locations = {
         'pays_de_gex': ['01'],
         'toulouse': ['31'],
         'centre_val_de_loire': ['18', '28', '36', '37', '41', '45'],
+        'var': ['83'],
     },
 
     'Switzerland': {

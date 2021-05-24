@@ -1,6 +1,7 @@
 """
 
 - Notifier spa.detente->spa.detente en cas d'acceptation de livraison (ou mettre à jour sur le site).
+- add a link to thalasshome.com and conversely to increase SEO
 - print quantity of items
 - notify also customer with provider number/mail
 - display balances of split payments

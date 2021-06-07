@@ -16,5 +16,14 @@ session.add(User("Mustafa.habib", "python", "habib.mustapha@orange.fr", "France"
 session.add(User("Elyes_Lami", "python", "elyes.lami@laposte.net", "France", "loire", "+33652350845"))
 session.add(User("Mustafa_Keskin", "python", "mouss42490@gmail.com", "France", "loire", "+33782425371"))
 
+
+zones = ['loire, idf, pays_de_gex', 'toulouse', 'centre_val_de_loire', 'var']
+
+for zone in zones:
+    name = "thalasshome_test_"+zone
+    mail = name+"@yopmail.com"
+    session.add(User(name, "python", mail, "France", "loire", "+33782425371"))
+
+
 session.commit()
 

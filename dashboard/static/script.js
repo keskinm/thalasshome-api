@@ -46,7 +46,8 @@ function selectOnly(zone, country) {
     })
 }
 
-// ----------------------------------- GENERAL -----------------------------------------------
+
+// ----------------------------------- CARDS -----------------------------------------------
 
 function makeSortable(id, socket) {
 
@@ -147,19 +148,7 @@ socket.on('ask_zone_client', function(msg) {
 
 
 socket.on('remove_cards_client', function(msg) {
-
-    const it = msg;
-
-    const a = it['cards'];
-    const b = it['list_id'];
-
-    const i_list = it['cards'][it['list_id']];
-
-    console.log('a', a);
-    console.log('b', b);
-    console.log('i_list', i_list);
-
-
-    const cont = document.getElementById(it['list_id']);
+    const cont = document.getElementById(msg['list_id']);
     cont.innerHTML = "";
 });
+

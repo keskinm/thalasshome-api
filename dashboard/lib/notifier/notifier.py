@@ -10,6 +10,7 @@ from google.cloud import datastore
 from dashboard.db.tabledef import User
 from dashboard.lib.utils.utils import find_zone
 from dashboard.lib.parser.creation_order.creation_order import CreationOrderParser
+from dashboard.db.queries import Queries
 
 engine = create_engine('sqlite:///providers.db', echo=True)
 
@@ -21,6 +22,7 @@ class Notifier:
         self.sender_email = "spa.detente.france@gmail.com"
         self.flask_address = os.getenv('flask_address')
         self.email_sender_password = os.getenv('email_sender_password')
+        self.order_parser = CreationOrderParser()
 
     def __call__(self, order):
         providers = self.get_providers(order)
@@ -29,17 +31,12 @@ class Notifier:
 
     @staticmethod
     def get_providers(order):
-        providers = []
+        command_country = order['shipping_address']['country']
+        command_zip = order['shipping_address']['zip']
+        command_zone = find_zone(command_zip, command_country)
 
-        db_session = sessionmaker(bind=engine)()
-        table = db_session.query(User).filter()
-        for user in table:
-            command_country = order['shipping_address']['country']
-            command_zip = order['shipping_address']['zip']
-            command_zone = find_zone(command_zip, command_country)
-
-            if user.zone == command_zone:
-                providers.append(user)
+        providers_by_location = Queries(User).aggregate_by_column(column_name='zone')
+        providers = providers_by_location[command_zone]
 
         return providers
 
@@ -53,8 +50,8 @@ class Notifier:
     def notify_providers(self, providers, tokens, order):
         item = order
 
-        adr = CreationOrderParser().get_address(item)
-        ship, amount = CreationOrderParser().get_ship(item)
+        adr = self.order_parser.get_address(item)
+        ship, amount = self.order_parser.get_ship(item)
 
         for i in range(len(providers)):
             provider = providers[i]
@@ -87,9 +84,8 @@ class Notifier:
                        amount=amount)
 
             subject = "Une nouvelle commande ThalassHome !"
-            receiver_email = provider.email
 
-            self.send_mail(receiver_email, text, html, subject)
+            self.send_mail(provider.email, subject, html, text)
 
     def accept_command(self, token_id):
         datastore_client = datastore.Client()
@@ -109,11 +105,11 @@ class Notifier:
 
         else:
             db_session = sessionmaker(bind=engine)()
-            user = db_session.query(User).filter_by(username=provider_username).first()
-            order['provider'] = {'username': provider_username, 'email': user.email}
-            datastore_client.put(order)
+            provider = db_session.query(User).filter_by(username=provider_username).first()
+            provider_email = provider.email
 
-            receiver_email = user.email
+            order['provider'] = {'username': provider_username, 'email': provider_email}
+            datastore_client.put(order)
 
             html_customer_phone_number = 'Numéro du client : {phone} <br>'.format(phone=order["phone"]) if 'phone' in order else ''
             html_customer_mail = 'E-mail : {mail} <br>'.format(mail=order["email"]) if 'email' in order else ''
@@ -121,27 +117,78 @@ class Notifier:
             text_customer_phone_number = 'Numéro du client : {phone} \n'.format(phone=order["phone"]) if 'phone' in order else ''
             text_customer_mail = 'E-mail : {mail} \n'.format(mail=order["email"]) if 'email' in order else ''
 
+            plain_customer_name = self.order_parser.get_name(order)
+            text_customer_name = 'Nom : {name} \n'.format(name=plain_customer_name)
+            html_customer_name = 'Nom : {name} <br>'.format(name=plain_customer_name)
+
             text = """\
                 Merci d'avoir accepté la commande ! Voici les détails conçernant le client :
                 {customer_phone_number} 
-                {customer_mail}""".format(customer_phone_number=text_customer_phone_number, customer_mail=text_customer_mail)
+                {customer_mail}
+                {customer_name}""".format(customer_phone_number=text_customer_phone_number,
+                                          customer_mail=text_customer_mail,
+                                          customer_name=text_customer_name)
             html = """\
                 <html>
                   <body>
                     <p>Merci d'avoir accepté la commande ! Voici les détails conçernant le client : <br>
                     {customer_phone_number} 
                     {customer_mail}
+                    {customer_name}
                     </p>
                   </body>
                 </html>
-                """.format(customer_phone_number=html_customer_phone_number, customer_mail=html_customer_mail)
+                """.format(customer_phone_number=html_customer_phone_number, customer_mail=html_customer_mail,
+                           customer_name=html_customer_name)
             subject = "Détails sur votre commande ThalassHome"
-            self.send_mail(receiver_email, text, html, subject)
+            self.send_mail(provider_email, subject, html, text)
+
+            self.notify_customer(provider)
+            self.notify_admins(order, provider)
+            self.update_employee(order, provider)
 
             return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail 
             contenant des informations supplémentaires pour votre commande. A bientôt ! """
 
-    def send_mail(self, receiver_email, text, html, subject):
+    def update_employee(self, order, provider):
+        pass
+
+    def notify_customer(self, provider):
+        subject = "ThalassHome - Contact prestataire pour votre commande"
+        html = """<p>
+                    Voici les coordonnées de notre prestataire qui se charge de votre commande : <br>
+                    {provider_email}
+                    {provider_number}
+                  </p>     
+               """.format(provider_email=provider.email, provider_number=provider.phone_number)
+
+        self.send_mail(provider.email, subject, html)
+
+    def notify_admins(self, order, provider):
+        adr = self.order_parser.get_address(order)
+        ship, amount = self.order_parser.get_ship(order)
+        customer_name = self.order_parser.get_name(order)
+
+        subject = "Commande prise en charge par un prestataire"
+
+        html = """
+        <p>
+        La commande : {ship} <br> 
+        du client : {customer_name}, <br>
+        située à : {adr} <br>
+        coordonnées du client : {customer_mail} {customer_number} <br>
+        d'un solde à récuperer de : {amount}€ <br>
+        a été acceptée par le prestataire : {provider} <br>
+        coordonnées du prestataire : {provider_mail}, {provider_number} <br>
+        </p>
+        """.format(ship=ship, customer_name=customer_name, adr=adr, provider=provider.username, amount=amount,
+                   provider_mail=provider.email, provider_number=provider.phone_number,
+                   customer_mail=order["email"] if "email" in order else "",
+                   customer_number=order["phone"] if "phone" in order else "")
+
+        self.send_mail(self.sender_email, subject, html)
+
+    def send_mail(self, receiver_email, subject, html, text=''):
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = self.sender_email

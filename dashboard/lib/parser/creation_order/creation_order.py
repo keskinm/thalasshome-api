@@ -28,7 +28,7 @@ class CreationOrderParser(BaseParser):
             d_items = item['line_items']
             for start_separator, d_i in enumerate(d_items):
                 ship += " --+-- " if start_separator else ''
-                ship += d_i['name'] + " "
+                ship += str(d_i['quantity']) + " " + d_i['name'] + " "
                 if d_i['properties']:
                     prop = {p['name']: p['value'] for p in d_i['properties']}
 
@@ -54,3 +54,7 @@ class CreationOrderParser(BaseParser):
         adr_item = item['shipping_address']
         adr = ' '.join([adr_item['city'], adr_item['zip'], adr_item['address1'], adr_item['address2']])
         return adr
+
+    @staticmethod
+    def get_name(item):
+        return item['shipping_address']['first_name'] + " " + item['shipping_address']['last_name']

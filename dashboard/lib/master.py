@@ -32,7 +32,8 @@ class Master:
         self.secure_hooks = Hooks()
         self.notifier = Notifier()
 
-    def select_employee(self, item):
+    @staticmethod
+    def select_employee(item):
         command_country = item['shipping_address']['country']
         command_zip = item['shipping_address']['zip']
         selected = 'None'
@@ -50,13 +51,16 @@ class Master:
         return selected
 
     @staticmethod
-    def check_zone(query_zone, query_country, zip):
+    def check_zone(query_zone, query_country, zipcode):
+        if zipcode is None:
+            return True
+
         if not query_zone or not query_country:
             return False
 
         zips = zip_codes_to_locations[query_country][query_zone]
         for z in zips:
-            if zip.startswith(z):
+            if zipcode.startswith(z):
                 return False
 
         return True
@@ -67,7 +71,8 @@ class Master:
         res = {}
 
         for item in all_keys:
-            if self.check_zone(query_zone, query_country, item['shipping_address']['zip']):
+            zipcode = item['shipping_address']['zip'] if 'shipping_adress' in item else None
+            if self.check_zone(query_zone, query_country, zipcode):
                 continue
 
             status = item['status'] if 'status' in item else 'ask'  # def status = ask

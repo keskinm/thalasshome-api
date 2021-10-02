@@ -71,7 +71,7 @@ class Master:
         res = {}
 
         for item in all_keys:
-            zipcode = item['shipping_address']['zip'] if 'shipping_adress' in item else None
+            zipcode = item['shipping_address']['zip'] if 'shipping_address' in item else None
             if self.check_zone(query_zone, query_country, zipcode):
                 continue
 

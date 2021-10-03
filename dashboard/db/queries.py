@@ -33,5 +33,11 @@ class Queries:
         d = (list(user))
         d
 
-# agg = Queries().aggregate_by_column('zone')
-# print(agg)
+    def delete_by_column(self, column_name, value):
+        self.session.query(User).filter(getattr(self.handling_class, column_name) == value).delete()
+        self.session.commit()
+
+q = Queries()
+# q.delete_by_column('zone', 'Foo')
+agg = q.aggregate_by_column('zone')
+print(agg)

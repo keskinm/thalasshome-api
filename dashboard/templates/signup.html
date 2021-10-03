@@ -1,4 +1,30 @@
-<link rel="stylesheet" href="/static/login.css" type="text/css">
+<head>
+    <link rel="stylesheet" href="/static/login.css" type="text/css">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+            integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+            crossorigin="anonymous"></script>
+    <script>
+        jQuery(function($) {
+
+    var country = {
+        'France': ['ile_de_france', 'loire', 'pays_de_gex', 'toulouse', 'centre_val_de_loire', 'var', 'rhone',
+            'marseille'],
+        'Switzerland': ['geneve'],
+    }
+
+    var $zzone = $('#zone');
+    $('#country').change(function () { debugger
+        var CNTRY = $(this).val(), cntries = country[CNTRY] || [];
+
+        var html = $.map(cntries, function(ctry){
+            return '<option value="' + ctry + '">' + ctry + '</option>'
+        }).join('');
+        $zzone.html(html);$zzone.append(new Option("Select zone", "0"));$zzone.val("0");
+    });
+});
+    </script>
+</head>
+
 
 {% block content %}
 
@@ -43,23 +69,13 @@
                     </div>
                 </div>
 
-                <select name="country">
-                    <option value="">--Pays--</option>
+                <select id="country">
+                    <option>Country</option>
                     <option value="France">France</option>
-                    <option value="Switzerland">Suisse</option>
+                    <option value="Switzerland">Genève</option>
                 </select>
 
-                <select name="zone">
-                    <option value="">--Zone--</option>
-                    <option value="ile_de_france">Île de France</option>
-                    <option value="rhone">Rhône</option>
-                    <option value="marseille">Marseille</option>
-                    <option value="var">Var</option>
-                    <option value="centre_val_de_loire">Centre val de loire</option>
-                    <option value="toulouse">Toulouse</option>
-                    <option value="pays_de_gex">Pays de Gex</option>
-                    <option value="loire">Loire</option>
-                </select>
+                <select id="zone" name="zone"></select>
 
 
                 <input type="submit" value="Sign Up" class="btn btn-primary btn-large btn-block">

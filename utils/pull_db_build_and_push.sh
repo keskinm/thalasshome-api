@@ -11,3 +11,5 @@ else
 fi
 
 zip -r ../th.zip .. -x '*/venv/*'
+
+sudo gcloud compute scp ../th.zip websocket-server:/home/spa_detente_france/th.zip

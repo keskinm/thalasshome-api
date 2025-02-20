@@ -17,3 +17,11 @@
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+
+
+*.pyc
+.venv/
+venv/
+.git/
+.idea/
+.DS_Store

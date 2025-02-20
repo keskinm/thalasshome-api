@@ -25,6 +25,12 @@ class Notifier:
         self.order_parser = CreationOrderParser()
 
     def __call__(self, order):
+
+        print("\n\n\n\n")
+        print("ORDER!", order)
+        print("\n\n\n\n")
+
+
         providers = self.get_providers(order)
         tokens = self.create_tokens(order['id'], providers)
         self.notify_providers(providers, tokens, order)

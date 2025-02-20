@@ -5,7 +5,8 @@ import json
 import hmac
 import hashlib
 import base64
-from flask import flash, redirect, render_template, request, session, url_for, abort, flash
+from flask import flash, render_template, request, session, flash, jsonify
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy.orm import sessionmaker
@@ -187,6 +188,13 @@ class Master:
         #     return 'fail verification of hook', 401
         #
         # return verified
+
+    def check_availability(self):
+        data = request.get_json()
+        print("CHECK AVAILABILITY", data)
+
+        # --- DO SOME STUFF TO SEE IF THE PRODUCT IS AVAILABLE ---
+        return jsonify({"available": True})
 
     #  @todo Make gcloud compute run over https to use it through compute engine instead of gcloud app engine.
     def handle_order_creation_webhook(self):

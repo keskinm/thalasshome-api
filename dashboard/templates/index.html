@@ -2,10 +2,8 @@
 
 <html>
 
-{% with ws_address=ws_address %}
-    {% include 'head.html' %}
-{% endwith %}
 
+{% include 'head.html' %}
 
 {% macro get_repls(item) %}
     <select onchange="select_repl(this, {{ item.ent_id }})">

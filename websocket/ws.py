@@ -17,31 +17,6 @@ class Namespace(socketio.AsyncNamespace):
     async def on_disconnect(self, sid, *_):
         print("\n ----ON DISCONECT------ \n")
 
-    async def on_category(self, sid, data):
-        print("\n ----ON CATEGORY------ \n")
-        item_id = int(data['item'])
-        query = self.client.query(kind="orders")
-        query.add_filter("__key__", "=", self.client.key('orders', item_id))
-        orders = query.fetch()
-
-        for order in orders:
-            order['status'] = data['category']
-
-            if order['status'] not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled']:
-                print(f"{order['status']} not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'], "
-                      f"continuing")
-                continue
-
-            self.client.put(order)
-
-    # async def on_trigger_update(self, sid, data):
-    #     print("\n ----ON TRIGGER UPDATE------ \n")
-    #     if data['key'] != 'update':
-    #         return
-    #
-    #     print('TRIGGER UPDATE')
-    #
-    #     await self.broadcast_update(sid)
 
     async def on_ask_zone(self, sid, data):
         print("\n ----ON ASK ZONES------ \n")

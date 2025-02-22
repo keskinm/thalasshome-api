@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.config/gcloud/legacy_credentials/spa.detente.france@gmail.com/adc.json"
-export GCLOUD_PROJECT="thalasshome-api"
-
+export flask_address="35.242.159.190:8000"

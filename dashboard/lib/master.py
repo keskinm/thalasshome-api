@@ -4,10 +4,10 @@ import json
 import hmac
 import hashlib
 import base64
-from flask import render_template, request, session, flash, jsonify, redirect
+from flask import render_template, request, session, flash, jsonify
 from dashboard.db.client import supabase_cli
 
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 
 
 from dashboard.lib.hooks import Hooks
@@ -148,25 +148,6 @@ class Master:
 
         return self.root()
 
-    def do_admin_login(self):
-        POST_USERNAME = str(request.form['username'])
-        POST_PASSWORD = str(request.form['password'])
-
-        response = (
-            supabase_cli.table("users")
-            .select("*")
-            .eq("username", POST_USERNAME)
-            .maybe_single()
-            .execute()
-        ).data
-
-        if response and check_password_hash(response["password"], POST_PASSWORD):
-            session['logged_in'] = True
-            return redirect('/')
-        else:
-            flash('wrong password!')
-            print("wrong password")
-            return redirect('/login')
 
     def ask_zone(self):
         data = request.get_json()

@@ -1,18 +1,13 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 from google.cloud import datastore
 
-from dashboard.db.tabledef import User
 from dashboard.lib.utils.utils import find_zone
 from dashboard.lib.parser.creation_order.creation_order import CreationOrderParser
-from dashboard.db.queries import Queries
+from dashboard.db.client import supabase_cli
 
-engine = create_engine('sqlite:///providers.db', echo=True)
 
 
 class Notifier:
@@ -25,35 +20,27 @@ class Notifier:
         self.order_parser = CreationOrderParser()
 
     def __call__(self, order):
-
-        print("\n\n\n\n")
-        print("ORDER!", order)
-        print("\n\n\n\n")
-
-
         providers = self.get_providers(order)
         tokens = self.create_tokens(order['id'], providers)
         self.notify_providers(providers, tokens, order)
 
     @staticmethod
-    def get_providers(order):
+    def get_providers(order) -> list[dict]:
         command_country = order['shipping_address']['country']
         command_zip = order['shipping_address']['zip']
         command_zone = find_zone(command_zip, command_country)
 
-        providers_by_location = Queries(User).aggregate_by_column(column_name='zone')
-        providers = providers_by_location[command_zone]
+        return supabase_cli.rpc("get_user_by_zone", {"command_zone": command_zone}).execute().data
 
-        return providers
 
     @staticmethod
-    def create_tokens(order_id, providers):
+    def create_tokens(order_id, providers: list[dict]) -> list[str]:
         tokens = []
         for provider in providers:
-            tokens.append(str(order_id)+'|'+provider.username)
+            tokens.append(f"{str(order_id)}|{provider['username']}")
         return tokens
 
-    def notify_providers(self, providers, tokens, order):
+    def notify_providers(self, providers: list[dict], tokens: list[str], order: dict):
         item = order
 
         adr = self.order_parser.get_address(item)
@@ -91,7 +78,7 @@ class Notifier:
 
             subject = "Une nouvelle commande ThalassHome !"
 
-            self.send_mail(provider.email, subject, html, text)
+            self.send_mail(provider["email"], subject, html, text)
 
     def accept_command(self, token_id):
         datastore_client = datastore.Client()
@@ -110,9 +97,8 @@ class Notifier:
             return 'La commande a déjà été accepté par un autre livreur.'
 
         else:
-            db_session = sessionmaker(bind=engine)()
-            provider = db_session.query(User).filter_by(username=provider_username).first()
-            provider_email = provider.email
+            provider = supabase_cli.table("users").select("*").eq("username", provider_username).limit(1).single().execute().data
+            provider_email = provider["email"]
 
             order['provider'] = {'username': provider_username, 'email': provider_email}
             datastore_client.put(order)
@@ -159,18 +145,18 @@ class Notifier:
     def update_employee(self, order, provider):
         pass
 
-    def notify_customer(self, provider):
+    def notify_customer(self, provider: dict):
         subject = "ThalassHome - Contact prestataire pour votre commande"
         html = """<p>
                     Voici les coordonnées de notre prestataire qui se charge de votre commande : <br>
                     {provider_email}
                     {provider_number}
                   </p>     
-               """.format(provider_email=provider.email, provider_number=provider.phone_number)
+               """.format(provider_email=provider["email"], provider_number=provider["phone_number"])
 
-        self.send_mail(provider.email, subject, html)
+        self.send_mail(provider["email"], subject, html)
 
-    def notify_admins(self, order, provider):
+    def notify_admins(self, order: dict, provider: dict):
         adr = self.order_parser.get_address(order)
         ship, amount = self.order_parser.get_ship(order)
         customer_name = self.order_parser.get_name(order)
@@ -187,14 +173,14 @@ class Notifier:
         a été acceptée par le prestataire : {provider} <br>
         coordonnées du prestataire : {provider_mail}, {provider_number} <br>
         </p>
-        """.format(ship=ship, customer_name=customer_name, adr=adr, provider=provider.username, amount=amount,
-                   provider_mail=provider.email, provider_number=provider.phone_number,
+        """.format(ship=ship, customer_name=customer_name, adr=adr, provider=provider["username"], amount=amount,
+                   provider_mail=provider["email"], provider_number=provider["phone_number"],
                    customer_mail=order["email"] if "email" in order else "",
                    customer_number=order["phone"] if "phone" in order else "")
 
         self.send_mail(self.sender_email, subject, html)
 
-    def send_mail(self, receiver_email, subject, html, text=''):
+    def send_mail(self, receiver_email: str, subject: str, html: str, text: str=''):
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = self.sender_email

@@ -1,28 +1,22 @@
 import random
-import os
 from google.cloud import datastore
 import json
 import hmac
 import hashlib
 import base64
 from flask import flash, render_template, request, session, flash, jsonify
+from dashboard.db.client import supabase_cli
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy.orm import sessionmaker
-
-from sqlalchemy import create_engine
-from dashboard.db.tabledef import User
 
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.notifier.notifier import Notifier
 from dashboard.lib.utils.utils import find_zone
-from dashboard.db.queries import Queries
 from dashboard.lib.parser.creation_order.creation_order import CreationOrderParser
 
-engine = create_engine('sqlite:///providers.db', echo=True)
 
 
 client = datastore.Client()
@@ -40,14 +34,13 @@ class Master:
         selected = 'None'
         found_zone = find_zone(command_zip, command_country)
 
-        employees_by_location = Queries(User).aggregate_by_column(column_name='zone', selection='username')
-
-        if found_zone and found_zone in employees_by_location:
-            possible_list = employees_by_location[found_zone]
-            selected = random.choice(possible_list)
+        if found_zone: 
+            employees = supabase_cli.rpc("get_user_by_zone", {"command_zone": found_zone}).execute().data
+            if employees:
+                selected = random.choice(employees)
 
         item['employee'] = selected
-        client.put(item)  # update db
+        client.put(item)
 
         return selected
 
@@ -110,19 +103,12 @@ class Master:
 
     def root(self):
         if not session.get('logged_in'):
-            print("0!")
             return render_template('login.html')
         else:
             res = self.get_cards()
+            employee_names = supabase_cli.table("users").select("username").execute().data
+            res = {**res, **{'employees': employee_names}}
 
-            db_session = sessionmaker(bind=engine)()
-            table = db_session.query(User).filter()
-            employees = list(map(lambda provider: provider.username, list(table)))
-            empl = {'employees': employees}
-
-            res = {**res, **empl}
-
-            print("1!")
             return render_template('index.html', **res)
 
     @staticmethod
@@ -137,9 +123,14 @@ class Master:
         country = request.form.get('country')
         zone = request.form.get('zone')
 
-        db_session = sessionmaker(bind=engine)()
-
-        user = db_session.query(User).filter_by(email=email).first()
+        user = (
+            supabase_cli.table("users")
+            .select("*")
+            .eq("email", email)
+            .limit(1)
+            .single()
+            .execute()
+        ).data
 
         if user:  # if a user is found, we want to redirect back to signup page so user can try again
             # return redirect(url_for('/signup_post'))
@@ -147,23 +138,30 @@ class Master:
             return self.render_signup()
 
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-        new_user = User(email=email, username=name, password=generate_password_hash(password, method='pbkdf2:sha256'),
-                        phone_number=phone_number, country=country, zone=zone)
+        new_user = {"email":email,
+                    "username":name,
+                    "password":generate_password_hash(password, method='pbkdf2:sha256'),
+                    "phone_number":phone_number,
+                    "country":country,
+                    "zone":zone}
+        
+        supabase_cli.table("users").insert(new_user).execute()
 
-        # add the new user to the database
-        db_session.add(new_user)
-        db_session.commit()
-
-        # return redirect(url_for('/login'))
         return self.root()
 
     def do_admin_login(self):
         POST_USERNAME = str(request.form['username'])
         POST_PASSWORD = str(request.form['password'])
 
-        s = sessionmaker(bind=engine)()
-        query = s.query(User).filter(User.username == POST_USERNAME).first()
-        if query and check_password_hash(query.password, POST_PASSWORD):
+        response = (
+            supabase_cli.table("users")
+            .select("*")
+            .eq("username", POST_USERNAME)
+            .maybe_single()
+            .execute()
+        ).data
+
+        if response and check_password_hash(response["password"], POST_PASSWORD):
             session['logged_in'] = True
         else:
             flash('wrong password!')
@@ -180,9 +178,7 @@ class Master:
         return jsonify(cards)
 
     def patch_order_status(self):
-        print("\n ----ON PATCH ORDER STATUS------ \n")
         data = request.get_json()
-        print(data)
         item_id = int(data['item'])
         query = client.query(kind="orders")
         query.add_filter("__key__", "=", client.key('orders', item_id))
@@ -209,12 +205,7 @@ class Master:
         digest = hmac.new(SECRET, data.encode('utf-8'), hashlib.sha256).digest()
         computed_hmac = base64.b64encode(digest)
         verified = hmac.compare_digest(computed_hmac, hmac_header.encode('utf-8'))
-
-        print("verified", verified)
-        # if not verified:
-        #     return 'fail verification of hook', 401
-        #
-        # return verified
+        return verified
 
     def check_availability(self):
         data = request.get_json()
@@ -223,13 +214,12 @@ class Master:
         # --- DO SOME STUFF TO SEE IF THE PRODUCT IS AVAILABLE ---
         return jsonify({"available": True})
 
-    #  @todo Make gcloud compute run over https to use it through compute engine instead of gcloud app engine.
+
     def handle_order_creation_webhook(self):
         print("RECEIVED HOOK")
         self.secure_hooks.flush()
 
         data = request.get_data()
-        # print("header:", request.headers)
 
         try:
             self.verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))

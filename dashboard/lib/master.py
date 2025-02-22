@@ -170,6 +170,27 @@ class Master:
             flash('wrong password!')
             print("wrong password")
         return self.root()
+    
+
+    def patch_order_status(self):
+        print("\n ----ON PATCH ORDER STATUS------ \n")
+        data = request.get_json()
+        print(data)
+        item_id = int(data['item'])
+        query = client.query(kind="orders")
+        query.add_filter("__key__", "=", client.key('orders', item_id))
+        orders = query.fetch()
+
+        for order in orders:
+            order['status'] = data['category']
+
+            if order['status'] not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled']:
+                print(f"{order['status']} not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'], "
+                        f"continuing")
+                continue
+
+            client.put(order)
+        return jsonify({"message": "Order status updated"})
 
     def empl(self):
         return render_template('empl.html')

@@ -20,17 +20,29 @@ CORS(app)
 # cors = CORS(app, resources={r"/trying/*": {"origins": "*"}})
 
 app.add_url_rule('/', view_func=m.root)
+
 app.add_url_rule('/empl', view_func=m.empl)
 
-app.add_url_rule('/order_creation_webhook', view_func=m.handle_order_creation_webhook, methods=['POST'])
-app.add_url_rule('/check_availability', view_func=m.check_availability, methods=['POST'])
+# ------------------------ DASHBOARD ------------------------
 app.add_url_rule('/logout', view_func=m.logout, methods=['POST', 'GET'])
 app.add_url_rule('/login', view_func=m.do_admin_login, methods=['POST'])
 app.add_url_rule('/signup', view_func=m.render_signup, methods=['POST', 'GET'])
 app.add_url_rule('/signup_post', view_func=m.signup_post, methods=['POST'])
 app.add_url_rule('/test_notification', view_func=m.test_notification, methods=['GET'])
 
+app.add_url_rule('/order/status', view_func=m.patch_order_status, methods=['PATCH'])
+
+
+# ------------------------ NOTIFIER ------------------------
 app.add_url_rule('/commands/accept/<token_id>', view_func=notifier.accept_command, methods=['GET'])
+
+
+
+
+
+# ------------------------ SERVICE TO SERVICE ------------------------
+app.add_url_rule('/order_creation_webhook', view_func=m.handle_order_creation_webhook, methods=['POST'])
+app.add_url_rule('/check_availability', view_func=m.check_availability, methods=['POST'])
 
 
 app.secret_key = os.urandom(12)

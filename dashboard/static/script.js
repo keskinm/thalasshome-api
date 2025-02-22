@@ -67,10 +67,23 @@ function makeSortable(id, socket) {
                 }
             }
 
-            socket.emit('category', {
-                item: item_id,
-                category: ev.to.id
-            });
+            fetch('/order/status', {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  item: item_id,
+                  category: ev.to.id
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+              })
+              .catch(error => {
+                console.error('Error patching order status:', error);
+              });
+
         },
 
         // onRemove: function (ev) {

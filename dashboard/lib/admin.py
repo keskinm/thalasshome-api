@@ -34,7 +34,6 @@ def select_employee(item):
         employees = supabase_cli.rpc("get_user_by_zone", {"command_zone": found_zone}).execute().data
         if employees:
             selected = random.choice(employees)["username"]
-
     item['employee'] = selected
     client.put(item)
 

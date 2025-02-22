@@ -4,18 +4,17 @@ import json
 import hmac
 import hashlib
 import base64
-from flask import render_template, request, session, flash, jsonify
+from flask import render_template, request, session, flash, jsonify, redirect
 from dashboard.db.client import supabase_cli
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-from dashboard.lib.patch.hooks import Hooks
-from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
+from dashboard.lib.hooks import Hooks
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.notifier import Notifier
-from dashboard.lib.utils.utils import find_zone
-from dashboard.lib.parser.creation_order import OrderHandler
+from dashboard.lib.locations import find_zone
+from dashboard.lib.creation_order import OrderHook
 
 
 
@@ -82,8 +81,8 @@ class Master:
 
             replace = item['replace'] if 'replace' in item else 'Aucun'
 
-            adr = OrderHandler().get_address(item)
-            ship, amount = OrderHandler().get_ship(item)
+            adr = OrderHook().get_address(item)
+            ship, amount = OrderHook().get_ship(item)
 
             res.setdefault(status, [])
             res[status].append({
@@ -163,11 +162,12 @@ class Master:
 
         if response and check_password_hash(response["password"], POST_PASSWORD):
             session['logged_in'] = True
+            return redirect('/')
         else:
             flash('wrong password!')
             print("wrong password")
-        return self.root()
-    
+            return redirect('/login')
+
     def ask_zone(self):
         data = request.get_json()
         zone = data.get('zone')
@@ -226,11 +226,18 @@ class Master:
         except BaseException as e:
             print(e)
 
-        handler = CreationOrderHandler()
+        handler = OrderHook()
 
         if self.secure_hooks.check_request(request):
             order = handler.parse_data(json.loads(data.decode("utf-8")))
-            handler.insert_received_webhook_to_datastore(order)
+
+            name = order['id']
+            key = client.key("orders", name)
+            entity = datastore.Entity(key=key)
+            # @todo how to avoid this stupid thing
+            for k, v in order.items():
+                entity[k] = v
+            client.put(entity)
 
             self.notifier(order)
 

@@ -1,5 +1,4 @@
-
-order = {
+ORDER_SAMPLE_1 = {
     "id": 3662977106103,
     "status": "canceled",
     "email": "mouss42490@gmail.com",
@@ -107,18 +106,18 @@ order = {
         "province_code": None}
 }
 
-order1 = {}
-for k, v in order.items():
+ORDER_SAMPLE_2 = {}
+for k, v in ORDER_SAMPLE_1.items():
     if k == "id":
-        order1[k] = 3662977106105
+        ORDER_SAMPLE_2[k] = 3662977106105
     elif k == "shipping_address":
-        order1[k] = v.copy()
-        order1[k]["country"] = "Switzerland"
-        order1[k]["zip"] = "12500"
+        ORDER_SAMPLE_2[k] = v.copy()
+        ORDER_SAMPLE_2[k]["country"] = "Switzerland"
+        ORDER_SAMPLE_2[k]["zip"] = "12500"
     else:
-        order1[k] = v
+        ORDER_SAMPLE_2[k] = v
 
-mixed_order = {'total_price': '105.00',
+MIXED_ORDER = {'total_price': '105.00',
                'id': '3704443175095',
                'employee': 'None',
                'created_at': '2021-03-27T14:34:30+01:00',
@@ -169,4 +168,4 @@ mixed_order = {'total_price': '105.00',
                'updated_at': '2021-03-27T14:34:31+01:00'}
 
 
-orders = [order, order1, mixed_order]
+ORDER_SAMPLES = [ORDER_SAMPLE_1, ORDER_SAMPLE_2, MIXED_ORDER]

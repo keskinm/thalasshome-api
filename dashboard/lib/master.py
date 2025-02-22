@@ -171,6 +171,14 @@ class Master:
             print("wrong password")
         return self.root()
     
+    def ask_zone(self):
+        data = request.get_json()
+        zone = data.get('zone')
+        country = data.get('country')
+        
+        cards = self.get_cards(zone, country)
+        
+        return jsonify(cards)
 
     def patch_order_status(self):
         print("\n ----ON PATCH ORDER STATUS------ \n")

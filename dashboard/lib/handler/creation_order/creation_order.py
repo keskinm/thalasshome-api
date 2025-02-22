@@ -1,18 +1,15 @@
-from dashboard.lib.parser.creation_order.creation_order import CreationOrderParser
-from dashboard.lib.handler.base_handler import BaseHandler
+from dashboard.lib.parser.creation_order import OrderHandler
 from google.cloud import datastore
 datastore_client = datastore.Client()
 
 
-class CreationOrderHandler(CreationOrderParser, BaseHandler):
+class CreationOrderHandler(OrderHandler):
     def __init__(self):
-        CreationOrderParser.__init__(self)
-        BaseHandler.__init__(self)
-        self.collection_name = "orders"
+        OrderHandler.__init__(self)
 
     def insert_received_webhook_to_datastore(self, order):
         name = order['id']
-        key = datastore_client.key(self.collection_name, name)
+        key = datastore_client.key("orders", name)
         entity = datastore.Entity(key=key)
         
         # @todo how to avoid this stupid thing

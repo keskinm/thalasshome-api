@@ -4,7 +4,7 @@ import json
 import hmac
 import hashlib
 import base64
-from flask import flash, render_template, request, session, flash, jsonify
+from flask import render_template, request, session, flash, jsonify
 from dashboard.db.client import supabase_cli
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -13,9 +13,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dashboard.lib.patch.hooks import Hooks
 from dashboard.lib.handler.creation_order.creation_order import CreationOrderHandler
 from dashboard.utils.maps.maps import zip_codes_to_locations
-from dashboard.lib.notifier.notifier import Notifier
+from dashboard.lib.notifier import Notifier
 from dashboard.lib.utils.utils import find_zone
-from dashboard.lib.parser.creation_order.creation_order import CreationOrderParser
+from dashboard.lib.parser.creation_order import OrderHandler
 
 
 
@@ -82,8 +82,8 @@ class Master:
 
             replace = item['replace'] if 'replace' in item else 'Aucun'
 
-            adr = CreationOrderParser().get_address(item)
-            ship, amount = CreationOrderParser().get_ship(item)
+            adr = OrderHandler().get_address(item)
+            ship, amount = OrderHandler().get_ship(item)
 
             res.setdefault(status, [])
             res[status].append({

@@ -148,7 +148,7 @@ class Master:
             return self.render_signup()
 
         # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-        new_user = User(email=email, username=name, password=generate_password_hash(password, method='sha256'),
+        new_user = User(email=email, username=name, password=generate_password_hash(password, method='pbkdf2:sha256'),
                         phone_number=phone_number, country=country, zone=zone)
 
         # add the new user to the database
@@ -163,9 +163,8 @@ class Master:
         POST_PASSWORD = str(request.form['password'])
 
         s = sessionmaker(bind=engine)()
-        query = s.query(User).filter(User.username.in_([POST_USERNAME]), User.password.in_([POST_PASSWORD]))
-        result = query.first()
-        if result:
+        query = s.query(User).filter(User.username == POST_USERNAME).first()
+        if query and check_password_hash(query.password, POST_PASSWORD):
             session['logged_in'] = True
         else:
             flash('wrong password!')

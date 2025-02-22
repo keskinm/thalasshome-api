@@ -35,7 +35,7 @@ class CreationOrderParser(BaseParser):
                     # OLD VERSION (ENGLISH, WILL BE REMOVED)
                     if 'From' in prop:
                         ship += ' '.join(
-                            ['Du', prop['From'], prop['start-time'], '  Au', prop['To'], prop['finish-time']]). \
+                            ['Du', prop['From'], prop.get('start-time') or '', '  Au', prop['To'], prop.get('finish-time') or '']). \
                             replace("\\", "")
 
                     # FRENCH VERSION
@@ -52,7 +52,10 @@ class CreationOrderParser(BaseParser):
     @staticmethod
     def get_address(item):
         adr_item = item['shipping_address']
-        adr = ' '.join([adr_item['city'], adr_item['zip'], adr_item['address1'], adr_item['address2']])
+        adr = ' '.join([adr_item['city'] or '', 
+                        adr_item['zip'] or '', 
+                        adr_item['address1'] or '', 
+                        adr_item['address2'] or ''])
         return adr
 
     @staticmethod

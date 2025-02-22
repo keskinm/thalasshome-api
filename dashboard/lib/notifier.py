@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 
-from flask import Blueprint, redirect
+from flask import redirect, Blueprint
 from google.cloud import datastore
 
 from dashboard.lib.locations import find_zone

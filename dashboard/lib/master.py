@@ -14,7 +14,7 @@ from dashboard.lib.hooks import Hooks
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.locations import find_zone
-from dashboard.lib.creation_order import OrderHook
+from dashboard.lib.order import OrderParser
 
 
 
@@ -81,8 +81,8 @@ class Master:
 
             replace = item['replace'] if 'replace' in item else 'Aucun'
 
-            adr = OrderHook().get_address(item)
-            ship, amount = OrderHook().get_ship(item)
+            adr = OrderParser().get_address(item)
+            ship, amount = OrderParser().get_ship(item)
 
             res.setdefault(status, [])
             res[status].append({
@@ -226,7 +226,7 @@ class Master:
         except BaseException as e:
             print(e)
 
-        handler = OrderHook()
+        handler = OrderParser()
 
         if self.secure_hooks.check_request(request):
             order = handler.parse_data(json.loads(data.decode("utf-8")))

@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 
-from flask import Blueprint
+from flask import Blueprint, redirect
 from google.cloud import datastore
 
 from dashboard.lib.locations import find_zone
@@ -207,6 +207,23 @@ class Notifier:
 def _accept_command(token_id):
     return Notifier().accept_command(token_id)
 
+
+
+@notifier_bp.route('/test_notification', methods=['GET'])
+def test_notification():
+    from dashboard.utils.samples.orders.orders import MIXED_ORDER
+
+    datastore_client = datastore.Client()
+
+    name = MIXED_ORDER['id']
+    key = datastore_client.key("orders", name)
+    c_order = datastore.Entity(key=key)
+    for k, v in MIXED_ORDER.items():
+        c_order[k] = v
+    datastore_client.put(c_order)
+
+    Notifier()(MIXED_ORDER)
+    return redirect("/")
 
 
 

@@ -11,32 +11,63 @@ const socket = io.connect('ws://' + ws_address + '/');
 // ----------------------------------- EVENT FUNCTIONS -----------------------------------------------
 
 
-function select_repl(select, item_id)
-    {
-     let select_label = undefined;
-
-     for (let i = 0; i < select.length; i++) {
-         if (select[i].selected === true) {
-             select_label = select[i].label;
-             break;
-         }
+function select_repl(select, item_id) {
+    let select_label = undefined;
+  
+    for (let i = 0; i < select.length; i++) {
+      if (select[i].selected) {
+        select_label = select[i].label;
+        break;
+      }
     }
-
-     socket.emit('select_repl', {
+  
+    fetch('/select_repl', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         select_label: select_label,
-        item_id: item_id,
-    });
+        item_id: item_id
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Replacement updated:", data);
+        // data.message, data.item_id, data.replace ...
+        // Si besoin, tu peux faire un refresh sur l'écran, 
+        // ou juste afficher une petite notification
+      })
+      .catch(error => {
+        console.error('Error updating replacement:', error);
+      });
+}
 
-    }
 
 function removeCards(list_id) {
-    {
+    fetch('/remove_cards', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ list_id })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Removed cards:", data);
+        const cont = document.getElementById(data.list_id);
+        if (cont) {
+          cont.innerHTML = "";
+        }
+        
+      })
+      .catch(error => {
+        console.error('Error removing cards:', error);
+      });
+  }
+  
 
-    socket.emit('remove_cards', {
-        list_id: list_id
-    });
-}
-}
+
 
 
 function selectOnly(zone, country) {
@@ -122,28 +153,6 @@ function makeSortable(id, socket) {
 
         },
 
-        // onRemove: function (ev) {
-        //     console.log('on_remove', ev);
-        //     if (ev.to.id=='canceled') {
-        //         console.log('in if statement', ev);
-        //         const cld = ev.item.childNodes;
-        //         let item_id = undefined;
-        //
-        //         for (let i = 0; i < cld.length; i++) {
-        //             if (cld[i].localName === "p") {
-        //                 item_id = cld[i].textContent;
-        //                 break;
-        //             }
-        //         }
-        //
-        //         socket.emit('remove_card', {
-        //             item: item_id,
-        //             category: ev.to.id
-        //     });
-        //
-        //     }
-        // }
-
     });
 
 }
@@ -157,41 +166,4 @@ $(function (){
 });
 
 
-// ----------------------------------- SOCKET RESPONSES -----------------------------------------------
-
-socket.on('ask_zone_client', function(msg) {
-
-    const it = msg;
-
-    for (let i = 0; i < cat.length; i++) {
-        const i_list = it[cat[i]];
-        const cont = document.getElementById(cat[i]);
-
-        /*while (cont.firstChild)
-            cont.removeChild(cont.lastChild);*/
-
-        if (i_list === undefined) {
-            cont.innerHTML = "";
-            continue;
-        }
-
-        let new_content = "";
-
-        for (let j = 0; j < i_list.length; j++) {
-            const cur_item = i_list[j];
-
-            new_content += `<li>\
-                ${ cur_item.address } <br />\
-                Employé: ${ cur_item.def_empl } <br />\
-                Remplacant: ${ cur_item.rep_empl } <br />\
-                Objets: ${ cur_item.shipped } <br />\
-                Montant restant dû: ${ cur_item.amount }€ \
-                <p hidden>${ cur_item.ent_id }</p>\
-            </li>`
-        }
-
-        cont.innerHTML = new_content;
-    }
-
-});
 

@@ -1,5 +1,3 @@
-"""
-
 - standardize localizations
 - mettre à jour sur le site en cas d'acceptation de livraison
 - refactor db attributes and add user parametrabilisation
@@ -8,6 +6,3 @@
 
 - verifier compatibilité pack bien etre et th_backend
 - mettre logos sur les photos
-
-"""
-

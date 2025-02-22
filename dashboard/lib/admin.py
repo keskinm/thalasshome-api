@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash
 from dashboard.lib.hooks import Hooks
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order import OrderParser
+from dashboard.lib.order.order import OrderParser
 
 from werkzeug.security import check_password_hash
 

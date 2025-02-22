@@ -4,7 +4,7 @@ from flask import request, jsonify, Blueprint
 from dashboard.lib.admin import verify_webhook
 from dashboard.lib.hooks import Hooks
 from dashboard.lib.notifier import Notifier
-from dashboard.lib.order import OrderParser
+from dashboard.lib.order.order import OrderParser
 
 import json
 
@@ -38,10 +38,8 @@ def handle_order_creation_webhook():
     except BaseException as e:
         print(e)
 
-    handler = OrderParser()
-
     if secure_hooks.check_request(request):
-        order = handler.parse_data(json.loads(data.decode("utf-8")))
+        order = OrderParser().parse_data(json.loads(data.decode("utf-8")))
 
         name = order['id']
         key = client.key("orders", name)

@@ -7,7 +7,7 @@ from flask import redirect, Blueprint, request
 from google.cloud import datastore
 
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order import OrderParser
+from dashboard.lib.order.order import OrderParser
 from dashboard.db.client import supabase_cli
 
 notifier_bp = Blueprint('notifier', __name__)

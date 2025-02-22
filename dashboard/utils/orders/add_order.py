@@ -1,6 +1,6 @@
 from google.cloud import datastore
 
-from dashboard.utils.samples.orders.orders import orders
+from dashboard.utils.samples.orders.orders import ORDER_SAMPLES
 datastore_client = datastore.Client()
 
 
@@ -16,4 +16,4 @@ def add_order_samples(orders):
         datastore_client.put(c_order)
 
 
-add_order_samples(orders)
+add_order_samples(ORDER_SAMPLES)

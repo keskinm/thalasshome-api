@@ -107,7 +107,7 @@ class Master:
         else:
             res = self.get_cards()
             employee_names = supabase_cli.table("users").select("username").execute().data
-            res = {**res, **{'employees': employee_names}}
+            res = {**res, **{'employees': list(map(lambda x: x.get('username'), employee_names))}}
 
             return render_template('index.html', **res)
 

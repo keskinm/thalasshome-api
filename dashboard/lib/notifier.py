@@ -5,7 +5,7 @@ import os
 from google.cloud import datastore
 
 from dashboard.lib.utils.utils import find_zone
-from dashboard.lib.parser.creation_order.creation_order import CreationOrderParser
+from dashboard.lib.parser.creation_order import OrderHandler
 from dashboard.db.client import supabase_cli
 
 
@@ -17,7 +17,7 @@ class Notifier:
         self.sender_email = "spa.detente.france@gmail.com"
         self.flask_address = os.getenv('flask_address')
         self.email_sender_password = os.getenv('email_sender_password')
-        self.order_parser = CreationOrderParser()
+        self.order_parser = OrderHandler()
 
     def __call__(self, order):
         providers = self.get_providers(order)

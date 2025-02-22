@@ -4,7 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from dashboard.lib.master import Master
-from dashboard.lib.notifier.notifier import Notifier
+from dashboard.lib.notifier import Notifier
 
 print("\n\n\n\n-------------------------GO !---------------------------\n\n\n\n")
 

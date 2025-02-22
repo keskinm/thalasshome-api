@@ -167,3 +167,5 @@ MIXED_ORDER = {'total_price': '105.00',
                                     'name': 'Mustafa Keskin'}, 'gateway': 'Cash on Delivery (COD)',
                'updated_at': '2021-03-27T14:34:31+01:00'}
 
+
+ORDER_SAMPLES = [ORDER_SAMPLE_1, ORDER_SAMPLE_2, MIXED_ORDER]

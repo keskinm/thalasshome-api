@@ -1,3 +1,7 @@
 runtime: python39
 entrypoint: gunicorn -b :8080 dashboard.run:app
 
+env_variables:
+  SUPABASE_URL: "https://mvccpsluwnjynhzcvaxc.supabase.co"
+  SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12Y2Nwc2x1d25qeW5oemN2YXhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5OTM3ODksImV4cCI6MjA1NTU2OTc4OX0.tvJtrANHFx5NZAuFMGKSIrdlw-SWRZLaTptnA82dA8Q"
+  email_sender_password: "XXXX"

@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 
-from flask import redirect, Blueprint
+from flask import redirect, Blueprint, request
 from google.cloud import datastore
 
 from dashboard.lib.locations import find_zone
@@ -19,7 +19,7 @@ class Notifier:
         self.protocol = 'http'
         self.orders_collection_name = "orders"
         self.sender_email = "spa.detente.france@gmail.com"
-        self.flask_address = os.getenv('flask_address')
+        self.flask_address = request.host_url.rstrip('/')
         self.email_sender_password = os.getenv('email_sender_password')
         self.order_parser = OrderParser()
 
@@ -211,7 +211,7 @@ def _accept_command(token_id):
 
 @notifier_bp.route('/test_notification', methods=['GET'])
 def test_notification():
-    from dashboard.utils.samples.orders.orders import MIXED_ORDER
+    from dashboard.utils.orders.sample import MIXED_ORDER
 
     datastore_client = datastore.Client()
 

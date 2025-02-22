@@ -28,12 +28,15 @@ app.add_url_rule('/logout', view_func=m.logout, methods=['POST', 'GET'])
 app.add_url_rule('/login', view_func=m.do_admin_login, methods=['POST'])
 app.add_url_rule('/signup', view_func=m.render_signup, methods=['POST', 'GET'])
 app.add_url_rule('/signup_post', view_func=m.signup_post, methods=['POST'])
-app.add_url_rule('/test_notification', view_func=m.test_notification, methods=['GET'])
-
-app.add_url_rule('/order/status', view_func=m.patch_order_status, methods=['PATCH'])
 
 app.add_url_rule('/ask_zone', view_func=m.ask_zone, methods=['POST'])
 
+app.add_url_rule('/order/status', view_func=m.patch_order_status, methods=['PATCH'])
+
+app.add_url_rule('/remove_cards', view_func=m.on_remove_cards, methods=['POST'])
+app.add_url_rule('/select_repl', view_func=m.on_select_repl, methods=['POST'])
+
+app.add_url_rule('/test_notification', view_func=m.test_notification, methods=['GET'])
 
 
 # ------------------------ NOTIFIER ------------------------

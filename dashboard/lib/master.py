@@ -256,6 +256,40 @@ class Master:
 
         else:
             return 'you already sent me this hook!', 404
+        
+
+    def on_remove_cards(self):
+        data = request.get_json()
+        list_id = data['list_id']
+        print("\n ----ON REMOVE CARDS------ \n")
+
+        query = client.query(kind="orders")
+        query.add_filter("status", "=", list_id)
+        orders = query.fetch()
+
+        for order in orders:
+            client.delete(order.key)
+        return jsonify({
+            "message": "Cards removed from list",
+            "list_id": list_id
+        })
+
+    def on_select_repl(self):
+        data = request.get_json()
+        select_label = data['select_label']
+        item_id = data['item_id']
+
+        query = client.query(kind="orders")
+        query.add_filter("__key__", "=", client.key('orders', int(item_id)))
+        orders = query.fetch()
+
+        for order in orders:
+            order['replace'] = select_label
+            client.put(order)
+        return jsonify({"message": "Replacement updated", 
+                        "item_id": item_id,
+                        "replace": select_label})
+
 
     def test_notification(self):
         from dashboard.utils.samples.orders.orders import mixed_order

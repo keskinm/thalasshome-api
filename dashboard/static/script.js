@@ -40,11 +40,47 @@ function removeCards(list_id) {
 
 
 function selectOnly(zone, country) {
-    socket.emit('ask_zone', {
-        zone: zone,
-        country: country
+    fetch('/ask_zone', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ zone, country })
     })
-}
+      .then(response => response.json())
+      .then(data => {
+        for (let i = 0; i < cat.length; i++) {
+          const i_list = data[cat[i]];
+          const cont = document.getElementById(cat[i]);
+  
+          if (!i_list) {
+            cont.innerHTML = "";
+            continue;
+          }
+  
+          let new_content = "";
+  
+          for (let j = 0; j < i_list.length; j++) {
+            const cur_item = i_list[j];
+            new_content += `
+              <li>
+                ${cur_item.address} <br />
+                Employé: ${cur_item.def_empl} <br />
+                Remplacant: ${cur_item.rep_empl} <br />
+                Objets: ${cur_item.shipped} <br />
+                Montant restant dû: ${cur_item.amount}€ 
+                <p hidden>${cur_item.ent_id}</p>
+              </li>`;
+          }
+  
+          cont.innerHTML = new_content;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching zone data:', error);
+      });
+  }
+  
 
 
 // ----------------------------------- CARDS -----------------------------------------------
@@ -157,11 +193,5 @@ socket.on('ask_zone_client', function(msg) {
         cont.innerHTML = new_content;
     }
 
-});
-
-
-socket.on('remove_cards_client', function(msg) {
-    const cont = document.getElementById(msg['list_id']);
-    cont.innerHTML = "";
 });
 

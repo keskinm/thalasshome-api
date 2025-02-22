@@ -32,6 +32,9 @@ app.add_url_rule('/test_notification', view_func=m.test_notification, methods=['
 
 app.add_url_rule('/order/status', view_func=m.patch_order_status, methods=['PATCH'])
 
+app.add_url_rule('/ask_zone', view_func=m.ask_zone, methods=['POST'])
+
+
 
 # ------------------------ NOTIFIER ------------------------
 app.add_url_rule('/commands/accept/<token_id>', view_func=notifier.accept_command, methods=['GET'])

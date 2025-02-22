@@ -3,9 +3,6 @@
 
 const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
 
-var ws_address = document.getElementsByName('ws_address')[0].content;
-const socket = io.connect('ws://' + ws_address + '/');
-
 
 
 // ----------------------------------- EVENT FUNCTIONS -----------------------------------------------

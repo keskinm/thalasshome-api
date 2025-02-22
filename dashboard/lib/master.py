@@ -114,14 +114,13 @@ class Master:
             return render_template('login.html')
         else:
             res = self.get_cards()
-            env_variables = {k: os.getenv(k) for k in ['ws_address']}
 
             db_session = sessionmaker(bind=engine)()
             table = db_session.query(User).filter()
             employees = list(map(lambda provider: provider.username, list(table)))
             empl = {'employees': employees}
 
-            res = {**res, **env_variables, **empl}
+            res = {**res, **empl}
 
             print("1!")
             return render_template('index.html', **res)
@@ -245,13 +244,6 @@ class Master:
 
             self.notifier(order)
 
-            print("ok ;)")
-
-            #  update currently connected clients
-
-            # sio = socketio.Client()
-            # sio.connect(f'https://{os.getenv("ws_address")}/')
-            # sio.emit('trigger_update', {'key': 'update'})
             return 'ok', 200
 
         else:

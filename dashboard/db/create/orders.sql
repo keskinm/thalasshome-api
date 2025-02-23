@@ -38,7 +38,7 @@ CREATE TABLE line_items (
 );
 
 
-CREATE TABLE delivery_stock (
+CREATE TABLE delivery_capacity (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     product product_type NOT NULL,

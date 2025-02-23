@@ -43,10 +43,10 @@ days AS (
   )::date AS d
 ),
 capacity AS (
-  SELECT SUM(ds.quantity) AS max_stock
-  FROM delivery_stock ds
-  JOIN relevant_users ru ON ru.user_id = ds.user_id
-  WHERE ds.product::text = in_product
+  SELECT SUM(dc.quantity) AS max_stock
+  FROM delivery_capacity dc
+  JOIN relevant_users ru ON ru.user_id = dc.user_id
+  WHERE dc.product::text = in_product
 ),
 bookings AS (
   SELECT li.from_date, li.to_date, li.quantity

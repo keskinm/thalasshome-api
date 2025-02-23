@@ -28,7 +28,7 @@ def check_availability():
             "in_shipping_lon": lon,
             "in_shipping_lat": lat,
         }).single().execute().data["n_delivery_men"]
-        return jsonify({"unavailable_dates": [], "product_available": bool(len(n_delivery_men))})
+        return jsonify({"unavailable_dates": [], "product_available": bool(n_delivery_men)})
     product_name = normalize_jac_string(product_name)
 
     dates = supabase_cli.rpc("get_availability_calendar_within_75days", {

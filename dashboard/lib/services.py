@@ -1,4 +1,3 @@
-from google.cloud import datastore
 from flask import request, jsonify, Blueprint
 
 from dashboard.db.client import supabase_cli
@@ -13,8 +12,6 @@ secure_hooks = Hooks()
 
 services_bp = Blueprint('services', __name__)
 
-
-client = datastore.Client()
 
 
 @services_bp.route('/check_availability', methods=['POST'])

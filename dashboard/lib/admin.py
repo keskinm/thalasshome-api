@@ -24,8 +24,6 @@ admin_bp = Blueprint('admin', __name__)
 
 
 def select_employee(item):
-    client = datastore.Client()
-
     command_country = item['shipping_address']['country']
     command_zip = item['shipping_address']['zip']
     selected = 'None'
@@ -36,7 +34,6 @@ def select_employee(item):
         if employees:
             selected = random.choice(employees)["username"]
     item['employee'] = selected
-    client.put(item)
 
     return selected
 

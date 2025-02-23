@@ -4,7 +4,6 @@ from email.mime.multipart import MIMEMultipart
 import os
 
 from flask import redirect, Blueprint, request
-from google.cloud import datastore
 
 from dashboard.lib.locations import find_zone
 from dashboard.lib.order.order import get_name, deprecated_get_ship, get_address
@@ -17,23 +16,26 @@ notifier_bp = Blueprint('notifier', __name__)
 class Notifier:
     def __init__(self):
         self.protocol = 'http'
-        self.orders_collection_name = "orders"
         self.sender_email = "spa.detente.france@gmail.com"
         self.flask_address = request.host_url.rstrip('/')
         self.email_sender_password = os.getenv('email_sender_password')
 
-    def __call__(self, order):
-        providers = self.get_providers(order)
+    def __call__(self, order, test=False):
+        providers = self.get_providers(order, test=test)
         tokens = self.create_tokens(order['id'], providers)
         self.notify_providers(providers, tokens, order)
 
     @staticmethod
-    def get_providers(order) -> list[dict]:
+    def get_providers(order, test=False) -> list[dict]:
         command_country = order['shipping_address']['country']
         command_zip = order['shipping_address']['zip']
         command_zone = find_zone(command_zip, command_country)
 
-        return supabase_cli.rpc("get_user_by_zone", {"command_zone": command_zone}).execute().data
+        providers = supabase_cli.rpc("get_user_by_zone", {"command_zone": command_zone}).execute().data
+
+        if test:
+            providers = list(filter(lambda x: 'python' in x['username'], providers))
+        return providers
 
 
     @staticmethod
@@ -84,17 +86,18 @@ class Notifier:
             self.send_mail(provider["email"], subject, html, text)
 
     def accept_command(self, token_id):
-        datastore_client = datastore.Client()
         order_id, provider_username = token_id.split('|')
+        order = (supabase_cli.
+                 table("orders").
+                 select("*").
+                 eq("id", order_id).
+                 limit(1).
+                 single().
+                 execute().
+                 data)
 
-        key = datastore_client.key(self.orders_collection_name, order_id)
-        order = datastore_client.get(key)
         if order is None:
-            order_id = int(order_id)
-            key = datastore_client.key(self.orders_collection_name, order_id)
-            order = datastore_client.get(key)
-            if order is None:
-                return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
+            return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
 
         if 'provider' in order:
             return 'La commande a déjà été accepté par un autre livreur.'
@@ -104,7 +107,7 @@ class Notifier:
             provider_email = provider["email"]
 
             order['provider'] = {'username': provider_username, 'email': provider_email}
-            datastore_client.put(order)
+            supabase_cli.table("orders").update({"delivery_man_id": provider["id"]}).eq("id", order_id).execute()
 
             html_customer_phone_number = 'Numéro du client : {phone} <br>'.format(phone=order["phone"]) if 'phone' in order else ''
             html_customer_mail = 'E-mail : {mail} <br>'.format(mail=order["email"]) if 'email' in order else ''
@@ -211,18 +214,5 @@ def _accept_command(token_id):
 @notifier_bp.route('/test_notification', methods=['GET'])
 def test_notification():
     from dashboard.utils.orders.sample import MIXED_ORDER
-
-    datastore_client = datastore.Client()
-
-    name = MIXED_ORDER['id']
-    key = datastore_client.key("orders", name)
-    c_order = datastore.Entity(key=key)
-    for k, v in MIXED_ORDER.items():
-        c_order[k] = v
-    datastore_client.put(c_order)
-
     Notifier()(MIXED_ORDER)
     return redirect("/")
-
-
-

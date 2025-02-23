@@ -1,59 +1,116 @@
-class OrderParser:
-    def __init__(self):
-        self.interest_keys = ['id', 'email', 'created_at', 'updated_at', 'gateway', 'total_price', 'title',
-                              'line_items', 'shipping_address', 'phone']
+from geopy.geocoders import Nominatim
 
-        self.spec_treatment_keys = []
-        self.treatment_methods = {}
+from dashboard.constants import JACUZZI4P, JACUZZI2P
 
-    def parse_data(self, data):
-        order = {}
 
-        for k, v in data.items():
-            if k in self.interest_keys:
-                order[k] = v
+# ----------------- Order ----------------- #
 
-        return order
+def extract_order_keys(data):
+    order = {}
+    interest_keys = ['id', 'email', 'created_at', 'updated_at', 'total_price',
+                     'line_items', 'shipping_address', 'phone']
 
-    @staticmethod
-    def get_ship(item):
-        ship = ""
-        amount = 0
+    for k, v in data.items():
+        if k in interest_keys:
+            order[k] = v
 
-        if 'line_items' in item:
-            d_items = item['line_items']
-            for start_separator, d_i in enumerate(d_items):
-                ship += " --+-- " if start_separator else ''
-                ship += str(d_i['quantity']) + " " + d_i['name'] + " "
-                if d_i['properties']:
-                    prop = {p['name']: p['value'] for p in d_i['properties']}
+    return order
 
-                    # OLD VERSION (ENGLISH, WILL BE REMOVED)
-                    if 'From' in prop:
-                        ship += ' '.join(
-                            ['Du', prop['From'], prop.get('start-time') or '', '  Au', prop['To'], prop.get('finish-time') or '']). \
-                            replace("\\", "")
+def get_nominatim_coordinates(address):
+    geolocator = Nominatim(user_agent="my_geocoder")
+    location = geolocator.geocode(address)
+    if location:
+        return location.latitude, location.longitude
+    else:
+        return None
 
-                    # FRENCH VERSION
-                    elif 'Du' in prop:
-                        ship += ' '.join(
-                            ['Du', prop['Du'], prop["Heure d'arrivée"], '  Au', prop['Au'], prop['Heure de fin']]). \
-                            replace("\\", "")
 
-                    if 'Grand Total' in prop:
-                        amount += float(prop['Grand Total'].split(' ')[1]) - float(prop['_part_payment_amount'])
+def get_coordinates(item):
+    if item["billing_address"]["latitude"]:
+        lat = item["billing_address"]["latitude"]
+        long = item["billing_address"]["longitude"]
+    elif item["shipping_address"]["latitude"]:
+        lat = item["shipping_address"]["latitude"]
+        long = item["shipping_address"]["longitude"]
+    else:
+        lat, long = get_nominatim_coordinates(f"{item['shipping_address']['address1']} {item['shipping_address']['zip']} {item['shipping_address']['city']} {item['shipping_address']['country']}")
+    return lat, long
 
-        return ship, amount
 
-    @staticmethod
-    def get_address(item):
-        adr_item = item['shipping_address']
-        adr = ' '.join([adr_item['city'] or '', 
-                        adr_item['zip'] or '', 
-                        adr_item['address1'] or '', 
-                        adr_item['address2'] or ''])
-        return adr
+def get_ship(item):
+    ship = ""
+    amount = 0
 
-    @staticmethod
-    def get_name(item):
-        return item['shipping_address']['first_name'] + " " + item['shipping_address']['last_name']
+    if 'line_items' in item:
+        d_items = item['line_items']
+        for start_separator, d_i in enumerate(d_items):
+            ship += " --+-- " if start_separator else ''
+            ship += str(d_i['quantity']) + " " + d_i['name'] + " "
+            if d_i['properties']:
+                prop = {p['name']: p['value'] for p in d_i['properties']}
+
+                # OLD VERSION (ENGLISH, WILL BE REMOVED)
+                if 'From' in prop:
+                    ship += ' '.join(
+                        ['Du', prop['From'], prop.get('start-time') or '', '  Au', prop['To'], prop.get('finish-time') or '']). \
+                        replace("\\", "")
+
+                # FRENCH VERSION
+                elif 'Du' in prop:
+                    ship += ' '.join(
+                        ['Du', prop['Du'], prop["Heure d'arrivée"], '  Au', prop['Au'], prop['Heure de fin']]). \
+                        replace("\\", "")
+
+                if 'Grand Total' in prop:
+                    amount += float(prop['Grand Total'].split(' ')[1]) - float(prop['_part_payment_amount'])
+
+    return ship, amount
+
+
+def get_address(item):
+    adr_item = item['shipping_address']
+    adr = ' '.join([adr_item['city'] or '',
+                    adr_item['zip'] or '',
+                    adr_item['address1'] or '',
+                    adr_item['address2'] or ''])
+    return adr
+
+
+def get_name(item):
+    return item['shipping_address']['first_name'] + " " + item['shipping_address']['last_name']
+
+
+# ----------------- Line Items ----------------- #
+
+def extract_line_items_keys(data, parent_id):
+    line_items = []
+    interest_keys = ['id', 'quantity', 'price', 'phone', 'name']
+
+    for item in data:
+        line_item = {}
+        for k, v in item.items():
+            if k == "properties":
+                v_from = [vv["value"] for vv in v if vv["name"] == "From"][0]
+                v_to = [vv["value"] for vv in v if vv["name"] == "To"][0]
+                line_item["from"] = v_from
+                line_item["to"] = v_to
+            elif k == "name":
+                if 'jac' and '4' in v:
+                    line_item["product"] = JACUZZI4P
+                elif 'jac' and '2' in v:
+                    line_item["product"] = JACUZZI2P
+                else:
+                    line_item["product"] = v
+            elif k in interest_keys:
+                line_item[k] = v
+        if line_item:
+            line_item["order_id"] = parent_id
+            line_items.append(line_item)
+
+    return line_items
+
+def normalize_line_items(data):
+    for item in data:
+        item['quantity'] = int(item['quantity'])
+        item['price'] = float(item['price'])
+    return data

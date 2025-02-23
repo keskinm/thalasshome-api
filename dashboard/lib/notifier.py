@@ -7,7 +7,7 @@ from flask import redirect, Blueprint, request
 from google.cloud import datastore
 
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order.order import OrderParser
+from dashboard.lib.order.order import get_name, get_ship, get_address
 from dashboard.db.client import supabase_cli
 
 notifier_bp = Blueprint('notifier', __name__)
@@ -21,7 +21,6 @@ class Notifier:
         self.sender_email = "spa.detente.france@gmail.com"
         self.flask_address = request.host_url.rstrip('/')
         self.email_sender_password = os.getenv('email_sender_password')
-        self.order_parser = OrderParser()
 
     def __call__(self, order):
         providers = self.get_providers(order)
@@ -47,8 +46,8 @@ class Notifier:
     def notify_providers(self, providers: list[dict], tokens: list[str], order: dict):
         item = order
 
-        adr = self.order_parser.get_address(item)
-        ship, amount = self.order_parser.get_ship(item)
+        adr = get_address(item)
+        ship, amount = get_ship(item)
 
         for i in range(len(providers)):
             provider = providers[i]
@@ -113,7 +112,7 @@ class Notifier:
             text_customer_phone_number = 'Numéro du client : {phone} \n'.format(phone=order["phone"]) if 'phone' in order else ''
             text_customer_mail = 'E-mail : {mail} \n'.format(mail=order["email"]) if 'email' in order else ''
 
-            plain_customer_name = self.order_parser.get_name(order)
+            plain_customer_name = get_name(order)
             text_customer_name = 'Nom : {name} \n'.format(name=plain_customer_name)
             html_customer_name = 'Nom : {name} <br>'.format(name=plain_customer_name)
 
@@ -161,9 +160,9 @@ class Notifier:
         self.send_mail(provider["email"], subject, html)
 
     def notify_admins(self, order: dict, provider: dict):
-        adr = self.order_parser.get_address(order)
-        ship, amount = self.order_parser.get_ship(order)
-        customer_name = self.order_parser.get_name(order)
+        adr = get_address(order)
+        ship, amount = get_ship(order)
+        customer_name = get_name(order)
 
         subject = "Commande prise en charge par un prestataire"
 

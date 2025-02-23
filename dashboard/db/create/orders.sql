@@ -5,15 +5,12 @@ CREATE TYPE order_status AS ENUM (
 );
 
 CREATE TABLE orders (
-    id SERIAL PRIMARY KEY,
-    user_id      INT NOT NULL,
+    id INT PRIMARY KEY,
     email        TEXT,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    gateway      TEXT,
     total_price  NUMERIC,
-    title        TEXT,
-    shipping_address TEXT,
+    shipping_address JSONB, -- or JSON?
     phone        TEXT,
     status       order_status DEFAULT 'ask',
     shipping_lat FLOAT, -- AVAILABLE IN THE RECEIVED HOOK :D
@@ -27,7 +24,7 @@ CREATE TABLE orders (
 
 
 CREATE TABLE line_items (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     order_id   INT NOT NULL,
     from_date DATE,
     to_date DATE,

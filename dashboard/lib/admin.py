@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash
 from dashboard.lib.hooks import Hooks
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order.order import get_address, deprecated_get_ship, get_ship
+from dashboard.lib.order.order import get_address, get_ship
 
 from werkzeug.security import check_password_hash
 

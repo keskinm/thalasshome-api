@@ -40,7 +40,6 @@ def check_availability():
 
 @services_bp.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():
-    print("RECEIVED HOOK")
     notifier = Notifier()
 
     secure_hooks.flush()
@@ -75,7 +74,7 @@ def handle_order_creation_webhook():
             .insert(line_items)
             .execute()
         )
-        notifier(order)
+        notifier(parsed_order, line_items)
 
         return 'ok', 200
 

@@ -48,34 +48,22 @@
 
 	<div class="list">
 
+		<h3 class="list-title">Acceptes</h3>
+
+		<ul class="list-items" id="assigned">
+            {% for item in assigned %}
+                {{ display_item(item) }}
+            {% endfor %}
+		</ul>
+
+	</div>
+
+	<div class="list">
+
 		<h3 class="list-title">En cours de livraison</h3>
 
-		<ul class="list-items" id="delivery">
-            {% for item in delivery %}
-                {{ display_item(item) }}
-            {% endfor %}
-		</ul>
-
-	</div>
-
-	<div class="list">
-
-		<h3 class="list-title">Chez le client</h3>
-
-		<ul class="list-items" id="client">
-            {% for item in client %}
-                {{ display_item(item) }}
-            {% endfor %}
-		</ul>
-
-	</div>
-
-	<div class="list">
-
-		<h3 class="list-title">Retour au stock</h3>
-
-		<ul class="list-items" id="stock">
-            {% for item in stock %}
+		<ul class="list-items" id="in_delivery">
+            {% for item in in_delivery %}
                 {{ display_item(item) }}
             {% endfor %}
 		</ul>
@@ -87,8 +75,8 @@
 
 		<h3 class="list-title">Commandes terminées</h3>
 
-		<ul class="list-items" id="done">
-            {% for item in done %}
+		<ul class="list-items" id="delivered">
+            {% for item in delivered %}
                 {{ display_item(item) }}
             {% endfor %}
 		</ul>

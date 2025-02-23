@@ -1,5 +1,6 @@
 from flask import request, jsonify, Blueprint
 
+from dashboard.constants import normalize_jac_string
 from dashboard.db.client import supabase_cli
 from dashboard.lib.admin import verify_webhook
 from dashboard.lib.hooks import Hooks
@@ -17,10 +18,20 @@ services_bp = Blueprint('services', __name__)
 @services_bp.route('/check_availability', methods=['POST'])
 def check_availability():
     data = request.get_json()
-    print("CHECK AVAILABILITY", data)
 
-    # --- DO SOME STUFF TO SEE IF THE PRODUCT IS AVAILABLE ---
-    return jsonify({"available": True})
+    location = data['location']
+    lat, lon = location["lat"], location["lon"]
+
+    r = supabase_cli.rpc("get_availability_calendar_within_75days", {
+        "in_shipping_lon": lon,
+        "in_shipping_lat": lat,
+        "in_product": normalize_jac_string(data['productName'])
+    }).execute().data
+
+    unavailables_within_two_months = [x['the_day'] for x in r if not x['remain']]
+
+
+    return jsonify({"unavailable_dates": unavailables_within_two_months})
 
 @services_bp.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():

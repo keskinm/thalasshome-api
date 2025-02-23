@@ -162,23 +162,9 @@ def ask_zone():
 
 @admin_bp.route('/order/status', methods=['PATCH'])
 def patch_order_status():
-    client = datastore.Client()
-
     data = request.get_json()
     item_id = int(data['item'])
-    query = client.query(kind="orders")
-    query.add_filter("__key__", "=", client.key('orders', item_id))
-    orders = query.fetch()
-
-    for order in orders:
-        order['status'] = data['category']
-
-        if order['status'] not in ['ask', 'pending', 'assigned', 'in_delivery', 'delivered', 'canceled']:
-            print(f"{order['status']} not in ['ask', 'pending', 'assigned', 'in_delivery', 'delivered', 'canceled'], "
-                  f"continuing")
-            continue
-
-        client.put(order)
+    supabase_cli.table("orders").update({"status": data['category']}).eq("id", item_id).execute()
     return jsonify({"message": "Order status updated"})
 
 

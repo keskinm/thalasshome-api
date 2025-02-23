@@ -199,7 +199,14 @@ def on_select_repl():
     substitute = data['substitute']
     item_id = data['item_id']
 
-    delivery_man_id = supabase_cli.table("users").select("id").eq("username", substitute).execute().data
+    delivery_man_id = (
+        supabase_cli.table("users")
+        .select("id")
+        .eq("username", substitute)
+        .limit(1)
+        .single()
+        .execute()
+    ).data["id"]
     response = supabase_cli.table("orders").update({"delivery_man_id": delivery_man_id}).eq("id", item_id).execute()
 
     return jsonify({"message": f"Updated {response.count or 0} cards",

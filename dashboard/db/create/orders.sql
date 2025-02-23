@@ -13,7 +13,7 @@ CREATE TABLE orders (
     shipping_address JSONB, -- or JSON?
     phone        TEXT,
     status       order_status DEFAULT 'ask',
-    shipping_lat FLOAT, -- AVAILABLE IN THE RECEIVED HOOK :D
+    shipping_lat FLOAT,
     shipping_lon FLOAT,
     delivery_men_id INTEGER,
 

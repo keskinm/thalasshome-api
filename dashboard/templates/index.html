@@ -6,7 +6,7 @@
 {% include 'head.html' %}
 
 {% macro get_repls(item) %}
-    <select onchange="select_repl(this, {{ item.ent_id }})">
+    <select onchange="select_repl(this, {{ item.item_id }})">
         <option value="{{ item.rep_empl }}" selected> {{ item.rep_empl }} </option>
         {% for employee in employees %}
             <option value="{{ employee }}"> {{ employee }} </option>
@@ -22,7 +22,7 @@
         Remplacant: {{ get_repls(item) }} <br />
         Objets: {{ item.shipped }} <br />
         Montant restant dû: {{ item.amount }}€ <br />
-        <p hidden>{{ item.ent_id }}</p>
+        <p hidden>{{ item.item_id }}</p>
     </li>
 {% endmacro %}
 

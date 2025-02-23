@@ -107,7 +107,7 @@ class Notifier:
             provider_email = provider["email"]
 
             order['provider'] = {'username': provider_username, 'email': provider_email}
-            supabase_cli.table("orders").update({"delivery_man_id": provider["id"]}).eq("id", order_id).execute()
+            supabase_cli.table("orders").update({"delivery_men_id": provider["id"]}).eq("id", order_id).execute()
 
             html_customer_phone_number = 'Numéro du client : {phone} <br>'.format(phone=order["phone"]) if 'phone' in order else ''
             html_customer_mail = 'E-mail : {mail} <br>'.format(mail=order["email"]) if 'email' in order else ''

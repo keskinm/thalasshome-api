@@ -26,4 +26,4 @@ class OrderSchema(BaseModel):
     status: OrderStatus = OrderStatus.ask
     shipping_lat: Optional[float] = None
     shipping_lon: Optional[float] = None
-    delivery_man_id: Optional[int] = None
+    delivery_men_id: Optional[int] = None

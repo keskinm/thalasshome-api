@@ -51,7 +51,7 @@ def new_get_cards(query_zone=None, query_country=None):
 
         status = item['status']
 
-        delivery_men_id, delivery_men = item.get("delivery_man_id"), None
+        delivery_men_id, delivery_men = item.get("delivery_men_id"), None
         if delivery_men_id:
             delivery_men = (supabase_cli.
                             table("users").

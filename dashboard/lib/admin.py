@@ -63,7 +63,7 @@ def get_cards(query_zone=None, query_country=None):
 
         status = item['status']
 
-        delivery_men_id, delivery_men = item.get("delivery_man_id"), None
+        delivery_men_id, delivery_men = item.get("delivery_men_id"), None
         if delivery_men_id:
             delivery_men = (supabase_cli.
                             table("users").
@@ -199,7 +199,7 @@ def on_select_repl():
     substitute = data['substitute']
     item_id = data['item_id']
 
-    delivery_man_id = (
+    delivery_men_id = (
         supabase_cli.table("users")
         .select("id")
         .eq("username", substitute)
@@ -207,7 +207,7 @@ def on_select_repl():
         .single()
         .execute()
     ).data["id"]
-    response = supabase_cli.table("orders").update({"delivery_man_id": delivery_man_id}).eq("id", item_id).execute()
+    response = supabase_cli.table("orders").update({"delivery_men_id": delivery_men_id}).eq("id", item_id).execute()
 
     return jsonify({"message": f"Updated {response.count or 0} cards",
                     "item_id": item_id,

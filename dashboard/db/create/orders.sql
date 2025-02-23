@@ -15,10 +15,10 @@ CREATE TABLE orders (
     status       order_status DEFAULT 'ask',
     shipping_lat FLOAT, -- AVAILABLE IN THE RECEIVED HOOK :D
     shipping_lon FLOAT,
-    delivery_man_id INTEGER,
+    delivery_men_id INTEGER,
 
-    CONSTRAINT fk_delivery_man_id
-      FOREIGN KEY (delivery_man_id)
+    CONSTRAINT fk_delivery_men_id
+      FOREIGN KEY (delivery_men_id)
       REFERENCES users(id)
 );
 

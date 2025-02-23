@@ -12,7 +12,7 @@ INSERT INTO user_delivery_zones (user_id, zone_name, center_geog, radius_km) VAL
 (4, 'loire', ST_GeogFromText('SRID=4326;POINT(4.31 45.39)'), 30);
 
 
-INSERT INTO delivery_stock (user_id, product, quantity) VALUES
+INSERT INTO delivery_capacity (user_id, product, quantity) VALUES
 (1, 'jacuzzi2p', 1),
 (1, 'jacuzzi4p', 1),
 (2, 'jacuzzi2p', 1),

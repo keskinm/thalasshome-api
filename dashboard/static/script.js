@@ -1,7 +1,7 @@
 // ----------------------------------- GLOBAL VARS -----------------------------------------------
 
 
-const cat = ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'];
+const cat = ['ask', 'assigned', 'in_delivery', 'delivered', 'canceled'];
 
 
 

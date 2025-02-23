@@ -173,8 +173,8 @@ def patch_order_status():
     for order in orders:
         order['status'] = data['category']
 
-        if order['status'] not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled']:
-            print(f"{order['status']} not in ['ask', 'delivery', 'client', 'stock', 'done', 'canceled'], "
+        if order['status'] not in ['ask', 'pending', 'assigned', 'in_delivery', 'delivered', 'canceled']:
+            print(f"{order['status']} not in ['ask', 'pending', 'assigned', 'in_delivery', 'delivered', 'canceled'], "
                   f"continuing")
             continue
 

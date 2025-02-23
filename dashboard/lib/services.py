@@ -1,10 +1,11 @@
 from google.cloud import datastore
 from flask import request, jsonify, Blueprint
 
+from dashboard.db.client import supabase_cli
 from dashboard.lib.admin import verify_webhook
 from dashboard.lib.hooks import Hooks
 from dashboard.lib.notifier import Notifier
-from dashboard.lib.order.order import extract_order_keys
+from dashboard.lib.order.order import extract_order_keys, get_coordinates, extract_line_items_keys
 
 import json
 
@@ -39,18 +40,28 @@ def handle_order_creation_webhook():
         print(e)
 
     if secure_hooks.check_request(request):
-        order = extract_order_keys(json.loads(data.decode("utf-8")))
+        order = json.loads(data.decode("utf-8"))
+        parsed_order = extract_order_keys(order)
+        lat, long = get_coordinates(order)
+        parsed_order = {
+            **parsed_order,
+            "shipping_lat": lat,
+            "shipping_lon": long,
+        }
+        line_items = parsed_order.pop("line_items")
+        line_items = extract_line_items_keys(line_items, parsed_order["id"])
 
-        name = order['id']
-        key = client.key("orders", name)
-        entity = datastore.Entity(key=key)
-        # @todo how to avoid this stupid thing
-        for k, v in order.items():
-            entity[k] = v
-        client.put(entity)
+        _ = (
+            supabase_cli.table("orders")
+            .insert(parsed_order)
+            .execute()
+        )
 
-        notifier(order)
-
+        _ = (
+            supabase_cli.table("line_items")
+            .insert(line_items)
+            .execute()
+        )
         return 'ok', 200
 
     else:

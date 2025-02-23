@@ -7,7 +7,7 @@ from flask import redirect, Blueprint, request
 from google.cloud import datastore
 
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order.order import get_name, get_ship, get_address
+from dashboard.lib.order.order import get_name, deprecated_get_ship, get_address
 from dashboard.db.client import supabase_cli
 
 notifier_bp = Blueprint('notifier', __name__)
@@ -47,7 +47,7 @@ class Notifier:
         item = order
 
         adr = get_address(item)
-        ship, amount = get_ship(item)
+        ship, amount = deprecated_get_ship(item)
 
         for i in range(len(providers)):
             provider = providers[i]
@@ -161,7 +161,7 @@ class Notifier:
 
     def notify_admins(self, order: dict, provider: dict):
         adr = get_address(order)
-        ship, amount = get_ship(order)
+        ship, amount = deprecated_get_ship(order)
         customer_name = get_name(order)
 
         subject = "Commande prise en charge par un prestataire"

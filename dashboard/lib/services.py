@@ -59,6 +59,8 @@ def handle_order_creation_webhook():
             .insert(line_items)
             .execute()
         )
+        notifier(order)
+
         return 'ok', 200
 
     else:

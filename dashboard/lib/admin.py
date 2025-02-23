@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash
 from dashboard.lib.hooks import Hooks
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order.order import OrderParser
+from dashboard.lib.order.order import get_address, get_ship
 
 from werkzeug.security import check_password_hash
 
@@ -78,8 +78,8 @@ def get_cards(query_zone=None, query_country=None):
 
         replace = item['replace'] if 'replace' in item else 'Aucun'
 
-        adr = OrderParser().get_address(item)
-        ship, amount = OrderParser().get_ship(item)
+        adr = get_address(item)
+        ship, amount = get_ship(item)
 
         res.setdefault(status, [])
         res[status].append({

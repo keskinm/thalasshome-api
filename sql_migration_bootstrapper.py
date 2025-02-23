@@ -1,5 +1,7 @@
 from dashboard.db.client import supabase_cli
-from dashboard.lib.order.order import extract_order_keys, get_coordinates, extract_line_items_keys
+from dashboard.lib.admin import check_zone
+from dashboard.lib.order.order import extract_order_keys, get_coordinates, extract_line_items_keys, get_address, \
+    deprecated_get_ship, get_ship
 
 import json
 
@@ -38,3 +40,46 @@ def new_handle_order_creation_webhook():
     )
 
 
+def new_get_cards(query_zone=None, query_country=None):
+    all_keys = supabase_cli.table("orders").select("*").execute().data
+    res = {}
+
+    for item in all_keys:
+        zipcode = item['shipping_address']['zip'] if 'shipping_address' in item else None
+        if check_zone(query_zone, query_country, zipcode):
+            continue
+
+        status = item['status']
+
+        delivery_men_id, delivery_men = item.get("delivery_man_id"), None
+        if delivery_men_id:
+            delivery_men = (supabase_cli.
+                            table("users").
+                            select("*").
+                            eq("id", delivery_men_id).
+                            limit(1).
+                            single().execute().data)
+
+
+        adr = get_address(item)
+
+        line_items = (supabase_cli.table("line_items").
+                      select("*").
+                      eq("order_id", item["id"]).
+                      execute().data)
+        ship, amount = get_ship(line_items)
+
+        res.setdefault(status, [])
+        res[status].append({
+            'address': adr,
+            'def_empl': delivery_men['username'] if delivery_men else "None",
+            'rep_empl': 'Aucun',
+            'shipped': ship,
+            'amount': amount,
+            'ent_id': item["id"],
+        })
+
+    return res
+
+
+new_get_cards()

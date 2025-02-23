@@ -12,12 +12,11 @@ from werkzeug.security import generate_password_hash
 from dashboard.lib.hooks import Hooks
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order.order import get_address, get_ship
+from dashboard.lib.order.order import get_address, deprecated_get_ship, get_ship
 
 from werkzeug.security import check_password_hash
 
 
-client = datastore.Client()
 secure_hooks = Hooks()
 
 
@@ -25,6 +24,8 @@ admin_bp = Blueprint('admin', __name__)
 
 
 def select_employee(item):
+    client = datastore.Client()
+
     command_country = item['shipping_address']['country']
     command_zip = item['shipping_address']['zip']
     selected = 'None'
@@ -56,8 +57,7 @@ def check_zone(query_zone, query_country, zipcode):
 
 
 def get_cards(query_zone=None, query_country=None):
-    query = client.query(kind="orders")
-    all_keys = query.fetch()
+    all_keys = supabase_cli.table("orders").select("*").execute().data
     res = {}
 
     for item in all_keys:
@@ -65,30 +65,34 @@ def get_cards(query_zone=None, query_country=None):
         if check_zone(query_zone, query_country, zipcode):
             continue
 
-        status = item['status'] if 'status' in item else 'ask'  # def status = ask
+        status = item['status']
 
-        if 'status' not in item:
-            item['status'] = status
-            client.put(item)
+        delivery_men_id, delivery_men = item.get("delivery_man_id"), None
+        if delivery_men_id:
+            delivery_men = (supabase_cli.
+                            table("users").
+                            select("*").
+                            eq("id", delivery_men_id).
+                            limit(1).
+                            single().execute().data)
 
-        if 'employee' in item:
-            empl = item['employee']
-        else:
-            empl = select_employee(item)
-
-        replace = item['replace'] if 'replace' in item else 'Aucun'
 
         adr = get_address(item)
-        ship, amount = get_ship(item)
+
+        line_items = (supabase_cli.table("line_items").
+                      select("*").
+                      eq("order_id", item["id"]).
+                      execute().data)
+        ship, amount = get_ship(line_items)
 
         res.setdefault(status, [])
         res[status].append({
             'address': adr,
-            'def_empl': empl,
-            'rep_empl': replace,
+            'def_empl': delivery_men['username'] if delivery_men else "None",
+            'rep_empl': 'Aucun',
             'shipped': ship,
             'amount': amount,
-            'ent_id': item.id,
+            'ent_id': item["id"],
         })
 
     return res
@@ -161,6 +165,8 @@ def ask_zone():
 
 @admin_bp.route('/order/status', methods=['PATCH'])
 def patch_order_status():
+    client = datastore.Client()
+
     data = request.get_json()
     item_id = int(data['item'])
     query = client.query(kind="orders")
@@ -195,6 +201,8 @@ def verify_webhook(data, hmac_header):
 
 @admin_bp.route('/remove_cards', methods=['POST'])
 def on_remove_cards():
+    client = datastore.Client()
+
     data = request.get_json()
     list_id = data['list_id']
     print("\n ----ON REMOVE CARDS------ \n")
@@ -212,6 +220,7 @@ def on_remove_cards():
 
 @admin_bp.route('/select_repl', methods=['POST'])
 def on_select_repl():
+    client = datastore.Client()
     data = request.get_json()
     select_label = data['select_label']
     item_id = data['item_id']

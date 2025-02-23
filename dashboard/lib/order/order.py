@@ -37,7 +37,26 @@ def get_coordinates(item):
     return lat, long
 
 
-def get_ship(item):
+def get_ship(_item):
+    ship = ""
+    amount = 0
+
+    for start_separator, item in enumerate(_item):
+        ship += " --+-- " if start_separator else ''
+        ship += str(item['quantity']) + " " + item['product'] + " "
+
+        ship += ' '.join([
+            'Du', item['from_date'], '  Au', item['to_date']
+        ]).replace("\\", "")
+
+        amount += item['price']
+        #@todo: minus partial payment
+        # amount -= item['partial_paid_part']
+
+    return ship, amount
+
+
+def deprecated_get_ship(item):
     ship = ""
     amount = 0
 

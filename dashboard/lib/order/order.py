@@ -92,8 +92,8 @@ def extract_line_items_keys(data, parent_id):
             if k == "properties":
                 v_from = [vv["value"] for vv in v if vv["name"] == "From"][0]
                 v_to = [vv["value"] for vv in v if vv["name"] == "To"][0]
-                line_item["from"] = v_from
-                line_item["to"] = v_to
+                line_item["from_date"] = v_from
+                line_item["to_date"] = v_to
             elif k == "name":
                 if 'jac' and '4' in v:
                     line_item["product"] = JACUZZI4P

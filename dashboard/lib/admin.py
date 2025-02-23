@@ -169,7 +169,7 @@ def patch_order_status():
 
 @admin_bp.route('/empl')
 def empl():
-    return render_template('empl.html')
+    return render_template('delivery_men.html')
 
 
 def verify_webhook(data, hmac_header):

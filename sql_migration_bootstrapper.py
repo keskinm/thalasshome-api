@@ -3,8 +3,6 @@ from dashboard.lib.order.order import extract_order_keys, get_coordinates, extra
 
 import json
 
-from dashboard.lib.order.schemas import OrderSchema
-
 
 def new_handle_order_creation_webhook():
     with open("./dashboard/utils/orders/samples/2025.json") as fp:
@@ -20,8 +18,8 @@ def new_handle_order_creation_webhook():
     line_items = extract_line_items_keys(line_items, parsed_order["id"])
 
     # ----- verification steps -----
-    parsed_order = OrderSchema(**parsed_order)
-    parsed_order = parsed_order.dict()
+    # parsed_order = OrderSchema(**parsed_order)
+    # parsed_order = parsed_order.dict()
 
     # line_items = ...
     # -------------------------------
@@ -35,11 +33,8 @@ def new_handle_order_creation_webhook():
 
     response = (
         supabase_cli.table("line_items")
-        .insert(parsed_order["line_items"])
+        .insert(line_items)
         .execute()
     )
 
-    breakpoint()
-    parsed_order
 
-new_handle_order_creation_webhook()

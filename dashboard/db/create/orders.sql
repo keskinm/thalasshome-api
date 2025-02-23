@@ -5,7 +5,7 @@ CREATE TYPE order_status AS ENUM (
 );
 
 CREATE TABLE orders (
-    id INT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     email        TEXT,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -17,15 +17,15 @@ CREATE TABLE orders (
     shipping_lon FLOAT,
     delivery_man_id INTEGER,
 
-    CONSTRAINT fk_user
-      FOREIGN KEY (user_id)
+    CONSTRAINT fk_delivery_man_id
+      FOREIGN KEY (delivery_man_id)
       REFERENCES users(id)
 );
 
 
 CREATE TABLE line_items (
-    id INT PRIMARY KEY,
-    order_id   INT NOT NULL,
+    id BIGINT PRIMARY KEY,
+    order_id   BIGINT NOT NULL,
     from_date DATE,
     to_date DATE,
     quantity   INT,

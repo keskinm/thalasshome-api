@@ -19,13 +19,17 @@ services_bp = Blueprint('services', __name__)
 def check_availability():
     data = request.get_json()
 
-    product_name = data['productName']
-    if not 'jac' in product_name:
-        return jsonify({"unavailable_dates": [], "product_available": True})
-    product_name = normalize_jac_string(product_name)
-
     location = data['location']
     lat, lon = location["lat"], location["lon"]
+
+    product_name = data['productName']
+    if not 'jac' in product_name:
+        n_delivery_men = supabase_cli.rpc("check_delivery_men_around_point", {
+            "in_shipping_lon": lon,
+            "in_shipping_lat": lat,
+        }).single().execute().data["n_delivery_men"]
+        return jsonify({"unavailable_dates": [], "product_available": bool(len(n_delivery_men))})
+    product_name = normalize_jac_string(product_name)
 
     dates = supabase_cli.rpc("get_availability_calendar_within_75days", {
         "in_shipping_lon": lon,

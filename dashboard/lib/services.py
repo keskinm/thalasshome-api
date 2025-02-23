@@ -19,19 +19,24 @@ services_bp = Blueprint('services', __name__)
 def check_availability():
     data = request.get_json()
 
+    product_name = data['productName']
+    if not 'jac' in product_name:
+        return jsonify({"unavailable_dates": [], "product_available": True})
+    product_name = normalize_jac_string(product_name)
+
     location = data['location']
     lat, lon = location["lat"], location["lon"]
 
-    r = supabase_cli.rpc("get_availability_calendar_within_75days", {
+    dates = supabase_cli.rpc("get_availability_calendar_within_75days", {
         "in_shipping_lon": lon,
         "in_shipping_lat": lat,
-        "in_product": normalize_jac_string(data['productName'])
+        "in_product": product_name
     }).execute().data
 
-    unavailables_within_two_months = [x['the_day'] for x in r if not x['remain']]
+    unavailables_within_two_months = [x['the_day'] for x in dates if not x['remain']]
 
-
-    return jsonify({"unavailable_dates": unavailables_within_two_months})
+    return jsonify({"unavailable_dates": unavailables_within_two_months,
+                    "product_available": bool(len(dates) == len(unavailables_within_two_months))})
 
 @services_bp.route('/order_creation_webhook', methods=['POST'])
 def handle_order_creation_webhook():

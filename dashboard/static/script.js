@@ -9,11 +9,11 @@ const cat = ['ask', 'assigned', 'in_delivery', 'delivered', 'canceled'];
 
 
 function select_repl(select, item_id) {
-    let select_label = undefined;
+    let substitute = undefined;
   
     for (let i = 0; i < select.length; i++) {
       if (select[i].selected) {
-        select_label = select[i].label;
+        substitute = select[i].label;
         break;
       }
     }
@@ -24,7 +24,7 @@ function select_repl(select, item_id) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        select_label: select_label,
+        substitute: substitute,
         item_id: item_id
       })
     })
@@ -97,7 +97,7 @@ function selectOnly(zone, country) {
                 Remplacant: ${cur_item.rep_empl} <br />
                 Objets: ${cur_item.shipped} <br />
                 Montant restant dû: ${cur_item.amount}€ 
-                <p hidden>${cur_item.ent_id}</p>
+                <p hidden>${cur_item.item_id}</p>
               </li>`;
           }
   

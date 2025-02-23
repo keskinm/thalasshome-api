@@ -1,5 +1,4 @@
 import random
-from google.cloud import datastore
 import hmac
 import hashlib
 import base64
@@ -89,7 +88,7 @@ def get_cards(query_zone=None, query_country=None):
             'rep_empl': 'Aucun',
             'shipped': ship,
             'amount': amount,
-            'ent_id': item["id"],
+            'item_id': item["id"],
         })
 
     return res
@@ -184,40 +183,28 @@ def verify_webhook(data, hmac_header):
 
 @admin_bp.route('/remove_cards', methods=['POST'])
 def on_remove_cards():
-    client = datastore.Client()
-
     data = request.get_json()
     list_id = data['list_id']
     print("\n ----ON REMOVE CARDS------ \n")
 
-    query = client.query(kind="orders")
-    query.add_filter("status", "=", list_id)
-    orders = query.fetch()
-
-    for order in orders:
-        client.delete(order.key)
+    response = supabase_cli.table("orders").delete().in_("id", list_id).execute()
     return jsonify({
-        "message": "Cards removed from list",
+        "message": f"{response.count or 0} cards removed from list",
         "list_id": list_id
     })
 
 @admin_bp.route('/select_repl', methods=['POST'])
 def on_select_repl():
-    client = datastore.Client()
     data = request.get_json()
-    select_label = data['select_label']
+    substitute = data['substitute']
     item_id = data['item_id']
 
-    query = client.query(kind="orders")
-    query.add_filter("__key__", "=", client.key('orders', int(item_id)))
-    orders = query.fetch()
+    delivery_man_id = supabase_cli.table("users").select("id").eq("username", substitute).execute().data
+    response = supabase_cli.table("orders").update({"delivery_man_id": delivery_man_id}).eq("id", item_id).execute()
 
-    for order in orders:
-        order['replace'] = select_label
-        client.put(order)
-    return jsonify({"message": "Replacement updated",
+    return jsonify({"message": f"Updated {response.count or 0} cards",
                     "item_id": item_id,
-                    "replace": select_label})
+                    "replace": substitute})
 
 
 @admin_bp.route('/login', methods=['POST'])

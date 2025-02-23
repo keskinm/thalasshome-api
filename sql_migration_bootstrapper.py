@@ -76,10 +76,7 @@ def new_get_cards(query_zone=None, query_country=None):
             'rep_empl': 'Aucun',
             'shipped': ship,
             'amount': amount,
-            'ent_id': item["id"],
+            'item_id': item["id"],
         })
 
     return res
-
-
-new_get_cards()

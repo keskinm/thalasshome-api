@@ -6,7 +6,7 @@ import os
 from flask import redirect, Blueprint, request
 
 from dashboard.lib.locations import find_zone
-from dashboard.lib.order.order import get_name, deprecated_get_ship, get_address
+from dashboard.lib.order.order import get_name, get_address, get_ship
 from dashboard.db.client import supabase_cli
 
 notifier_bp = Blueprint('notifier', __name__)
@@ -20,10 +20,10 @@ class Notifier:
         self.flask_address = request.host_url.rstrip('/')
         self.email_sender_password = os.getenv('email_sender_password')
 
-    def __call__(self, order, test=False):
+    def __call__(self, order, line_items, test=False):
         providers = self.get_providers(order, test=test)
         tokens = self.create_tokens(order['id'], providers)
-        self.notify_providers(providers, tokens, order)
+        self.notify_providers(providers, tokens, order, line_items)
 
     @staticmethod
     def get_providers(order, test=False) -> list[dict]:
@@ -45,11 +45,9 @@ class Notifier:
             tokens.append(f"{str(order_id)}|{provider['username']}")
         return tokens
 
-    def notify_providers(self, providers: list[dict], tokens: list[str], order: dict):
-        item = order
-
-        adr = get_address(item)
-        ship, amount = deprecated_get_ship(item)
+    def notify_providers(self, providers: list[dict], tokens: list[str], order: dict, line_items: list[dict]):
+        adr = get_address(order)
+        ship, amount = get_ship(line_items)
 
         for i in range(len(providers)):
             provider = providers[i]
@@ -104,6 +102,7 @@ class Notifier:
 
         else:
             provider = supabase_cli.table("users").select("*").eq("username", provider_username).limit(1).single().execute().data
+            line_items = supabase_cli.table("line_items").select("*").eq("order_id", order_id).execute().data
             provider_email = provider["email"]
 
             order['provider'] = {'username': provider_username, 'email': provider_email}
@@ -142,7 +141,7 @@ class Notifier:
             self.send_mail(provider_email, subject, html, text)
 
             self.notify_customer(provider)
-            self.notify_admins(order, provider)
+            self.notify_admins(order, provider, line_items)
             self.update_employee(order, provider)
 
             return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail 
@@ -162,9 +161,9 @@ class Notifier:
 
         self.send_mail(provider["email"], subject, html)
 
-    def notify_admins(self, order: dict, provider: dict):
+    def notify_admins(self, order: dict, provider: dict, line_items: list[dict]):
         adr = get_address(order)
-        ship, amount = deprecated_get_ship(order)
+        ship, amount = get_ship(line_items)
         customer_name = get_name(order)
 
         subject = "Commande prise en charge par un prestataire"
@@ -213,6 +212,14 @@ def _accept_command(token_id):
 
 @notifier_bp.route('/test_notification', methods=['GET'])
 def test_notification():
-    from dashboard.utils.orders.sample import MIXED_ORDER
-    Notifier()(MIXED_ORDER)
+    order = (supabase_cli.
+             table("orders").
+             select("*").
+             limit(1).
+             eq("email", "sign.pls.up@gmail.com").
+             single().
+             execute().
+             data)
+    line_items = supabase_cli.table("line_items").select("*").eq("order_id", order["id"]).execute().data
+    Notifier()(order, line_items, test=True)
     return redirect("/")

@@ -56,36 +56,6 @@ def get_ship(_item):
     return ship, amount
 
 
-def deprecated_get_ship(item):
-    ship = ""
-    amount = 0
-
-    if 'line_items' in item:
-        d_items = item['line_items']
-        for start_separator, d_i in enumerate(d_items):
-            ship += " --+-- " if start_separator else ''
-            ship += str(d_i['quantity']) + " " + d_i['name'] + " "
-            if d_i['properties']:
-                prop = {p['name']: p['value'] for p in d_i['properties']}
-
-                # OLD VERSION (ENGLISH, WILL BE REMOVED)
-                if 'From' in prop:
-                    ship += ' '.join(
-                        ['Du', prop['From'], prop.get('start-time') or '', '  Au', prop['To'], prop.get('finish-time') or '']). \
-                        replace("\\", "")
-
-                # FRENCH VERSION
-                elif 'Du' in prop:
-                    ship += ' '.join(
-                        ['Du', prop['Du'], prop["Heure d'arrivée"], '  Au', prop['Au'], prop['Heure de fin']]). \
-                        replace("\\", "")
-
-                if 'Grand Total' in prop:
-                    amount += float(prop['Grand Total'].split(' ')[1]) - float(prop['_part_payment_amount'])
-
-    return ship, amount
-
-
 def get_address(item):
     adr_item = item['shipping_address']
     adr = ' '.join([adr_item['city'] or '',

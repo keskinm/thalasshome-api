@@ -91,3 +91,24 @@ $$;
 ------------------------------------------------------------------
 
 
+CREATE OR REPLACE FUNCTION public.check_delivery_men_around_point(
+  in_shipping_lon float8,
+  in_shipping_lat float8
+)
+RETURNS TABLE (
+    n_delivery_men integer
+)
+LANGUAGE sql STABLE AS
+$$
+WITH client AS (
+  SELECT ST_SetSRID(ST_MakePoint(in_shipping_lon, in_shipping_lat), 4326)::geography AS client_geog
+)
+SELECT count(DISTINCT udz.user_id) as n_delivery_men
+FROM user_delivery_zones udz
+JOIN client c ON true
+WHERE ST_DWithin(
+  udz.center_geog,
+  c.client_geog,
+  udz.radius_km * 1000
+);
+$$;

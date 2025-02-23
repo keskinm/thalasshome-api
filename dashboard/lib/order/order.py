@@ -1,6 +1,6 @@
 from geopy.geocoders import Nominatim
 
-from dashboard.constants import JACUZZI4P, JACUZZI2P
+from dashboard.constants import normalize_jac_string
 
 
 # ----------------- Order ----------------- #
@@ -114,10 +114,8 @@ def extract_line_items_keys(data, parent_id):
                 line_item["from_date"] = v_from
                 line_item["to_date"] = v_to
             elif k == "name":
-                if 'jac' and '4' in v:
-                    line_item["product"] = JACUZZI4P
-                elif 'jac' and '2' in v:
-                    line_item["product"] = JACUZZI2P
+                if 'jac' in v:
+                    line_item["product"] = normalize_jac_string(v)
                 else:
                     line_item["product"] = v
             elif k in interest_keys:

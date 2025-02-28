@@ -1,103 +1,84 @@
 <!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include 'head.html' %}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <style>
+        .sortable-ghost {
+            opacity: 0.5;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        .sortable-chosen {
+            transform: scale(1.05);
+        }
+        .column {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .card-list {
+            min-height: 50px;
+        }
+        .card {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: move;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
 
-<html>
+<header class="bg-blue-600 text-white p-4 text-center text-xl font-bold">
+    Tableau de Bord - Gestion des Livraisons
+</header>
 
-
-{% include 'head.html' %}
-
-{% macro get_repls(item) %}
-    <select onchange="select_repl(this, {{ item.item_id }})">
-        <option value="{{ item.rep_empl }}" selected> {{ item.rep_empl }} </option>
-        {% for employee in employees %}
-            <option value="{{ employee }}"> {{ employee }} </option>
+<section class="container mx-auto p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {% for category, items in {'ask': ask, 'assigned': assigned, 'in_delivery': in_delivery, 'delivered': delivered, 'canceled': canceled}.items() %}
+        <div class="column shadow-md rounded-lg p-4" id="{{ category }}">
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">{{ category | replace('_', ' ') | title }}</h3>
+            <div class="card-list">
+                {% for item in items %}
+                <div class="card" data-item-id="{{ item.item_id }}">
+                    <p class="text-sm font-medium">📍 {{ item.address }}</p>
+                    <p class="text-xs text-gray-600">👤 Employé : {{ item.def_empl }}</p>
+                    <p class="text-xs text-gray-600">🔁 Remplaçant : {{ item.rep_empl }}</p>
+                    <p class="text-xs text-gray-600">📦 Objets : {{ item.shipped }}</p>
+                    <p class="text-xs text-gray-600">💰 Montant dû : <span class="font-semibold">{{ item.amount }}€</span></p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
         {% endfor %}
-    </select>
-{%  endmacro %}
-
-
-{% macro display_item(item) %}
-    <li>
-        {{ item.address }} <br />
-        Employé: {{ item.def_empl }} <br />
-        Remplacant: {{ get_repls(item) }} <br />
-        Objets: {{ item.shipped }} <br />
-        Montant restant dû: {{ item.amount }}€ <br />
-        <p hidden>{{ item.item_id }}</p>
-    </li>
-{% endmacro %}
-
-
-
-<body>
-
-<section class="lists-container">
-
-	<div class="list">
-
-		<h3 class="list-title">Demandes</h3>
-
-		<ul class="list-items" id="ask">
-            {% for item in ask %}
-                {{ display_item(item) }}
-            {% endfor %}
-        </ul>
-
-		<!-- <button class="add-card-btn btn">Ajouter une demande</button> -->
-
-	</div>
-
-	<div class="list">
-
-		<h3 class="list-title">Acceptes</h3>
-
-		<ul class="list-items" id="assigned">
-            {% for item in assigned %}
-                {{ display_item(item) }}
-            {% endfor %}
-		</ul>
-
-	</div>
-
-	<div class="list">
-
-		<h3 class="list-title">En cours de livraison</h3>
-
-		<ul class="list-items" id="in_delivery">
-            {% for item in in_delivery %}
-                {{ display_item(item) }}
-            {% endfor %}
-		</ul>
-
-	</div>
-
-
-	<div class="list">
-
-		<h3 class="list-title">Commandes terminées</h3>
-
-		<ul class="list-items" id="delivered">
-            {% for item in delivered %}
-                {{ display_item(item) }}
-            {% endfor %}
-		</ul>
-
-	</div>
-
-	<div class="list">
-
-		<h3 class="list-title">Commandes annulées</h3>
-
-        <button class="flush-canceled" onclick="removeCards('canceled')">Vider la liste</button>
-
-		<ul class="list-items" id="canceled">
-            {% for item in canceled %}
-                {{ display_item(item) }}
-            {% endfor %}
-		</ul>
-
-	</div>
-
+    </div>
 </section>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const lists = document.querySelectorAll('.card-list');
+        lists.forEach(list => {
+            new Sortable(list, {
+                group: 'shared', // Permet le drag-and-drop entre les listes
+                animation: 150,
+                onEnd: function (evt) {
+                    const itemEl = evt.item; // L'élément déplacé
+                    const newColumnId = evt.to.parentNode.id; // Nouvelle colonne
+                    // Effectuez ici une requête pour mettre à jour le backend
+                    fetch("/order/status", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ item: itemEl.getAttribute("data-item-id"), category: newColumnId })
+                    }).then(response => response.json())
+                      .then(data => console.log("Statut mis à jour:", data))
+                      .catch(error => console.error("Erreur mise à jour statut:", error));
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

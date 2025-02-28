@@ -108,52 +108,6 @@ function selectOnly(zone, country) {
         console.error('Error fetching zone data:', error);
       });
   }
-  
-
-
-// ----------------------------------- CARDS -----------------------------------------------
-
-function makeSortable(id) {
-    const el = document.getElementById(id);
-    const sortable = Sortable.create(el, {
-        animation: 150,
-        group: 'lists',
-        onAdd: function (ev) {
-            console.log('on_add', ev);
-            const cld = ev.item.childNodes;
-            let item_id = undefined;
-            for (let i = 0; i < cld.length; i++) {
-                if (cld[i].localName === "p") {
-                    item_id = cld[i].textContent;
-                    break;
-                }
-            }
-
-            fetch('/order/status', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    item: item_id,
-                    category: ev.to.id
-                })
-            })
-            .then(response => response.json())
-            .then(data => { })
-            .catch(error => {
-                console.error('Error patching order status:', error);
-            });
-        },
-    });
-}
-
-
-
-$(function (){
-
-    for (let i = 0; i < cat.length; i++)
-        makeSortable(cat[i]);
-
-});
 
 
 

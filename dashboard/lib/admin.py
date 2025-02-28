@@ -102,7 +102,7 @@ def root():
         employee_names = supabase_cli.table("users").select("username").execute().data
         res = {**res, **{'employees': list(map(lambda x: x.get('username'), employee_names))}}
 
-        return render_template('index.html', **res)
+        return render_template('admin/index.html', **res)
 
 @admin_bp.route('/logout', methods=['POST', 'GET'])
 def logout():

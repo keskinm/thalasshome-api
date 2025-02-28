@@ -2,18 +2,14 @@ import random
 import hmac
 import hashlib
 import base64
-from flask import render_template, request, session, flash, jsonify, Blueprint, redirect
+from flask import render_template, request, session, jsonify, Blueprint
 from dashboard.db.client import supabase_cli
-
-from werkzeug.security import generate_password_hash
 
 
 from dashboard.lib.hooks import Hooks
 from dashboard.utils.maps.maps import zip_codes_to_locations
 from dashboard.lib.locations import find_zone
 from dashboard.lib.order.order import get_address, get_ship
-
-from werkzeug.security import check_password_hash
 
 
 secure_hooks = Hooks()
@@ -93,60 +89,6 @@ def get_cards(query_zone=None, query_country=None):
 
     return res
 
-@admin_bp.route('/')
-def root():
-    if not session.get('logged_in'):
-        return render_template('login.html')
-    else:
-        res = get_cards()
-        employee_names = supabase_cli.table("users").select("username").execute().data
-        res = {**res, **{'employees': list(map(lambda x: x.get('username'), employee_names))}}
-
-        return render_template('admin/index.html', **res)
-
-@admin_bp.route('/logout', methods=['POST', 'GET'])
-def logout():
-    session['logged_in'] = False
-    return root()
-
-@admin_bp.route('/signup', methods=['POST', 'GET'])
-def render_signup():
-    return render_template('signup.html')
-
-@admin_bp.route('/signup_post', methods=['POST'])
-def signup_post():
-    email = request.form.get('email')
-    name = request.form.get('name')
-    password = request.form.get('password')
-    phone_number = request.form.get('numero_de_telephone')
-    country = request.form.get('country')
-    zone = request.form.get('zone')
-
-    user = (
-        supabase_cli.table("users")
-        .select("*")
-        .eq("email", email)
-        .limit(1)
-        .single()
-        .execute()
-    ).data
-
-    if user:  # if a user is found, we want to redirect back to signup page so user can try again
-        # return redirect(url_for('/signup_post'))
-        flash('Email address already exists')
-        return render_signup()
-
-    # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-    new_user = {"email": email,
-                "username": name,
-                "password": generate_password_hash(password, method='pbkdf2:sha256'),
-                "phone_number": phone_number,
-                "country": country,
-                "zone": zone}
-
-    supabase_cli.table("users").insert(new_user).execute()
-
-    return root()
 
 @admin_bp.route('/ask_zone', methods=['POST'])
 def ask_zone():
@@ -165,11 +107,6 @@ def patch_order_status():
     item_id = int(data['item'])
     supabase_cli.table("orders").update({"status": data['category']}).eq("id", item_id).execute()
     return jsonify({"message": "Order status updated"})
-
-
-@admin_bp.route('/empl')
-def empl():
-    return render_template('delivery_men.html')
 
 
 def verify_webhook(data, hmac_header):
@@ -214,23 +151,14 @@ def on_select_repl():
                     "replace": substitute})
 
 
-@admin_bp.route('/login', methods=['POST'])
-def do_admin_login():
-    POST_USERNAME = str(request.form['username'])
-    POST_PASSWORD = str(request.form['password'])
 
-    response = (
-        supabase_cli.table("users")
-        .select("*")
-        .eq("username", POST_USERNAME)
-        .maybe_single()
-        .execute()
-    ).data
+@admin_bp.route('/admin/index.html')
+def admin_index():
+    if not session.get('logged_in') or not session.get('is_staff'):
+        return "Accès interdit", 403
 
-    if response and check_password_hash(response["password"], POST_PASSWORD):
-        session['logged_in'] = True
-        return redirect('/')
-    else:
-        flash('wrong password!')
-        print("wrong password")
-        return redirect('/login')
+    res = get_cards()
+    employee_names = supabase_cli.table("users").select("username").execute().data
+    res = {**res, **{'employees': list(map(lambda x: x.get('username'), employee_names))}}
+
+    return render_template('admin/index.html', **res)

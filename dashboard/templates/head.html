@@ -1,85 +1,50 @@
-
+<!DOCTYPE html>
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
   <title>Livraisons</title>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-          integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-          crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.0/socket.io.js"></script>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <script src="../static/script.js"> </script>
+  <!-- FontAwesome for icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="../static/head.js"></script>
 </head>
+<body class="bg-gray-100">
 
-<body>
-
-<header class="masthead">
-
-	<div class="boards-menu">
-
-		<button class="boards-btn btn"><i class="fab fa-trello boards-btn-icon"></i>SPA</button>
-
-		<div class="board-search">
-			<input type="search" class="board-search-input" aria-label="Board Search">
-			<i class="fas fa-search search-icon" aria-hidden="true"></i>
-		</div>
-
-        <div><a href="/logout">Logout</a>"</div>
-        <div><a href="/test_notification">Test notification</a>"</div>
-
-	</div>
-
-	<div class="logo">
-
-		<h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i></h1>
-
-	</div>
-
-	<div class="user-settings">
-
-		<button class="user-settings-btn btn" aria-label="Create">
-			<i class="fas fa-plus" aria-hidden="true"></i>
-		</button>
-
-		<button class="user-settings-btn btn" aria-label="Information">
-			<i class="fas fa-info-circle" aria-hidden="true"></i>
-		</button>
-
-		<button class="user-settings-btn btn" aria-label="Notifications">
-			<i class="fas fa-bell" aria-hidden="true"></i>
-		</button>
-
-		<button class="user-settings-btn btn" aria-label="User Settings">
-			<i class="fas fa-user-circle" aria-hidden="true"></i>
-		</button>
-
-	</div>
-
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+    <div class="flex items-center space-x-4">
+        <button class="text-xl font-bold flex items-center space-x-2">
+            <i class="fas fa-truck"></i>
+            <span>SPA</span>
+        </button>
+        <div class="relative">
+            <input type="search" class="p-2 rounded-md text-black" placeholder="Rechercher...">
+            <i class="fas fa-search absolute right-2 top-3 text-gray-500"></i>
+        </div>
+    </div>
+    <nav class="flex space-x-4">
+        <a href="/logout" class="hover:underline">Logout</a>
+        <a href="/test_notification" class="hover:underline">Test notification</a>
+    </nav>
 </header>
 
-<section class="board-info-bar">
-
-	<div class="board-controls">
-
-		<button class="board-title btn" onclick="window.location='/'">
-			<h2>Livraisons</h2>
-		</button>
-
-		<button class="personal-btn btn" onclick="selectOnly('loire', 'France')">Lyon</button>
-		<button class="private-btn btn" onclick="selectOnly('ile_de_france', 'France')">Paris</button>
-		<button class="private-btn btn" onclick="selectOnly('pays_de_gex', 'France')">Pays De Gex</button>
-		<button class="private-btn btn" onclick="selectOnly('geneve', 'Switzerland')">Genève</button>
-
-		<button class="board-title btn" onclick="window.location='/empl'">
-			<h2>Employés</h2>
-		</button>
-
-	</div>
-
-	<button class="menu-btn btn"><i class="fas fa-ellipsis-h menu-btn-icon" aria-hidden="true"></i>Show Menu</button>
-
+<section class="bg-white shadow p-4 flex justify-between items-center mt-2">
+    <div class="flex space-x-4">
+        <button onclick="window.location='/'" class="text-blue-600 font-semibold">Livraisons</button>
+        <button onclick="selectOnly('loire', 'France')" class="text-gray-700 hover:text-blue-500">Lyon</button>
+        <button onclick="selectOnly('ile_de_france', 'France')" class="text-gray-700 hover:text-blue-500">Paris</button>
+        <button onclick="selectOnly('pays_de_gex', 'France')" class="text-gray-700 hover:text-blue-500">Pays De Gex</button>
+        <button onclick="selectOnly('geneve', 'Switzerland')" class="text-gray-700 hover:text-blue-500">Genève</button>
+        <button onclick="window.location='/empl'" class="text-blue-600 font-semibold">Employés</button>
+    </div>
+    <button class="text-gray-700 hover:text-blue-500"><i class="fas fa-ellipsis-h"></i> Show Menu</button>
 </section>
+</body>
+</html>

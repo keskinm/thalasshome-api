@@ -98,8 +98,8 @@
                 jacuzzi4p: document.getElementById('jacuzzi_4').value,
                 jacuzzi6p: document.getElementById('jacuzzi_6').value
             };
-            fetch('/delivery_men/update_settings', {
-                method: 'POST',
+            fetch('/delivery_capacity', {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedData)
             }).then(response => response.json())

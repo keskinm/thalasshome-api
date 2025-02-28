@@ -1,10 +1,110 @@
-
 <!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include 'admin/head.html' %}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
 
-<html>
+<header class="bg-blue-600 text-white p-4 text-center text-xl font-bold">
+    Espace Livreurs
+</header>
 
+<section class="container mx-auto p-6">
+    <!-- Commandes disponibles -->
+    <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Commandes à livrer disponibles</h3>
+        <details class="border rounded-md p-3 cursor-pointer">
+            <summary class="font-semibold text-blue-600">Voir les commandes disponibles</summary>
+            <ul class="space-y-2 mt-2" id="available_orders">
+                <!-- Les commandes seront insérées ici dynamiquement -->
+            </ul>
+        </details>
+    </div>
 
+    <!-- Commandes en cours -->
+    <div class="bg-white shadow-md rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes commandes en cours</h3>
+        <ul class="space-y-2" id="ongoing_orders">
+            <!-- Les commandes seront insérées ici dynamiquement -->
+        </ul>
+    </div>
+</section>
 
+<!-- Paramètres du livreur -->
+<section class="container mx-auto p-6">
+    <div class="bg-white shadow-md rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes paramètres</h3>
+        <form id="delivery_settings" class="space-y-4">
+            <div>
+                <label class="block font-semibold">Jacuzzis 4 places :</label>
+                <input type="number" id="jacuzzi_4" class="border rounded p-2 w-full" min="0">
+            </div>
+            <div>
+                <label class="block font-semibold">Jacuzzis 6 places :</label>
+                <input type="number" id="jacuzzi_6" class="border rounded p-2 w-full" min="0">
+            </div>
+            <div>
+                <label class="block font-semibold">Zones de livraison :</label>
+                <ul id="delivery_zones" class="space-y-2">
+                    <!-- Les zones seront insérées dynamiquement -->
+                </ul>
+            </div>
+            <button type="submit" class="bg-blue-600 text-white p-2 rounded">Mettre à jour</button>
+        </form>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/delivery_men/orders')
+            .then(response => response.json())
+            .then(data => {
+                const availableList = document.getElementById('available_orders');
+                const ongoingList = document.getElementById('ongoing_orders');
+
+                data.available.forEach(order => {
+                    let li = document.createElement('li');
+                    li.textContent = `📍 ${order.address} | 🛠 ${order.details}`;
+                    availableList.appendChild(li);
+                });
+
+                data.ongoing.forEach(order => {
+                    let li = document.createElement('li');
+                    li.textContent = `🚚 ${order.address} | 🏷 ${order.details}`;
+                    ongoingList.appendChild(li);
+                });
+            });
+
+        fetch('/delivery_men/settings')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('jacuzzi_4').value = data.jacuzzi_4;
+                document.getElementById('jacuzzi_6').value = data.jacuzzi_6;
+
+                const zonesList = document.getElementById('delivery_zones');
+                data.zones.forEach(zone => {
+                    let li = document.createElement('li');
+                    li.textContent = `📍 ${zone.name} - ${zone.radius_km} km`;
+                    zonesList.appendChild(li);
+                });
+            });
+
+        document.getElementById('delivery_settings').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const updatedData = {
+                jacuzzi_4: document.getElementById('jacuzzi_4').value,
+                jacuzzi_6: document.getElementById('jacuzzi_6').value
+            };
+            fetch('/delivery_men/update_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            }).then(response => response.json())
+              .then(data => alert('Mise à jour réussie !'))
+              .catch(error => alert('Erreur de mise à jour'));
+        });
+    });
+</script>
 </body>
-
 </html>

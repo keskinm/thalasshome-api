@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    {% include 'admin/head.html' %}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
@@ -38,7 +37,7 @@
 <section class="container mx-auto p-6">
     <div class="bg-white shadow-md rounded-lg p-4">
         <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes paramètres</h3>
-        <form id="delivery_settings" class="space-y-4">
+        <form id="delivery_capacity" class="space-y-4">
             <div>
                 <label class="block font-semibold">Jacuzzis 4 places :</label>
                 <input type="number" id="jacuzzi_4" class="border rounded p-2 w-full" min="0">
@@ -93,11 +92,11 @@
                 });
             });
 
-        document.getElementById('delivery_settings').addEventListener('submit', function (event) {
+        document.getElementById('delivery_capacity').addEventListener('submit', function (event) {
             event.preventDefault();
             const updatedData = {
-                jacuzzi_4: document.getElementById('jacuzzi_4').value,
-                jacuzzi_6: document.getElementById('jacuzzi_6').value
+                jacuzzi4p: document.getElementById('jacuzzi_4').value,
+                jacuzzi6p: document.getElementById('jacuzzi_6').value
             };
             fetch('/delivery_men/update_settings', {
                 method: 'POST',

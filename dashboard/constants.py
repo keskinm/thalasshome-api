@@ -3,7 +3,7 @@ REQUIRED_VARIABLES = {"email_sender_password",
                       "SUPABASE_KEY",
                       }
 
-JACUZZI2P='jacuzzi2p'
+JACUZZI6P= 'jacuzzi6p'
 JACUZZI4P='jacuzzi4p'
 
 def normalize_jac_string(string):
@@ -11,8 +11,8 @@ def normalize_jac_string(string):
         raise ValueError("String does not contain jac")
     if '4' in string:
         res = JACUZZI4P
-    elif '2' in string:
-        res = JACUZZI2P
+    elif '6' in string:
+        res = JACUZZI6P
     else:
         raise ValueError(f"Was unable to jac-normalize string: {string}")
     return res

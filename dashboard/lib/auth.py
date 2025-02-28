@@ -43,6 +43,7 @@ def login():
     if response and check_password_hash(response["password"], POST_PASSWORD):
         session['logged_in'] = True
         session["is_staff"] = response["is_staff"]
+        session["user_id"] = response["id"]
         return redirect('/')
     else:
         flash('wrong password!')

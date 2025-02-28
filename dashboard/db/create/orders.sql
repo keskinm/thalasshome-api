@@ -1,4 +1,4 @@
-CREATE TYPE product_type AS ENUM ('jacuzzi2p', 'jacuzzi4p', 'other');
+CREATE TYPE product_type AS ENUM ('jacuzzi6p', 'jacuzzi4p', 'other');
 
 CREATE TYPE order_status AS ENUM (
   'ask', 'pending', 'assigned', 'in_delivery', 'delivered', 'canceled'
@@ -39,10 +39,11 @@ CREATE TABLE line_items (
 
 
 CREATE TABLE delivery_capacity (
-    id SERIAL PRIMARY KEY,
+    id SERIAL UNIQUE,
     user_id INT NOT NULL,
     product product_type NOT NULL,
     quantity INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, product),
     CONSTRAINT fk_delivery_user
       FOREIGN KEY (user_id)
       REFERENCES users(id)

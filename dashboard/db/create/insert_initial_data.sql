@@ -13,12 +13,12 @@ INSERT INTO user_delivery_zones (user_id, zone_name, center_geog, radius_km) VAL
 
 
 INSERT INTO delivery_capacity (user_id, product, quantity) VALUES
-(1, 'jacuzzi2p', 1),
+(1, 'jacuzzi6p', 1),
 (1, 'jacuzzi4p', 1),
-(2, 'jacuzzi2p', 1),
+(2, 'jacuzzi6p', 1),
 (2, 'jacuzzi4p', 1),
-(3, 'jacuzzi2p', 1),
+(3, 'jacuzzi6p', 1),
 (3, 'jacuzzi4p', 1),
-(4, 'jacuzzi2p', 1),
+(4, 'jacuzzi6p', 1),
 (4, 'jacuzzi4p', 1);
 

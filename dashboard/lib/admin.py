@@ -37,19 +37,19 @@ def select_employee(item):
     return selected
 
 
-def check_zone(query_zone, query_country, zipcode):
-    if zipcode is None:
-        return True
+def filter_zone(query_zone, query_country, gt_zipcode):
+    if gt_zipcode is None:
+        return False
 
     if not query_zone or not query_country:
-        return False
+        return True
 
     zips = zip_codes_to_locations[query_country][query_zone]
     for z in zips:
-        if zipcode.startswith(z):
-            return False
+        if gt_zipcode.startswith(z):
+            return True
 
-    return True
+    return False
 
 
 def get_cards(query_zone=None, query_country=None):
@@ -58,7 +58,7 @@ def get_cards(query_zone=None, query_country=None):
 
     for item in all_keys:
         zipcode = item['shipping_address']['zip'] if 'shipping_address' in item else None
-        if check_zone(query_zone, query_country, zipcode):
+        if filter_zone(query_zone, query_country, zipcode):
             continue
 
         status = item['status']

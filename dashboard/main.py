@@ -15,11 +15,13 @@ def init_app():
     from dashboard.lib.admin import admin_bp
     from dashboard.lib.services import services_bp
     from dashboard.lib.notifier import notifier_bp
+    from dashboard.lib.delivery_men import delivery_men_bp
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(notifier_bp)
     app.register_blueprint(services_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(delivery_men_bp)
 
 
     # @todo make it restrictive

@@ -11,6 +11,7 @@ def init_app():
 
     app = Flask(__name__)
 
+    from dashboard.lib.auth import auth_bp
     from dashboard.lib.admin import admin_bp
     from dashboard.lib.services import services_bp
     from dashboard.lib.notifier import notifier_bp
@@ -18,6 +19,8 @@ def init_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(notifier_bp)
     app.register_blueprint(services_bp)
+    app.register_blueprint(auth_bp)
+
 
     # @todo make it restrictive
     CORS(app)

@@ -58,7 +58,7 @@ def get_cards(query_zone=None, query_country=None):
 
     for item in all_keys:
         zipcode = item['shipping_address']['zip'] if 'shipping_address' in item else None
-        if filter_zone(query_zone, query_country, zipcode):
+        if not filter_zone(query_zone, query_country, zipcode):
             continue
 
         status = item['status']

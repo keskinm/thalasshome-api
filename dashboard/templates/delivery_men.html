@@ -40,11 +40,11 @@
         <form id="delivery_capacity" class="space-y-4">
             <div>
                 <label class="block font-semibold">Jacuzzis 4 places :</label>
-                <input type="number" id="jacuzzi_4" class="border rounded p-2 w-full" min="0">
+                <input type="number" id="jacuzzi4p" class="border rounded p-2 w-full" min="0">
             </div>
             <div>
                 <label class="block font-semibold">Jacuzzis 6 places :</label>
-                <input type="number" id="jacuzzi_6" class="border rounded p-2 w-full" min="0">
+                <input type="number" id="jacuzzi6p" class="border rounded p-2 w-full" min="0">
             </div>
             <div>
                 <label class="block font-semibold">Zones de livraison :</label>
@@ -78,16 +78,16 @@
                 });
             });
 
-        fetch('/delivery_men/settings')
+        fetch('/delivery_capacity')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('jacuzzi_4').value = data.jacuzzi_4;
-                document.getElementById('jacuzzi_6').value = data.jacuzzi_6;
+                document.getElementById('jacuzzi4p').value = data.jacuzzi4p;
+                document.getElementById('jacuzzi6p').value = data.jacuzzi6p;
 
                 const zonesList = document.getElementById('delivery_zones');
                 data.zones.forEach(zone => {
                     let li = document.createElement('li');
-                    li.textContent = `📍 ${zone.name} - ${zone.radius_km} km`;
+                    li.textContent = `📍 ${zone.zone_name} - ${zone.radius_km} km`;
                     zonesList.appendChild(li);
                 });
             });
@@ -95,8 +95,8 @@
         document.getElementById('delivery_capacity').addEventListener('submit', function (event) {
             event.preventDefault();
             const updatedData = {
-                jacuzzi4p: document.getElementById('jacuzzi_4').value,
-                jacuzzi6p: document.getElementById('jacuzzi_6').value
+                jacuzzi4p: document.getElementById('jacuzzi4p').value,
+                jacuzzi6p: document.getElementById('jacuzzi6p').value
             };
             fetch('/delivery_capacity', {
                 method: 'PATCH',

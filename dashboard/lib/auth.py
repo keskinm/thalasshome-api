@@ -38,17 +38,21 @@ def login():
         .eq("username", POST_USERNAME)
         .maybe_single()
         .execute()
-    ).data
+    )
 
-    if response and check_password_hash(response["password"], POST_PASSWORD):
+    if response:
+        data = response.data
+    else:
+        flash("wrong username")
+        return "wrong username"
+
+    if check_password_hash(data["password"], POST_PASSWORD):
         session['logged_in'] = True
-        session["is_staff"] = response["is_staff"]
-        session["user_id"] = response["id"]
+        session["is_staff"] = data["is_staff"]
+        session["user_id"] = data["id"]
         return redirect('/')
     else:
-        flash('wrong password!')
-        print("wrong password")
-        return redirect('/login')
+        return "wrong password"
 
 
 

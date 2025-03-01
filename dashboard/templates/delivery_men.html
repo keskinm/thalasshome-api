@@ -67,13 +67,13 @@
 
                 data.available.forEach(order => {
                     let li = document.createElement('li');
-                    li.textContent = `📍 ${order.address} | 🛠 ${order.details}`;
+                    li.innerHTML = `📍 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
                     availableList.appendChild(li);
                 });
 
                 data.ongoing.forEach(order => {
                     let li = document.createElement('li');
-                    li.textContent = `🚚 ${order.address} | 🏷 ${order.details}`;
+                    li.innerHTML = `🚚 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
                     ongoingList.appendChild(li);
                 });
             });

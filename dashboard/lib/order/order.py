@@ -84,7 +84,7 @@ def extract_line_items_keys(data, parent_id):
                 line_item["from_date"] = v_from
                 line_item["to_date"] = v_to
             elif k == "name":
-                if 'jac' in v:
+                if 'jac' in v.lower():
                     line_item["product"] = normalize_jac_string(v)
                 else:
                     line_item["product"] = v

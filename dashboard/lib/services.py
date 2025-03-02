@@ -23,7 +23,7 @@ def check_availability():
     lat, lon = location["lat"], location["lon"]
 
     product_name = data['productName']
-    if not 'jac' in product_name:
+    if not 'jac' in product_name.lower():
         n_delivery_men = supabase_cli.rpc("check_delivery_men_around_point", {
             "in_shipping_lon": lon,
             "in_shipping_lat": lat,

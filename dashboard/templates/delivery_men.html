@@ -16,9 +16,13 @@
 <section class="container mx-auto p-6">
   <!-- Commandes disponibles -->
   <div class="bg-white shadow-md rounded-lg p-4 mb-6">
-    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Commandes à livrer disponibles</h3>
+    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+      Commandes à livrer disponibles
+    </h3>
     <details class="border rounded-md p-3 cursor-pointer">
-      <summary class="font-semibold text-blue-600">Voir les commandes disponibles</summary>
+      <summary class="font-semibold text-blue-600">
+        Voir les commandes disponibles
+      </summary>
       <ul class="space-y-2 mt-2" id="available_orders">
         <!-- Les commandes disponibles insérées dynamiquement -->
       </ul>
@@ -37,17 +41,29 @@
 <!-- Paramètres du livreur (capacité + zones) -->
 <section class="container mx-auto p-6">
   <div class="bg-white shadow-md rounded-lg p-4">
-    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes paramètres</h3>
+    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+      Mes paramètres
+    </h3>
 
     <!-- FORMULAIRE: Capacités de livraison (jacuzzis 4p et 6p) -->
     <form id="delivery_capacity" class="space-y-4">
       <div>
         <label class="block font-semibold">Jacuzzis 4 places :</label>
-        <input type="number" id="jacuzzi4p" class="border rounded p-2 w-full" min="0">
+        <input
+          type="number"
+          id="jacuzzi4p"
+          class="border rounded p-2 w-full"
+          min="0"
+        >
       </div>
       <div>
         <label class="block font-semibold">Jacuzzis 6 places :</label>
-        <input type="number" id="jacuzzi6p" class="border rounded p-2 w-full" min="0">
+        <input
+          type="number"
+          id="jacuzzi6p"
+          class="border rounded p-2 w-full"
+          min="0"
+        >
       </div>
       <button type="submit" class="bg-blue-600 text-white p-2 rounded">
         Mettre à jour
@@ -66,7 +82,6 @@
     <div class="mt-8">
       <h4 class="font-semibold mb-2">Ajouter une zone</h4>
       <form id="add_zone_form" class="space-y-4">
-
         <!-- Input for zone name (with autocomplete) -->
         <div>
           <label class="block font-semibold">Nom de la zone :</label>
@@ -106,9 +121,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // --------------------------------------------------
+  //--------------------------------------------------
   // 1) Fetch and display the orders
-  // --------------------------------------------------
+  //--------------------------------------------------
   fetch('/delivery_men/orders')
     .then(response => response.json())
     .then(data => {
@@ -128,9 +143,9 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-  // --------------------------------------------------
+  //--------------------------------------------------
   // 2) Fetch capacities (jacuzzi4p, jacuzzi6p)
-  // --------------------------------------------------
+  //--------------------------------------------------
   fetch('/delivery_capacity')
     .then(response => response.json())
     .then(data => {
@@ -138,9 +153,9 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('jacuzzi6p').value = data.jacuzzi6p || 0;
     });
 
-  // --------------------------------------------------
+  //--------------------------------------------------
   // 3) Refresh the list of zones
-  // --------------------------------------------------
+  //--------------------------------------------------
   function refreshZones() {
     const zonesList = document.getElementById('delivery_zones');
     zonesList.innerHTML = ''; // clear
@@ -150,7 +165,45 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(zones => {
         zones.forEach(zone => {
           let li = document.createElement('li');
-          li.textContent = `📍 ${zone.zone_name} - ${zone.radius_km} km`;
+
+          // Display text
+          let spanText = document.createElement('span');
+          spanText.textContent = `📍 ${zone.zone_name} - ${zone.radius_km} km`;
+          li.appendChild(spanText);
+
+          // Create a delete button
+          let deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'Supprimer';
+          deleteBtn.classList.add(
+            'ml-2',
+            'bg-red-500',
+            'text-white',
+            'px-2',
+            'py-1',
+            'rounded',
+            'hover:bg-red-600'
+          );
+
+          // On click => DELETE /delivery_zones/<id>
+          deleteBtn.addEventListener('click', () => {
+            if (!confirm(`Supprimer la zone "${zone.zone_name}" ?`)) {
+              return; // user canceled
+            }
+            fetch(`/delivery_zones/${zone.id}`, {
+              method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(resp => {
+              if (resp.error) {
+                alert('Erreur: ' + resp.error);
+              } else {
+                refreshZones();
+              }
+            })
+            .catch(err => alert('Erreur requête: ' + err));
+          });
+
+          li.appendChild(deleteBtn);
           zonesList.appendChild(li);
         });
       })

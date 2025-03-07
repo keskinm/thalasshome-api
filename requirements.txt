@@ -50,6 +50,7 @@ pyasn1_modules==0.4.1
 pydantic==2.10.6
 pydantic_core==2.27.2
 python-dateutil==2.9.0.post0
+PyYAML==6.0
 realtime==2.4.0
 requests==2.32.3
 rsa==4.9

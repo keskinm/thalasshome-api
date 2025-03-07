@@ -6,9 +6,7 @@
    "buyer_accepts_marketing":false,
    "cancel_reason":"None",
    "cancelled_at":"None",
-   "cart_token":"Z2NwLWV1cm9wZS13ZXN0MTowMUpOQkdBUjNXM0JWN1A4Slo3TTlNRU5KUg",
    "checkout_id":43192823972023,
-   "checkout_token":"c886056616fb17af4c9d0508ff2d0a6a",
    "client_details":{
       "accept_language":"fr-FR",
       "browser_height":"None",
@@ -138,7 +136,6 @@
    ],
    "taxes_included":true,
    "test":true,
-   "token":"f594f554b6f4e3308620297cba055ceb",
    "total_cash_rounding_payment_adjustment_set":{
       "shop_money":{
          "amount":"0.00",

@@ -1,0 +1,1 @@
+For all .json format samples, a k-v pair that has "token" in key is removed (git guardian)

@@ -1,112 +1,292 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="utf-8">
 </head>
 <body class="bg-gray-100">
 
 <header class="bg-blue-600 text-white p-4 flex justify-between items-center text-xl font-bold">
-    <span>Espace Livreurs</span>
-    {% if is_staff %}
-    <a href="/admin/index.html" class="bg-white text-blue-600 px-4 py-2 rounded shadow hover:bg-gray-200">Admin</a>
-    {% endif %}
+  <span>Espace Livreurs</span>
+  {% if is_staff %}
+  <a href="/admin/index.html" class="bg-white text-blue-600 px-4 py-2 rounded shadow hover:bg-gray-200">Admin</a>
+  {% endif %}
 </header>
 
 <section class="container mx-auto p-6">
-    <!-- Commandes disponibles -->
-    <div class="bg-white shadow-md rounded-lg p-4 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Commandes à livrer disponibles</h3>
-        <details class="border rounded-md p-3 cursor-pointer">
-            <summary class="font-semibold text-blue-600">Voir les commandes disponibles</summary>
-            <ul class="space-y-2 mt-2" id="available_orders">
-                <!-- Les commandes seront insérées ici dynamiquement -->
-            </ul>
-        </details>
-    </div>
+  <!-- Commandes disponibles -->
+  <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Commandes à livrer disponibles</h3>
+    <details class="border rounded-md p-3 cursor-pointer">
+      <summary class="font-semibold text-blue-600">Voir les commandes disponibles</summary>
+      <ul class="space-y-2 mt-2" id="available_orders">
+        <!-- Les commandes disponibles insérées dynamiquement -->
+      </ul>
+    </details>
+  </div>
 
-    <!-- Commandes en cours -->
-    <div class="bg-white shadow-md rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes commandes en cours</h3>
-        <ul class="space-y-2" id="ongoing_orders">
-            <!-- Les commandes seront insérées ici dynamiquement -->
-        </ul>
-    </div>
+  <!-- Commandes en cours -->
+  <div class="bg-white shadow-md rounded-lg p-4">
+    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes commandes en cours</h3>
+    <ul class="space-y-2" id="ongoing_orders">
+      <!-- Les commandes en cours insérées dynamiquement -->
+    </ul>
+  </div>
 </section>
 
-<!-- Paramètres du livreur -->
+<!-- Paramètres du livreur (capacité + zones) -->
 <section class="container mx-auto p-6">
-    <div class="bg-white shadow-md rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes paramètres</h3>
-        <form id="delivery_capacity" class="space-y-4">
-            <div>
-                <label class="block font-semibold">Jacuzzis 4 places :</label>
-                <input type="number" id="jacuzzi4p" class="border rounded p-2 w-full" min="0">
-            </div>
-            <div>
-                <label class="block font-semibold">Jacuzzis 6 places :</label>
-                <input type="number" id="jacuzzi6p" class="border rounded p-2 w-full" min="0">
-            </div>
-            <div>
-                <label class="block font-semibold">Zones de livraison :</label>
-                <ul id="delivery_zones" class="space-y-2">
-                    <!-- Les zones seront insérées dynamiquement -->
-                </ul>
-            </div>
-            <button type="submit" class="bg-blue-600 text-white p-2 rounded">Mettre à jour</button>
-        </form>
+  <div class="bg-white shadow-md rounded-lg p-4">
+    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes paramètres</h3>
+
+    <!-- FORMULAIRE: Capacités de livraison (jacuzzis 4p et 6p) -->
+    <form id="delivery_capacity" class="space-y-4">
+      <div>
+        <label class="block font-semibold">Jacuzzis 4 places :</label>
+        <input type="number" id="jacuzzi4p" class="border rounded p-2 w-full" min="0">
+      </div>
+      <div>
+        <label class="block font-semibold">Jacuzzis 6 places :</label>
+        <input type="number" id="jacuzzi6p" class="border rounded p-2 w-full" min="0">
+      </div>
+      <button type="submit" class="bg-blue-600 text-white p-2 rounded">
+        Mettre à jour
+      </button>
+    </form>
+
+    <!-- LISTING: Zones de livraison -->
+    <div class="mt-8">
+      <h4 class="font-semibold mb-2">Zones de livraison :</h4>
+      <ul id="delivery_zones" class="space-y-2">
+        <!-- Les zones seront insérées ici dynamiquement -->
+      </ul>
     </div>
+
+    <!-- FORMULAIRE: Ajouter une zone -->
+    <div class="mt-8">
+      <h4 class="font-semibold mb-2">Ajouter une zone</h4>
+      <form id="add_zone_form" class="space-y-4">
+
+        <!-- Input for zone name (with autocomplete) -->
+        <div>
+          <label class="block font-semibold">Nom de la zone :</label>
+          <input
+            type="text"
+            id="zone_name"
+            class="border rounded p-2 w-full"
+            placeholder="Ex: Zone Paris, entrepôt nord..."
+            autocomplete="off"
+          >
+          <!-- Suggestions container -->
+          <ul
+            id="zone_suggestions"
+            class="border border-gray-300 bg-white mt-1 rounded shadow"
+            style="display: none; max-height: 200px; overflow-y: auto;"
+          ></ul>
+        </div>
+
+        <div>
+          <label class="block font-semibold">Rayon (km) :</label>
+          <input
+            type="number"
+            id="zone_radius"
+            class="border rounded p-2 w-full"
+            min="1"
+            value="30"
+          >
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded">
+          Créer
+        </button>
+      </form>
+    </div>
+  </div>
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        fetch('/delivery_men/orders')
-            .then(response => response.json())
-            .then(data => {
-                const availableList = document.getElementById('available_orders');
-                const ongoingList = document.getElementById('ongoing_orders');
+document.addEventListener('DOMContentLoaded', function () {
+  // --------------------------------------------------
+  // 1) Fetch and display the orders
+  // --------------------------------------------------
+  fetch('/delivery_men/orders')
+    .then(response => response.json())
+    .then(data => {
+      const availableList = document.getElementById('available_orders');
+      const ongoingList = document.getElementById('ongoing_orders');
 
-                data.available.forEach(order => {
-                    let li = document.createElement('li');
-                    li.innerHTML = `📍 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
-                    availableList.appendChild(li);
-                });
+      data.available.forEach(order => {
+        let li = document.createElement('li');
+        li.innerHTML = `📍 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
+        availableList.appendChild(li);
+      });
 
-                data.ongoing.forEach(order => {
-                    let li = document.createElement('li');
-                    li.innerHTML = `🚚 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
-                    ongoingList.appendChild(li);
-                });
-            });
-
-        fetch('/delivery_capacity')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('jacuzzi4p').value = data.jacuzzi4p;
-                document.getElementById('jacuzzi6p').value = data.jacuzzi6p;
-
-                const zonesList = document.getElementById('delivery_zones');
-                data.zones.forEach(zone => {
-                    let li = document.createElement('li');
-                    li.textContent = `📍 ${zone.zone_name} - ${zone.radius_km} km`;
-                    zonesList.appendChild(li);
-                });
-            });
-
-        document.getElementById('delivery_capacity').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const updatedData = {
-                jacuzzi4p: document.getElementById('jacuzzi4p').value,
-                jacuzzi6p: document.getElementById('jacuzzi6p').value
-            };
-            fetch('/delivery_capacity', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedData)
-            }).then(response => response.json())
-              .then(data => alert('Mise à jour réussie !'))
-              .catch(error => alert('Erreur de mise à jour'));
-        });
+      data.ongoing.forEach(order => {
+        let li = document.createElement('li');
+        li.innerHTML = `🚚 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
+        ongoingList.appendChild(li);
+      });
     });
+
+  // --------------------------------------------------
+  // 2) Fetch capacities (jacuzzi4p, jacuzzi6p)
+  // --------------------------------------------------
+  fetch('/delivery_capacity')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('jacuzzi4p').value = data.jacuzzi4p || 0;
+      document.getElementById('jacuzzi6p').value = data.jacuzzi6p || 0;
+    });
+
+  // --------------------------------------------------
+  // 3) Refresh the list of zones
+  // --------------------------------------------------
+  function refreshZones() {
+    const zonesList = document.getElementById('delivery_zones');
+    zonesList.innerHTML = ''; // clear
+
+    fetch('/delivery_zones')
+      .then(r => r.json())
+      .then(zones => {
+        zones.forEach(zone => {
+          let li = document.createElement('li');
+          li.textContent = `📍 ${zone.zone_name} - ${zone.radius_km} km`;
+          zonesList.appendChild(li);
+        });
+      })
+      .catch(err => console.error('Erreur lors du fetch /delivery_zones:', err));
+  }
+  refreshZones();
+
+  // --------------------------------------------------
+  // 4) Submit capacity form
+  // --------------------------------------------------
+  document.getElementById('delivery_capacity').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const updatedData = {
+      jacuzzi4p: document.getElementById('jacuzzi4p').value,
+      jacuzzi6p: document.getElementById('jacuzzi6p').value
+    };
+    fetch('/delivery_capacity', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData)
+    })
+    .then(response => response.json())
+    .then(data => alert('Mise à jour réussie !'))
+    .catch(error => alert('Erreur de mise à jour'));
+  });
+
+  // --------------------------------------------------
+  // 5) Autocomplete with Nominatim
+  // --------------------------------------------------
+  let selectedLat = null;
+  let selectedLon = null;
+  const zoneNameInput = document.getElementById('zone_name');
+  const suggestionsList = document.getElementById('zone_suggestions');
+  let lastQuery = '';
+
+  zoneNameInput.addEventListener('input', async function() {
+    const query = zoneNameInput.value.trim();
+    if (query.length < 3) {
+      // Hide suggestions if < 3 chars
+      suggestionsList.style.display = 'none';
+      suggestionsList.innerHTML = '';
+      return;
+    }
+
+    // Prevent spamming Nominatim if the user hasn't typed much more
+    if (Math.abs(query.length - lastQuery.length) < 1) {
+      // optional minimal threshold
+    }
+    lastQuery = query;
+
+    const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
+      q: query,
+      format: 'json',
+      addressdetails: '1',
+      limit: '5',
+      countrycodes: 'fr,ch'
+    });
+    try {
+      const resp = await fetch(url, {
+        headers: { 'Accept': 'application/json' }
+      });
+      const data = await resp.json();
+      suggestionsList.innerHTML = '';
+      if (data && data.length) {
+        // Show suggestions
+        suggestionsList.style.display = 'block';
+        data.forEach(item => {
+          const li = document.createElement('li');
+          li.classList.add('px-3','py-1','hover:bg-gray-100','cursor-pointer');
+          li.textContent = item.display_name;
+
+          li.addEventListener('click', () => {
+            // On user click, fill input, store lat/lon
+            zoneNameInput.value = item.display_name;
+            selectedLat = item.lat;
+            selectedLon = item.lon;
+            // hide suggestions
+            suggestionsList.innerHTML = '';
+            suggestionsList.style.display = 'none';
+          });
+          suggestionsList.appendChild(li);
+        });
+      } else {
+        // No results
+        suggestionsList.style.display = 'none';
+      }
+    } catch(e) {
+      console.error('Nominatim error', e);
+    }
+  });
+
+  // If the user clicks anywhere else, hide the suggestions
+  document.addEventListener('click', function(e) {
+    if (!suggestionsList.contains(e.target) && e.target !== zoneNameInput) {
+      suggestionsList.innerHTML = '';
+      suggestionsList.style.display = 'none';
+    }
+  });
+
+  // --------------------------------------------------
+  // 6) Submit new zone form (using lat/lon if found)
+  // --------------------------------------------------
+  document.getElementById('add_zone_form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const zoneName = zoneNameInput.value.trim();
+    const radius   = parseFloat(document.getElementById('zone_radius').value) || 30;
+
+    fetch('/delivery_zones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        zone_name: zoneName,
+        radius_km: radius,
+        lat: selectedLat,  // from the suggestion
+        lon: selectedLon
+      })
+    })
+    .then(r => r.json())
+    .then(resp => {
+      if (resp.error) {
+        alert('Erreur: ' + resp.error);
+      } else {
+        alert('Zone créée avec succès !');
+        // Reset fields
+        zoneNameInput.value = '';
+        document.getElementById('zone_radius').value = 30;
+        selectedLat = null;
+        selectedLon = null;
+        // Refresh zones
+        refreshZones();
+      }
+    })
+    .catch(err => alert('Erreur requête: ' + err));
+  });
+
+});
 </script>
 </body>
 </html>

@@ -171,18 +171,35 @@ document.addEventListener('DOMContentLoaded', function () {
           spanText.textContent = `📍 ${zone.zone_name} - ${zone.radius_km} km`;
           li.appendChild(spanText);
 
-          // Create a delete button
           let deleteBtn = document.createElement('button');
-          deleteBtn.textContent = 'Supprimer';
+          deleteBtn.innerHTML = '✖'; // "X" symbol
           deleteBtn.classList.add(
             'ml-2',
-            'bg-red-500',
-            'text-white',
-            'px-2',
-            'py-1',
-            'rounded',
-            'hover:bg-red-600'
+            'w-5', 'h-5',
+            'text-red-500',
+            'rounded-full',
+            'flex', 'items-center', 'justify-center',
+            'hover:text-red-700', 'transition'
           );
+
+          // Align to the right and remove default button styles
+          deleteBtn.style.border = "none";
+          deleteBtn.style.background = "none";
+          deleteBtn.style.cursor = "pointer";
+          deleteBtn.style.fontSize = "16px";
+          deleteBtn.style.display = "inline-flex";
+          deleteBtn.style.alignItems = "center";
+          deleteBtn.style.justifyContent = "center";
+          deleteBtn.style.marginLeft = "8px";  // Small spacing from text
+          deleteBtn.style.padding = "2px";     // Keep it small
+
+          // Add hover effect (lighter red on hover)
+          deleteBtn.addEventListener("mouseover", () => {
+              deleteBtn.style.color = "#d00"; // Darker red
+          });
+          deleteBtn.addEventListener("mouseout", () => {
+              deleteBtn.style.color = "#f00"; // Normal red
+          });
 
           // On click => DELETE /delivery_zones/<id>
           deleteBtn.addEventListener('click', () => {

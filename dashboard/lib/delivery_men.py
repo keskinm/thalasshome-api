@@ -138,22 +138,35 @@ def update_zone(zone_id):
     if lat is not None and lon is not None:
         update_data['center_geog'] = f"SRID=4326;POINT({lon} {lat})"
 
-    resp = supabase_cli.table("user_delivery_zones").update(update_data).match({
-        "id": zone_id,
-        "user_id": user_id
-    }).execute()
+    try:
+        resp = supabase_cli.table("user_delivery_zones") \
+            .update(update_data) \
+            .match({"id": zone_id, "user_id": user_id}) \
+            .execute()
 
-    if resp.error:
-        return jsonify({"error": resp.error.message}), 400
-    return jsonify({"message": "Zone updated"}), 200
+        if not resp.data:
+            return jsonify({"error": "Update failed or no matching zone"}), 400
+
+        return jsonify({"message": "Zone updated"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @delivery_men_bp.route('/delivery_zones/<int:zone_id>', methods=['DELETE'])
 def delete_zone(zone_id):
     user_id = session["user_id"]
-    resp = supabase_cli.table("user_delivery_zones") \
-                       .delete() \
-                       .match({"id": zone_id, "user_id": user_id}) \
-                       .execute()
-    if resp.error:
-        return jsonify({"error": resp.error.message}), 400
-    return jsonify({"message": "Zone deleted"}), 200
+
+    try:
+        resp = supabase_cli.table("user_delivery_zones") \
+            .delete() \
+            .match({"id": zone_id, "user_id": user_id}) \
+            .execute()
+
+        if not resp.data:
+            return jsonify({"error": "Delete failed or zone not found"}), 400
+
+        return jsonify({"message": "Zone deleted"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

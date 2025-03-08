@@ -18,7 +18,7 @@ class Notifier:
         self.protocol = "http"
         self.sender_email = "spa.detente.france@gmail.com"
         self.flask_address = request.host_url.rstrip("/")
-        self.email_sender_password = os.getenv("email_sender_password")
+        self.email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
 
     def __call__(self, order, line_items, test=False):
         providers = self.get_providers(order, test=test)

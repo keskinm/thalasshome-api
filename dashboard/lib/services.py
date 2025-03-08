@@ -1,5 +1,6 @@
 import json
 
+import requests
 from flask import Blueprint, jsonify, request
 
 from dashboard.constants import normalize_jac_string
@@ -16,6 +17,73 @@ from dashboard.lib.order.order import (
 secure_hooks = Hooks()
 
 services_bp = Blueprint("services", __name__)
+
+SHOPIFY_STORE_DOMAIN = "spa-detente.myshopify.com"
+SHOPIFY_ADMIN_API_VERSION = "2025-01"
+SHOPIFY_ADMIN_API_ACCESS_TOKEN = "shpat_xxx"
+
+
+@services_bp.route("/create-20pct-draft", methods=["POST"])
+def create_20pct_draft():
+    """
+    Reçoit (JSON):
+      {
+        "customerEmail": "client@example.com",
+        "productTitle": "Jacuzzi 4 places",
+        "totalFullPrice": "80.00"
+      }
+    Retourne (JSON):
+      {
+        "success": true,
+        "invoiceUrl": "https://votre-boutique.myshopify.com/12345/pay?key=..."
+      }
+    """
+    data = request.json
+    try:
+        customer_email = data.get("customerEmail")
+        product_title = data.get("productTitle")
+        total_str = data.get("totalFullPrice", "0")
+        full_price = float(total_str)
+
+        # Compute acount = 20% of total
+        deposit_price = round(full_price * 0.20, 2)  # 2 décimales
+
+        # Prepare draft orders API payload
+        url = f"https://{SHOPIFY_STORE_DOMAIN}/admin/api/{SHOPIFY_ADMIN_API_VERSION}/draft_orders.json"
+        draft_payload = {
+            "draft_order": {
+                "line_items": [
+                    {
+                        "title": f"Acompte 20% pour {product_title}",
+                        "quantity": 1,
+                        "price": str(deposit_price),
+                    }
+                ],
+                "note": f"Acompte de 20% pour {product_title}. "
+                f"Reste {round(full_price * 0.8,2)} € à payer à la livraison.",
+                "customer": {"email": customer_email},
+                "use_customer_default_address": True,
+                # We can add "shipping_line", "taxes_included", etc. if necessary
+            }
+        }
+
+        headers = {
+            "X-Shopify-Access-Token": SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+            "Content-Type": "application/json",
+        }
+
+        # Create draft order
+        resp = requests.post(url, json=draft_payload, headers=headers)
+        resp.raise_for_status()  # Raise exception if status HTTP != 200
+
+        draft_order = resp.json()["draft_order"]
+        # Lien de paiement : draft_order["invoice_url"]
+        invoice_url = draft_order["invoice_url"]
+
+        return jsonify(success=True, invoiceUrl=invoice_url)
+
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
 
 
 @services_bp.route("/check_availability", methods=["POST"])

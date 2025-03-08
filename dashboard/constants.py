@@ -1,7 +1,8 @@
 REQUIRED_VARIABLES = {
-    "email_sender_password",
+    "EMAIL_SENDER_PASSWORD",
     "SUPABASE_URL",
     "SUPABASE_KEY",
+    "SHOPIFY_ADMIN_API_ACCESS_TOKEN",
 }
 
 JACUZZI6P = "jacuzzi6p"

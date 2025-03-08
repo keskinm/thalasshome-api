@@ -3,6 +3,8 @@ import yaml
 from flask import Flask
 from flask_cors import CORS
 from dashboard.constants import REQUIRED_VARIABLES
+from env import ENV_DIR
+
 
 def load_yaml_env(path_to_yaml):
     """Load env_variables from a local YAML file and set them into os.environ."""
@@ -13,11 +15,10 @@ def load_yaml_env(path_to_yaml):
         for k, v in env_vars.items():
             os.environ[k] = v
     except Exception as e:
-        # You might want to handle file-not-found or parse errors here
         print(f"Could not load env vars from {path_to_yaml}: {e}")
 
 # Load from danger.yaml
-load_yaml_env('env/danger.yaml')
+load_yaml_env(ENV_DIR / 'danger.yaml')
 
 
 def init_app():

@@ -1,2 +1,2 @@
-runtime: python39
+runtime: python310
 entrypoint: gunicorn -b :8080 dashboard.run:app

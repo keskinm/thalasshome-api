@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "thalasshome-api"
+version = "0.1.0"
+description = "DEV"
+authors = ["Sasha Keskin <skeskin@bwi.earth>"]
+readme = "DEV.md"
+packages = [{include = "dashboard"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^3.1.0"
+gunicorn = "^23.0.0"
+pyyaml = "^6.0.2"
+flask-cors = "^5.0.1"
+supabase = "^2.13.0"
+geopy = "^2.4.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

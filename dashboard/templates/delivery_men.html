@@ -248,29 +248,23 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // --------------------------------------------------
-  // 5) Autocomplete with Nominatim
+  // 5) Autocomplete with Nominatim using debounce
   // --------------------------------------------------
   let selectedLat = null;
   let selectedLon = null;
   const zoneNameInput = document.getElementById('zone_name');
   const suggestionsList = document.getElementById('zone_suggestions');
-  let lastQuery = '';
+  let zoneDebounceTimer = null;
 
-  zoneNameInput.addEventListener('input', async function() {
+  zoneNameInput.addEventListener('input', function() {
+    clearTimeout(zoneDebounceTimer);
     const query = zoneNameInput.value.trim();
     if (query.length < 3) {
-      // Hide suggestions if < 3 chars
       suggestionsList.style.display = 'none';
       suggestionsList.innerHTML = '';
       return;
     }
-
-    // Prevent spamming Nominatim if the user hasn't typed much more
-    if (Math.abs(query.length - lastQuery.length) < 1) {
-      // optional minimal threshold
-    }
-    lastQuery = query;
-
+    zoneDebounceTimer = setTimeout(async () => {
     const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
       q: query,
       format: 'json',
@@ -285,31 +279,27 @@ document.addEventListener('DOMContentLoaded', function () {
       const data = await resp.json();
       suggestionsList.innerHTML = '';
       if (data && data.length) {
-        // Show suggestions
         suggestionsList.style.display = 'block';
         data.forEach(item => {
           const li = document.createElement('li');
           li.classList.add('px-3','py-1','hover:bg-gray-100','cursor-pointer');
           li.textContent = item.display_name;
-
           li.addEventListener('click', () => {
-            // On user click, fill input, store lat/lon
             zoneNameInput.value = item.display_name;
             selectedLat = item.lat;
             selectedLon = item.lon;
-            // hide suggestions
             suggestionsList.innerHTML = '';
             suggestionsList.style.display = 'none';
           });
           suggestionsList.appendChild(li);
         });
       } else {
-        // No results
         suggestionsList.style.display = 'none';
       }
     } catch(e) {
       console.error('Nominatim error', e);
     }
+    }, 500);
   });
 
   // If the user clicks anywhere else, hide the suggestions

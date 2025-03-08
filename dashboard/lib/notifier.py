@@ -1,42 +1,45 @@
-import smtplib, ssl
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import os
+import smtplib
+import ssl
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-from flask import redirect, Blueprint, request
+from flask import Blueprint, redirect, request
 
-from dashboard.lib.locations import find_zone
-from dashboard.lib.order.order import get_name, get_address, get_ship
 from dashboard.db.client import supabase_cli
+from dashboard.lib.locations import find_zone
+from dashboard.lib.order.order import get_address, get_name, get_ship
 
-notifier_bp = Blueprint('notifier', __name__)
-
+notifier_bp = Blueprint("notifier", __name__)
 
 
 class Notifier:
     def __init__(self):
-        self.protocol = 'http'
+        self.protocol = "http"
         self.sender_email = "spa.detente.france@gmail.com"
-        self.flask_address = request.host_url.rstrip('/')
-        self.email_sender_password = os.getenv('email_sender_password')
+        self.flask_address = request.host_url.rstrip("/")
+        self.email_sender_password = os.getenv("email_sender_password")
 
     def __call__(self, order, line_items, test=False):
         providers = self.get_providers(order, test=test)
-        tokens = self.create_tokens(order['id'], providers)
+        tokens = self.create_tokens(order["id"], providers)
         self.notify_providers(providers, tokens, order, line_items)
 
     @staticmethod
     def get_providers(order, test=False) -> list[dict]:
-        command_country = order['shipping_address']['country']
-        command_zip = order['shipping_address']['zip']
+        command_country = order["shipping_address"]["country"]
+        command_zip = order["shipping_address"]["zip"]
         command_zone = find_zone(command_zip, command_country)
 
-        providers = supabase_cli.rpc("get_user_by_zone", {"command_zone": command_zone}).execute().data
+        providers = (
+            supabase_cli.rpc("get_user_by_zone", {"command_zone": command_zone})
+            .execute()
+            .data
+        )
 
         if test:
-            providers = list(filter(lambda x: 'python' in x['username'], providers))
+            providers = list(filter(lambda x: "python" in x["username"], providers))
         return providers
-
 
     @staticmethod
     def create_tokens(order_id, providers: list[dict]) -> list[str]:
@@ -45,7 +48,13 @@ class Notifier:
             tokens.append(f"{str(order_id)}|{provider['username']}")
         return tokens
 
-    def notify_providers(self, providers: list[dict], tokens: list[str], order: dict, line_items: list[dict]):
+    def notify_providers(
+        self,
+        providers: list[dict],
+        tokens: list[str],
+        order: dict,
+        line_items: list[dict],
+    ):
         adr = get_address(order)
         ship, amount = get_ship(line_items)
 
@@ -54,16 +63,18 @@ class Notifier:
             token = tokens[i]
 
             text = """\
-            Bonjour, une nouvelle commande à livrer est disponible ! 
+            Bonjour, une nouvelle commande à livrer est disponible !
             Commande:  {ship}
             Adresse de la commande : {adr}
             Total restant pour vous : {amount}€
-            Pour accepter la commande : {protocol}://{flask_address}/commands/accept/{token_id}""".format(protocol=self.protocol,
-                                                                                                          flask_address=self.flask_address,
-                                                                                                          token_id=token,
-                                                                                                          ship=ship,
-                                                                                                          adr=adr,
-                                                                                                          amount=amount)
+            Pour accepter la commande : {protocol}://{flask_address}/commands/accept/{token_id}""".format(
+                protocol=self.protocol,
+                flask_address=self.flask_address,
+                token_id=token,
+                ship=ship,
+                adr=adr,
+                amount=amount,
+            )
 
             html = """\
             <html>
@@ -76,67 +87,111 @@ class Notifier:
                 </p>
               </body>
             </html>
-            """.format(ship=ship, adr=adr, protocol=self.protocol, flask_address=self.flask_address, token_id=token,
-                       amount=amount)
+            """.format(
+                ship=ship,
+                adr=adr,
+                protocol=self.protocol,
+                flask_address=self.flask_address,
+                token_id=token,
+                amount=amount,
+            )
 
             subject = "Une nouvelle commande ThalassHome !"
 
             self.send_mail(provider["email"], subject, html, text)
 
     def accept_command(self, token_id):
-        order_id, provider_username = token_id.split('|')
-        order = (supabase_cli.
-                 table("orders").
-                 select("*").
-                 eq("id", order_id).
-                 limit(1).
-                 single().
-                 execute().
-                 data)
+        order_id, provider_username = token_id.split("|")
+        order = (
+            supabase_cli.table("orders")
+            .select("*")
+            .eq("id", order_id)
+            .limit(1)
+            .single()
+            .execute()
+            .data
+        )
 
         if order is None:
             return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
 
-        if 'provider' in order:
-            return 'La commande a déjà été accepté par un autre livreur.'
+        if "provider" in order:
+            return "La commande a déjà été accepté par un autre livreur."
 
         else:
-            provider = supabase_cli.table("users").select("*").eq("username", provider_username).limit(1).single().execute().data
-            line_items = supabase_cli.table("line_items").select("*").eq("order_id", order_id).execute().data
+            provider = (
+                supabase_cli.table("users")
+                .select("*")
+                .eq("username", provider_username)
+                .limit(1)
+                .single()
+                .execute()
+                .data
+            )
+            line_items = (
+                supabase_cli.table("line_items")
+                .select("*")
+                .eq("order_id", order_id)
+                .execute()
+                .data
+            )
             provider_email = provider["email"]
 
-            order['provider'] = {'username': provider_username, 'email': provider_email}
-            supabase_cli.table("orders").update({"delivery_men_id": provider["id"]}).eq("id", order_id).execute()
+            order["provider"] = {"username": provider_username, "email": provider_email}
+            supabase_cli.table("orders").update({"delivery_men_id": provider["id"]}).eq(
+                "id", order_id
+            ).execute()
 
-            html_customer_phone_number = 'Numéro du client : {phone} <br>'.format(phone=order["phone"]) if 'phone' in order else ''
-            html_customer_mail = 'E-mail : {mail} <br>'.format(mail=order["email"]) if 'email' in order else ''
+            html_customer_phone_number = (
+                "Numéro du client : {phone} <br>".format(phone=order["phone"])
+                if "phone" in order
+                else ""
+            )
+            html_customer_mail = (
+                "E-mail : {mail} <br>".format(mail=order["email"])
+                if "email" in order
+                else ""
+            )
 
-            text_customer_phone_number = 'Numéro du client : {phone} \n'.format(phone=order["phone"]) if 'phone' in order else ''
-            text_customer_mail = 'E-mail : {mail} \n'.format(mail=order["email"]) if 'email' in order else ''
+            text_customer_phone_number = (
+                "Numéro du client : {phone} \n".format(phone=order["phone"])
+                if "phone" in order
+                else ""
+            )
+            text_customer_mail = (
+                "E-mail : {mail} \n".format(mail=order["email"])
+                if "email" in order
+                else ""
+            )
 
             plain_customer_name = get_name(order)
-            text_customer_name = 'Nom : {name} \n'.format(name=plain_customer_name)
-            html_customer_name = 'Nom : {name} <br>'.format(name=plain_customer_name)
+            text_customer_name = "Nom : {name} \n".format(name=plain_customer_name)
+            html_customer_name = "Nom : {name} <br>".format(name=plain_customer_name)
 
             text = """\
                 Merci d'avoir accepté la commande ! Voici les détails conçernant le client :
-                {customer_phone_number} 
+                {customer_phone_number}
                 {customer_mail}
-                {customer_name}""".format(customer_phone_number=text_customer_phone_number,
-                                          customer_mail=text_customer_mail,
-                                          customer_name=text_customer_name)
+                {customer_name}""".format(
+                customer_phone_number=text_customer_phone_number,
+                customer_mail=text_customer_mail,
+                customer_name=text_customer_name,
+            )
             html = """\
                 <html>
                   <body>
                     <p>Merci d'avoir accepté la commande ! Voici les détails conçernant le client : <br>
-                    {customer_phone_number} 
+                    {customer_phone_number}
                     {customer_mail}
                     {customer_name}
                     </p>
                   </body>
                 </html>
-                """.format(customer_phone_number=html_customer_phone_number, customer_mail=html_customer_mail,
-                           customer_name=html_customer_name)
+                """.format(
+                customer_phone_number=html_customer_phone_number,
+                customer_mail=html_customer_mail,
+                customer_name=html_customer_name,
+            )
             subject = "Détails sur votre commande ThalassHome"
             self.send_mail(provider_email, subject, html, text)
 
@@ -144,7 +199,7 @@ class Notifier:
             self.notify_admins(order, provider, line_items)
             self.update_employee(order, provider)
 
-            return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail 
+            return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail
             contenant des informations supplémentaires pour votre commande. A bientôt ! """
 
     def update_employee(self, order, provider):
@@ -156,8 +211,10 @@ class Notifier:
                     Voici les coordonnées de notre prestataire qui se charge de votre commande : <br>
                     {provider_email}
                     {provider_number}
-                  </p>     
-               """.format(provider_email=provider["email"], provider_number=provider["phone_number"])
+                  </p>
+               """.format(
+            provider_email=provider["email"], provider_number=provider["phone_number"]
+        )
 
         self.send_mail(provider["email"], subject, html)
 
@@ -170,7 +227,7 @@ class Notifier:
 
         html = """
         <p>
-        La commande : {ship} <br> 
+        La commande : {ship} <br>
         du client : {customer_name}, <br>
         située à : {adr} <br>
         coordonnées du client : {customer_mail} {customer_number} <br>
@@ -178,14 +235,21 @@ class Notifier:
         a été acceptée par le prestataire : {provider} <br>
         coordonnées du prestataire : {provider_mail}, {provider_number} <br>
         </p>
-        """.format(ship=ship, customer_name=customer_name, adr=adr, provider=provider["username"], amount=amount,
-                   provider_mail=provider["email"], provider_number=provider["phone_number"],
-                   customer_mail=order["email"] if "email" in order else "",
-                   customer_number=order["phone"] if "phone" in order else "")
+        """.format(
+            ship=ship,
+            customer_name=customer_name,
+            adr=adr,
+            provider=provider["username"],
+            amount=amount,
+            provider_mail=provider["email"],
+            provider_number=provider["phone_number"],
+            customer_mail=order["email"] if "email" in order else "",
+            customer_number=order["phone"] if "phone" in order else "",
+        )
 
         self.send_mail(self.sender_email, subject, html)
 
-    def send_mail(self, receiver_email: str, subject: str, html: str, text: str=''):
+    def send_mail(self, receiver_email: str, subject: str, html: str, text: str = ""):
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = self.sender_email
@@ -198,28 +262,31 @@ class Notifier:
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
             server.login(self.sender_email, self.email_sender_password)
-            server.sendmail(
-                self.sender_email, receiver_email, message.as_string()
-            )
+            server.sendmail(self.sender_email, receiver_email, message.as_string())
 
 
-
-@notifier_bp.route('/commands/accept/<token_id>', methods=['GET'])
+@notifier_bp.route("/commands/accept/<token_id>", methods=["GET"])
 def _accept_command(token_id):
     return Notifier().accept_command(token_id)
 
 
-
-@notifier_bp.route('/test_notification', methods=['GET'])
+@notifier_bp.route("/test_notification", methods=["GET"])
 def test_notification():
-    order = (supabase_cli.
-             table("orders").
-             select("*").
-             limit(1).
-             eq("email", "sign.pls.up@gmail.com").
-             single().
-             execute().
-             data)
-    line_items = supabase_cli.table("line_items").select("*").eq("order_id", order["id"]).execute().data
+    order = (
+        supabase_cli.table("orders")
+        .select("*")
+        .limit(1)
+        .eq("email", "sign.pls.up@gmail.com")
+        .single()
+        .execute()
+        .data
+    )
+    line_items = (
+        supabase_cli.table("line_items")
+        .select("*")
+        .eq("order_id", order["id"])
+        .execute()
+        .data
+    )
     Notifier()(order, line_items, test=True)
     return redirect("/")

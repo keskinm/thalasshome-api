@@ -21,4 +21,3 @@ INSERT INTO delivery_capacity (user_id, product, quantity) VALUES
 (3, 'jacuzzi4p', 1),
 (4, 'jacuzzi6p', 1),
 (4, 'jacuzzi4p', 1);
-

@@ -1,12 +1,11 @@
-
 class Hooks:
     def __init__(self, elt_limit=20):
         self.elt_limit = elt_limit
-        self.gottens = {'orders/create': {}}
+        self.gottens = {"orders/create": {}}
 
     def check_request(self, request):
-        topic = request.headers.get('X-Shopify-Topic')
-        hook_id = request.headers.get('X-Shopify-Order-Id')
+        topic = request.headers.get("X-Shopify-Topic")
+        hook_id = request.headers.get("X-Shopify-Order-Id")
 
         if hook_id not in self.gottens[topic]:
             self.gottens[topic][hook_id] = 0

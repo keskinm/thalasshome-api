@@ -8,7 +8,3 @@ CREATE TABLE users (
     zone TEXT,
     phone_number TEXT
 );
-
-
-
-

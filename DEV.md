@@ -7,7 +7,7 @@
 `gcloud app logs tail -s default`
 
 
-## Cleaning deployments 
+## Cleaning deployments
 
 `gcloud app versions list`
 
@@ -34,3 +34,12 @@ Poetry is only used locally as a dependency management tool.
 Generate requirements.txt (as shown above).
 Ensure requirements.txt is included in Git (git add requirements.txt).
 Deploy to App Engine: `gcloud app deploy`
+
+
+## Install pre-commit hooks
+
+`poetry run pre-commit install`
+
+### update
+
+`poetry run pre-commit autoupdate`

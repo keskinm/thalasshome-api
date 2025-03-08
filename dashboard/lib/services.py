@@ -1,4 +1,5 @@
 import json
+import os
 
 import requests
 from flask import Blueprint, jsonify, request
@@ -20,7 +21,7 @@ services_bp = Blueprint("services", __name__)
 
 SHOPIFY_STORE_DOMAIN = "spa-detente.myshopify.com"
 SHOPIFY_ADMIN_API_VERSION = "2025-01"
-SHOPIFY_ADMIN_API_ACCESS_TOKEN = "shpat_xxx"
+SHOPIFY_ADMIN_API_ACCESS_TOKEN = os.getenv("SHOPIFY_ADMIN_API_ACCESS_TOKEN")
 
 
 @services_bp.route("/create-20pct-draft", methods=["POST"])
@@ -35,7 +36,7 @@ def create_20pct_draft():
     Retourne (JSON):
       {
         "success": true,
-        "invoiceUrl": "https://votre-boutique.myshopify.com/12345/pay?key=..."
+        "invoiceUrl": "https://myshop.myshopify.com/12345/pay?key=..."
       }
     """
     data = request.json

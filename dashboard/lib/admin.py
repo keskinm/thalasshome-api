@@ -177,7 +177,7 @@ def on_select_repl():
     )
 
 
-@admin_bp.route("/admin/index.html")
+@admin_bp.route("/index.html")
 def admin_index():
     if not session.get("logged_in") or not session.get("is_staff"):
         return "Accès interdit", 403

@@ -10,15 +10,6 @@ secure_hooks = Hooks()
 auth_bp = Blueprint("auth", __name__)
 
 
-@auth_bp.route("/")
-def splash():
-    if not session.get("logged_in"):
-        return render_template("login.html")
-    else:
-        context = {"is_staff": session.get("is_staff", False)}
-        return render_template("delivery_men.html", **context)
-
-
 @auth_bp.route("/login", methods=["POST"])
 def login():
     POST_USERNAME = str(request.form["username"])
@@ -50,6 +41,8 @@ def login():
 @auth_bp.route("/logout", methods=["POST", "GET"])
 def logout():
     session["logged_in"] = False
+    from dashboard.lib.splash import splash
+
     return splash()
 
 

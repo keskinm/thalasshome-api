@@ -29,15 +29,17 @@
 {% block content %}
 
 
-{% with messages = get_flashed_messages() %}
+{% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-    <div class="notification is-danger">
-        {{ messages[0] }}. Go to <a href="{{ url_for('root') }}">login page</a>.
-    </div>
+<div class="alert alert-danger">
+    {% for category, message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+</div>
 {% endif %}
 {% endwith %}
 
-<form method="POST" action="/signup_post">
+<form action="/auth/signup_post" method="post">
     <div class="login">
         <div class="login-screen">
 

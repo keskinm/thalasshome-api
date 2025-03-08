@@ -36,12 +36,14 @@ def init_app():
     from dashboard.lib.delivery_men import delivery_men_bp
     from dashboard.lib.notifier import notifier_bp
     from dashboard.lib.services import services_bp
+    from dashboard.lib.splash import splash_bp
 
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(notifier_bp)
-    app.register_blueprint(services_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(delivery_men_bp)
+    app.register_blueprint(splash_bp)
+    app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(notifier_bp, url_prefix="/notifier")
+    app.register_blueprint(services_bp, url_prefix="/services")
+    app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(delivery_men_bp, url_prefix="/delivery_men")
 
     # @todo make it restrictive
     CORS(app)

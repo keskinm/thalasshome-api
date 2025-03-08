@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
   //--------------------------------------------------
   // 2) Fetch capacities (jacuzzi4p, jacuzzi6p)
   //--------------------------------------------------
-  fetch('/delivery_capacity')
+  fetch('/delivery_men/delivery_capacity')
     .then(response => response.json())
     .then(data => {
       document.getElementById('jacuzzi4p').value = data.jacuzzi4p || 0;
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const zonesList = document.getElementById('delivery_zones');
     zonesList.innerHTML = ''; // clear
 
-    fetch('/delivery_zones')
+    fetch('/delivery_men/delivery_zones')
       .then(r => r.json())
       .then(zones => {
         zones.forEach(zone => {
@@ -201,12 +201,12 @@ document.addEventListener('DOMContentLoaded', function () {
               deleteBtn.style.color = "#f00"; // Normal red
           });
 
-          // On click => DELETE /delivery_zones/<id>
+          // On click => DELETE /delivery_men/delivery_zones/<id>
           deleteBtn.addEventListener('click', () => {
             if (!confirm(`Supprimer la zone "${zone.zone_name}" ?`)) {
               return; // user canceled
             }
-            fetch(`/delivery_zones/${zone.id}`, {
+            fetch(`/delivery_men/delivery_zones/${zone.id}`, {
               method: 'DELETE'
             })
             .then(res => res.json())
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function () {
           zonesList.appendChild(li);
         });
       })
-      .catch(err => console.error('Erreur lors du fetch /delivery_zones:', err));
+      .catch(err => console.error('Erreur lors du fetch /delivery_men/delivery_zones:', err));
   }
   refreshZones();
 
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
       jacuzzi4p: document.getElementById('jacuzzi4p').value,
       jacuzzi6p: document.getElementById('jacuzzi6p').value
     };
-    fetch('/delivery_capacity', {
+    fetch('/delivery_men/delivery_capacity', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedData)
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const zoneName = zoneNameInput.value.trim();
     const radius   = parseFloat(document.getElementById('zone_radius').value) || 30;
 
-    fetch('/delivery_zones', {
+    fetch('/delivery_men/delivery_zones', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

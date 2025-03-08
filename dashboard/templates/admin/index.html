@@ -68,7 +68,7 @@
                     const itemEl = evt.item; // L'élément déplacé
                     const newColumnId = evt.to.parentNode.id; // Nouvelle colonne
                     // Effectuez ici une requête pour mettre à jour le backend
-                    fetch("/order/status", {
+                    fetch("/admin/order/status", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ item: itemEl.getAttribute("data-item-id"), category: newColumnId })

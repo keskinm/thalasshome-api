@@ -7,7 +7,7 @@ from dashboard.lib.order.order import get_address, get_ship
 delivery_men_bp = Blueprint("delivery_men", __name__)
 
 
-@delivery_men_bp.route("/delivery_men/orders", methods=["GET"])
+@delivery_men_bp.route("/orders", methods=["GET"])
 def get_orders():
     user_id = session["user_id"]
 

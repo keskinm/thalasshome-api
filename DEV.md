@@ -4,7 +4,11 @@
 
 ## Check logs
 
+Interactive:
 `gcloud app logs tail -s default`
+
+Past:
+`gcloud app logs read --limit=10`
 
 
 ## Cleaning deployments

@@ -1,31 +1,36 @@
-<link rel="stylesheet" href="/static/login.css" type="text/css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ThalassHome</title>
+    <link rel="stylesheet" href="/static/login.css" type="text/css">
+</head>
+<body>
+    <div class="container">
+        <form action="/auth/login" method="POST" class="login">
+            <div class="login-screen">
+                <div class="app-title">
+                    <h1>Login</h1>
+                </div>
 
-<form action="/auth/login" method="POST">
-    <div class="login">
-        <div class="login-screen">
+                <div class="login-form">
+                    <div class="control-group">
+                        <input type="email" class="login-field" placeholder="Email" name="username" required autocomplete="email">
+                    </div>
 
-            <div class="app-title">
-                <h1>Login</h1>
+                    <div class="control-group">
+                        <input type="password" class="login-field" placeholder="Password" name="password" required minlength="8">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-block">Log in</button>
+
+                    <div class="login-link">
+                        <a href="{{ url_for('auth.render_signup') }}">Don't have an account? Sign up</a>
+                    </div>
+                </div>
             </div>
-
-            <div class="login-form">
-
-                <div class="control-group">
-                    <input type="text" class="login-field" value="" placeholder="username" name="username">
-                    <label class="login-field-icon fui-user" for="login-name"></label>
-                </div>
-
-                <div class="control-group">
-                    <input type="password" class="login-field" value="" placeholder="password" name="password">
-                    <label class="login-field-icon fui-lock" for="login-pass"></label>
-                </div>
-
-                <input type="submit" value="Log in" class="btn btn-primary btn-large btn-block">
-
-                <div><a href="{{ url_for('auth.render_signup') }}">Create account</a>
-                </div>
-
-            </div>
-        </div>
+        </form>
     </div>
-</form>
+</body>
+</html>

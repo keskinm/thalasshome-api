@@ -12,13 +12,15 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    POST_USERNAME = str(request.form["username"])
+    POST_EMAIL = str(
+        request.form["username"]
+    )  # form field still named "username" for compatibility
     POST_PASSWORD = str(request.form["password"])
 
     response = (
         supabase_cli.table("users")
         .select("*")
-        .eq("username", POST_USERNAME)
+        .eq("email", POST_EMAIL)
         .maybe_single()
         .execute()
     )
@@ -26,8 +28,8 @@ def login():
     if response:
         data = response.data
     else:
-        flash("wrong username")
-        return "wrong username"
+        flash("Email not found")
+        return "Email not found"
 
     if check_password_hash(data["password"], POST_PASSWORD):
         session["logged_in"] = True
@@ -53,6 +55,8 @@ def render_signup():
 
 @auth_bp.route("/signup_post", methods=["POST"])
 def signup_post():
+    from dashboard.lib.splash import splash
+
     email = request.form.get("email")
     name = request.form.get("name")
     password = request.form.get("password")
@@ -64,15 +68,13 @@ def signup_post():
         supabase_cli.table("users")
         .select("*")
         .eq("email", email)
-        .limit(1)
-        .single()
+        .maybe_single()
         .execute()
-    ).data
+    )
 
     if (
-        user
+        user is not None
     ):  # if a user is found, we want to redirect back to signup page so user can try again
-        # return redirect(url_for('/signup_post'))
         flash("Email address already exists")
         return render_signup()
 

@@ -1,94 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ThalassHome</title>
     <link rel="stylesheet" href="/static/login.css" type="text/css">
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
-            integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"
+            integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
             crossorigin="anonymous"></script>
     <script>
-        jQuery(function($) {
+        $(document).ready(function() {
+            const country = {
+                'France': ['ile_de_france', 'loire', 'pays_de_gex', 'toulouse', 'centre_val_de_loire', 'var', 'rhone', 'marseille'],
+                'Switzerland': ['geneve']
+            };
 
-    var country = {
-        'France': ['ile_de_france', 'loire', 'pays_de_gex', 'toulouse', 'centre_val_de_loire', 'var', 'rhone',
-            'marseille'],
-        'Switzerland': ['geneve'],
-    }
+            $('#country').on('change', function() {
+                const selectedCountry = $(this).val();
+                const zones = country[selectedCountry] || [];
+                const $zone = $('#zone');
 
-    var $zzone = $('#zone');
-    $('#country').change(function () { debugger
-        var CNTRY = $(this).val(), cntries = country[CNTRY] || [];
-
-        var html = $.map(cntries, function(ctry){
-            return '<option value="' + ctry + '">' + ctry + '</option>'
-        }).join('');
-        $zzone.html(html);$zzone.append(new Option("Select zone", "0"));$zzone.val("0");
-    });
-});
+                $zone.html('<option value="">Select zone</option>' +
+                    zones.map(zone => `<option value="${zone}">${zone.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>`).join(''));
+            });
+        });
     </script>
 </head>
+<body>
+    {% block content %}
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-danger">
+                    {% for category, message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
+        <form action="/auth/signup_post" method="post" class="login">
+            <div class="login-screen">
+                <div class="app-title">
+                    <h1>Sign Up</h1>
+                </div>
 
-{% block content %}
+                <div class="login-form">
+                    <div class="control-group">
+                        <input class="login-field" type="email" name="email" placeholder="Email" required autocomplete="email">
+                    </div>
 
+                    <div class="field">
+                        <input class="login-field" type="text" name="name" placeholder="Name" required minlength="2">
+                    </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-<div class="alert alert-danger">
-    {% for category, message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
+                    <div class="field">
+                        <input class="login-field" type="password" name="password" placeholder="Password" required minlength="8"
+                               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                               title="Must contain at least one number, one uppercase and lowercase letter, and at least 8 characters">
+                    </div>
 
-<form action="/auth/signup_post" method="post">
-    <div class="login">
-        <div class="login-screen">
+                    <div class="field">
+                        <input class="login-field" type="tel" name="numero_de_telephone" placeholder="Phone Number"
+                               pattern="[0-9\+\-\s]+" required>
+                    </div>
 
-            <div class="app-title">
-                <h1>Sign Up</h1>
+                    <div class="field">
+                        <select id="country" name="country" class="login-field" required>
+                            <option value="">Select Country</option>
+                            <option value="France">France</option>
+                            <option value="Switzerland">Switzerland</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <select id="zone" name="zone" class="login-field" required>
+                            <option value="">Select Zone</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-block">Sign Up</button>
+
+                    <div class="login-link">
+                        <a href="{{ url_for('auth.login') }}">Already have an account? Log in</a>
+                    </div>
+                </div>
             </div>
-
-            <div class="login-form">
-
-                <div class="control-group">
-                    <input class="login-field" type="email" name="email" placeholder="Email" autofocus="">
-                </div>
-
-                <div class="field">
-                    <div class="control">
-                        <input class="login-field" type="text" name="name" placeholder="Name" autofocus="">
-                    </div>
-                </div>
-
-                <div class="field">
-                    <div class="control">
-                        <input class="login-field" type="password" name="password" placeholder="Password">
-                    </div>
-                </div>
-
-                <div class="field">
-                    <div class="control">
-                        <input class="login-field" type="text" name="numero_de_telephone" placeholder="numero_de_telephone">
-                    </div>
-                </div>
-
-                <select id="country">
-                    <option>Country</option>
-                    <option value="France">France</option>
-                    <option value="Switzerland">Switzerland</option>
-                </select>
-
-                <select id="zone" name="zone"></select>
-
-
-                <input type="submit" value="Sign Up" class="btn btn-primary btn-large btn-block">
-
-
-            </div>
-
-        </div>
-
+        </form>
     </div>
-
-</form>
-
-{% endblock %}
+    {% endblock %}
+</body>
+</html>

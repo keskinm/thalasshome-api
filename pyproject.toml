@@ -2,7 +2,7 @@
 name = "thalasshome-api"
 version = "0.1.0"
 description = "DEV"
-authors = ["Sasha Keskin <skeskin@bwi.earth>"]
+authors = ["Sasha Keskin <skeskin@bwi.earth>", "Mathias Ducatillon"]
 readme = "DEV.md"
 packages = [{include = "dashboard"}]
 

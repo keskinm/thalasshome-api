@@ -1,0 +1,76 @@
+/* Column layouts */
+.column {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  min-height: 200px;
+}
+
+/* Column-specific colors */
+#ask { background-color: #FEF9C3; }
+#assigned { background-color: #DBEAFE; }
+#in_delivery { background-color: #F3E8FF; }
+#delivered { background-color: #DCFCE7; }
+#canceled { background-color: #FEE2E2; }
+
+.card-list {
+  min-height: 50px;
+}
+
+.card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #eee;
+  cursor: move;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Drag and drop effects */
+.sortable-ghost {
+  opacity: 0.5;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 2px dashed #60a5fa;
+}
+
+.sortable-chosen {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02) rotate(1deg);
+}
+
+/* Column headers */
+.column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.column-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Status badges */
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.status-ask { background-color: #FEF9C3; color: #854d0e; }
+.status-assigned { background-color: #DBEAFE; color: #1e40af; }
+.status-in_delivery { background-color: #F3E8FF; color: #6b21a8; }
+.status-delivered { background-color: #DCFCE7; color: #166534; }
+.status-canceled { background-color: #FEE2E2; color: #991b1b; }

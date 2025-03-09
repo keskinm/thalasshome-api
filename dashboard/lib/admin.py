@@ -103,18 +103,3 @@ def on_remove_cards():
             "list_id": list_id,
         }
     )
-
-
-@admin_bp.route("/index.html")
-def admin_index():
-    if not session.get("logged_in") or not session.get("is_staff"):
-        return "Accès interdit", 403
-
-    res = get_cards()
-    employee_names = supabase_cli.table("users").select("username").execute().data
-    res = {
-        **res,
-        **{"employees": list(map(lambda x: x.get("username"), employee_names))},
-    }
-
-    return render_template("admin/index.html", **res)

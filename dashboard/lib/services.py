@@ -4,7 +4,7 @@ import os
 import requests
 from flask import Blueprint, jsonify, request
 
-from dashboard.constants import normalize_jac_string
+from dashboard.constants import normalize_jac_string, parse_rent_duration_jac
 from dashboard.db.client import supabase_cli
 from dashboard.lib.admin import verify_webhook
 from dashboard.lib.hooks import Hooks
@@ -109,8 +109,13 @@ def check_availability():
             .data["n_delivery_men"]
         )
         return jsonify(
-            {"unavailable_dates": [], "product_available": bool(n_delivery_men)}
+            {
+                "unavailable_dates": [],
+                "product_available": bool(n_delivery_men),
+                "rent_duration_day": None,
+            }
         )
+    rent_duration_day = parse_rent_duration_jac(product_name)
     product_name = normalize_jac_string(product_name)
 
     dates = (
@@ -134,6 +139,7 @@ def check_availability():
             "product_available": bool(
                 len(dates) == len(unavailables_within_two_months)
             ),
+            "rent_duration_day": rent_duration_day,
         }
     )
 

@@ -19,3 +19,18 @@ def normalize_jac_string(string):
     else:
         raise ValueError(f"Was unable to jac-normalize string: {string}")
     return res
+
+
+def parse_rent_duration_jac(string):
+    """
+    :return: the number of days the jacuzzi is rent (if applicable)
+    """
+    if "jac" not in string.lower():
+        raise ValueError("String does not contain jac")
+    if "1" in string:
+        res = 1
+    elif "2" in string:
+        res = 2
+    else:
+        raise ValueError(f"Was unable to parse number of rent days of jac in: {string}")
+    return res

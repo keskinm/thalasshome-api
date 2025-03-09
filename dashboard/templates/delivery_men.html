@@ -2,7 +2,43 @@
 <html lang="fr">
 <head>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
   <meta charset="utf-8">
+  <style>
+    .loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .loading::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1.5em;
+      height: 1.5em;
+      margin-top: -0.75em;
+      margin-left: -0.75em;
+      border: 3px solid #ddd;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spinner 1s linear infinite;
+    }
+    @keyframes spinner {
+      to { transform: rotate(360deg); }
+    }
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      color: white;
+      z-index: 50;
+    }
+    .toast-success { background-color: #059669; }
+    .toast-error { background-color: #dc2626; }
+  </style>
 </head>
 <body class="bg-gray-100">
 
@@ -13,6 +49,8 @@
   {% endif %}
 </header>
 
+<div id="toast-container"></div>
+
 <section class="container mx-auto p-6">
   <!-- Commandes disponibles -->
   <div class="bg-white shadow-md rounded-lg p-4 mb-6">
@@ -20,8 +58,11 @@
       Commandes à livrer disponibles
     </h3>
     <details class="border rounded-md p-3 cursor-pointer">
-      <summary class="font-semibold text-blue-600">
-        Voir les commandes disponibles
+      <summary class="font-semibold text-blue-600 flex items-center">
+        <span>Voir les commandes disponibles</span>
+        <div id="available-loading" class="ml-2 hidden">
+          <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </summary>
       <ul class="space-y-2 mt-2" id="available_orders">
         <!-- Les commandes disponibles insérées dynamiquement -->
@@ -31,7 +72,12 @@
 
   <!-- Commandes en cours -->
   <div class="bg-white shadow-md rounded-lg p-4">
-    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Mes commandes en cours</h3>
+    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+      Mes commandes en cours
+      <div id="ongoing-loading" class="ml-2 inline-block hidden">
+        <div class="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </h3>
     <ul class="space-y-2" id="ongoing_orders">
       <!-- Les commandes en cours insérées dynamiquement -->
     </ul>
@@ -119,21 +165,61 @@
   </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  //--------------------------------------------------
-  // 1) Fetch and display the orders
-  //--------------------------------------------------
-  fetch('/delivery_men/orders')
-    .then(response => response.json())
-    .then(data => {
+  // Utility function for toasts
+  function showToast(message, type = 'success') {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "bottom",
+      position: "right",
+      className: `toast toast-${type}`,
+    }).showToast();
+  }
+
+  // Utility function to toggle loading state
+  function toggleLoading(elementId, isLoading) {
+    const element = document.getElementById(elementId);
+    if (isLoading) {
+      element.classList.remove('hidden');
+    } else {
+      element.classList.add('hidden');
+    }
+  }
+
+  // Orders fetching with loading states
+  async function fetchOrders() {
+    toggleLoading('available-loading', true);
+    toggleLoading('ongoing-loading', true);
+
+    try {
+      const response = await fetch('/delivery_men/orders');
+      const data = await response.json();
+
       const availableList = document.getElementById('available_orders');
       const ongoingList = document.getElementById('ongoing_orders');
 
+      availableList.innerHTML = '';
+      ongoingList.innerHTML = '';
+
       data.available.forEach(order => {
-        let li = document.createElement('li');
-        li.innerHTML = `📍 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
-        availableList.appendChild(li);
+        availableList.insertAdjacentHTML('beforeend', `
+          <li class="p-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="font-medium">📍 ${order.address}</span>
+                <div class="text-sm text-gray-600">
+                  <span>📞 ${order.phone}</span>
+                  <span class="mx-2">•</span>
+                  <span>📦 ${order.ship}</span>
+                </div>
+              </div>
+              <span class="font-bold text-green-600">${order.amount}€</span>
+            </div>
+          </li>
+        `);
       });
 
       data.ongoing.forEach(order => {
@@ -141,7 +227,14 @@ document.addEventListener('DOMContentLoaded', function () {
         li.innerHTML = `🚚 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
         ongoingList.appendChild(li);
       });
-    });
+
+    } catch (error) {
+      showToast('Erreur lors du chargement des commandes', 'error');
+    } finally {
+      toggleLoading('available-loading', false);
+      toggleLoading('ongoing-loading', false);
+    }
+  }
 
   //--------------------------------------------------
   // 2) Fetch capacities (jacuzzi4p, jacuzzi6p)
@@ -212,12 +305,12 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(resp => {
               if (resp.error) {
-                alert('Erreur: ' + resp.error);
+                showToast('Erreur: ' + resp.error, 'error');
               } else {
                 refreshZones();
               }
             })
-            .catch(err => alert('Erreur requête: ' + err));
+            .catch(err => showToast('Erreur requête: ' + err, 'error'));
           });
 
           li.appendChild(deleteBtn);
@@ -231,20 +324,29 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------------------------------------------------
   // 4) Submit capacity form
   // --------------------------------------------------
-  document.getElementById('delivery_capacity').addEventListener('submit', function (event) {
+  document.getElementById('delivery_capacity').addEventListener('submit', async function (event) {
     event.preventDefault();
-    const updatedData = {
-      jacuzzi4p: document.getElementById('jacuzzi4p').value,
-      jacuzzi6p: document.getElementById('jacuzzi6p').value
-    };
-    fetch('/delivery_men/delivery_capacity', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedData)
-    })
-    .then(response => response.json())
-    .then(data => alert('Mise à jour réussie !'))
-    .catch(error => alert('Erreur de mise à jour'));
+    const form = event.target;
+    form.classList.add('loading');
+
+    try {
+      const response = await fetch('/delivery_men/delivery_capacity', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jacuzzi4p: document.getElementById('jacuzzi4p').value,
+          jacuzzi6p: document.getElementById('jacuzzi6p').value
+        })
+      });
+
+      if (!response.ok) throw new Error('Échec de la mise à jour');
+
+      showToast('Mise à jour réussie !');
+    } catch (error) {
+      showToast('Erreur de mise à jour', 'error');
+    } finally {
+      form.classList.remove('loading');
+    }
   });
 
   // --------------------------------------------------
@@ -331,9 +433,9 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(r => r.json())
     .then(resp => {
       if (resp.error) {
-        alert('Erreur: ' + resp.error);
+        showToast('Erreur: ' + resp.error, 'error');
       } else {
-        alert('Zone créée avec succès !');
+        showToast('Zone créée avec succès !');
         // Reset fields
         zoneNameInput.value = '';
         document.getElementById('zone_radius').value = 30;
@@ -343,9 +445,11 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshZones();
       }
     })
-    .catch(err => alert('Erreur requête: ' + err));
+    .catch(err => showToast('Erreur requête: ' + err, 'error'));
   });
 
+  // Initial fetch
+  fetchOrders();
 });
 </script>
 </body>

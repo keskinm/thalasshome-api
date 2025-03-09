@@ -61,8 +61,6 @@ def get_ship(_item):
         )
 
         amount += item["price"]
-        # do: minus partial payment
-        # amount -= item['partial_paid_part']
 
     return ship, amount
 

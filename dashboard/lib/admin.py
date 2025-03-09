@@ -7,9 +7,7 @@ from flask import Blueprint, jsonify, render_template, request, session
 
 from dashboard.db.client import supabase_cli
 from dashboard.lib.hooks import Hooks
-from dashboard.lib.locations import find_zone
 from dashboard.lib.order.order import get_address, get_ship
-from dashboard.utils.maps.maps import zip_codes_to_locations
 
 secure_hooks = Hooks()
 
@@ -17,51 +15,11 @@ secure_hooks = Hooks()
 admin_bp = Blueprint("admin", __name__)
 
 
-def select_employee(item):
-    command_country = item["shipping_address"]["country"]
-    command_zip = item["shipping_address"]["zip"]
-    selected = "None"
-    found_zone = find_zone(command_zip, command_country)
-
-    if found_zone:
-        employees = (
-            supabase_cli.rpc("get_user_by_zone", {"command_zone": found_zone})
-            .execute()
-            .data
-        )
-        if employees:
-            selected = random.choice(employees)["username"]
-    item["employee"] = selected
-
-    return selected
-
-
-def filter_zone(query_zone, query_country, gt_zipcode):
-    if gt_zipcode is None:
-        return False
-
-    if not query_zone or not query_country:
-        return True
-
-    zips = zip_codes_to_locations[query_country][query_zone]
-    for z in zips:
-        if gt_zipcode.startswith(z):
-            return True
-
-    return False
-
-
-def get_cards(query_zone=None, query_country=None):
+def get_cards():
     all_keys = supabase_cli.table("orders").select("*").execute().data
     res = {}
 
     for item in all_keys:
-        zipcode = (
-            item["shipping_address"]["zip"] if "shipping_address" in item else None
-        )
-        if not filter_zone(query_zone, query_country, zipcode):
-            continue
-
         status = item["status"]
 
         delivery_men_id, delivery_men = item.get("delivery_men_id"), None
@@ -143,36 +101,6 @@ def on_remove_cards():
         {
             "message": f"{response.count or 0} cards removed from list",
             "list_id": list_id,
-        }
-    )
-
-
-@admin_bp.route("/select_repl", methods=["POST"])
-def on_select_repl():
-    data = request.get_json()
-    substitute = data["substitute"]
-    item_id = data["item_id"]
-
-    delivery_men_id = (
-        supabase_cli.table("users")
-        .select("id")
-        .eq("username", substitute)
-        .limit(1)
-        .single()
-        .execute()
-    ).data["id"]
-    response = (
-        supabase_cli.table("orders")
-        .update({"delivery_men_id": delivery_men_id})
-        .eq("id", item_id)
-        .execute()
-    )
-
-    return jsonify(
-        {
-            "message": f"Updated {response.count or 0} cards",
-            "item_id": item_id,
-            "replace": substitute,
         }
     )
 

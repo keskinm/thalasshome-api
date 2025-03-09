@@ -5,26 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - ThalassHome</title>
     <link rel="stylesheet" href="/static/login.css" type="text/css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"
-            integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
-            crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function() {
-            const country = {
-                'France': ['ile_de_france', 'loire', 'pays_de_gex', 'toulouse', 'centre_val_de_loire', 'var', 'rhone', 'marseille'],
-                'Switzerland': ['geneve']
-            };
-
-            $('#country').on('change', function() {
-                const selectedCountry = $(this).val();
-                const zones = country[selectedCountry] || [];
-                const $zone = $('#zone');
-
-                $zone.html('<option value="">Select zone</option>' +
-                    zones.map(zone => `<option value="${zone}">${zone.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>`).join(''));
-            });
-        });
-    </script>
 </head>
 <body>
     {% block content %}
@@ -63,20 +43,6 @@
                     <div class="field">
                         <input class="login-field" type="tel" name="numero_de_telephone" placeholder="Phone Number"
                                pattern="[0-9\+\-\s]+" required>
-                    </div>
-
-                    <div class="field">
-                        <select id="country" name="country" class="login-field" required>
-                            <option value="">Select Country</option>
-                            <option value="France">France</option>
-                            <option value="Switzerland">Switzerland</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <select id="zone" name="zone" class="login-field" required>
-                            <option value="">Select Zone</option>
-                        </select>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-large btn-block">Sign Up</button>

@@ -7,7 +7,6 @@ from email.mime.text import MIMEText
 from flask import Blueprint, redirect, request
 
 from dashboard.db.client import supabase_cli
-from dashboard.lib.locations import find_zone
 from dashboard.lib.order.order import get_address, get_name, get_ship
 
 notifier_bp = Blueprint("notifier", __name__)
@@ -29,7 +28,10 @@ class Notifier:
     def get_providers(order, test=False) -> list[dict]:
         command_country = order["shipping_address"]["country"]
         command_zip = order["shipping_address"]["zip"]
-        command_zone = find_zone(command_zip, command_country)
+        raise NotImplementedError(
+            "find_zone does not exists anymore, code will be update soon"
+        )
+        # command_zone = find_zone(command_zip, command_country)
 
         providers = (
             supabase_cli.rpc("get_user_by_zone", {"command_zone": command_zone})

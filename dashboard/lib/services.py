@@ -165,6 +165,7 @@ def handle_order_creation_webhook():
             **parsed_order,
             "shipping_lat": lat,
             "shipping_lon": long,
+            "shipping_phone": parsed_order["shipping_address"]["phone"],
         }
         line_items = parsed_order.pop("line_items")
         line_items = extract_line_items_keys(line_items, parsed_order["id"])

@@ -15,6 +15,7 @@ CREATE TABLE orders (
     status       order_status DEFAULT 'ask',
     shipping_lat FLOAT,
     shipping_lon FLOAT,
+    shipping_phone   TEXT,
     delivery_men_id INTEGER,
 
     CONSTRAINT fk_delivery_men_id

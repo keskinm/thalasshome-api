@@ -40,7 +40,7 @@ def get_orders():
             results.append(
                 {
                     "address": get_address(order),
-                    "phone": order["phone"],
+                    "phone": order["shipping_phone"],
                     "ship": ship,
                     "amount": amount,
                 }

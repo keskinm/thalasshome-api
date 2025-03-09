@@ -4,102 +4,178 @@
   <title>Administration - ThalassHome</title>
   {% include 'common/head.html' %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <style>
-    .sortable-ghost {
-        opacity: 0.5;
-        background-color: rgba(0, 0, 0, 0.1);
-    }
-    .sortable-chosen {
-        transform: scale(1.05);
-    }
     .column {
-        background-color: #f0f0f0;
-        padding: 10px;
-        border-radius: 5px;
-        min-height: 200px; /* Added to ensure columns are always visible */
+      @apply rounded-lg shadow-md p-4;
+      min-height: 200px;
     }
+
+    /* Column-specific colors */
+    #ask { background-color: #FEF9C3; }        /* Light yellow */
+    #assigned { background-color: #DBEAFE; }    /* Light blue */
+    #in_delivery { background-color: #F3E8FF; } /* Light purple */
+    #delivered { background-color: #DCFCE7; }   /* Light green */
+    #canceled { background-color: #FEE2E2; }    /* Light red */
+
     .card-list {
-        min-height: 50px;
+      min-height: 50px;
+      @apply space-y-3;
     }
+
     .card {
-        background-color: #fff;
-        margin-bottom: 10px;
-        padding: 10px;
-        border-radius: 3px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        cursor: move;
+      @apply bg-white rounded-lg shadow-sm p-4 cursor-move transition-all duration-200;
+      border: 1px solid #eee;
     }
+
+    .card:hover {
+      @apply shadow-md transform -translate-y-0.5;
+    }
+
+    .sortable-ghost {
+      @apply opacity-50 bg-gray-100 border-2 border-dashed border-blue-400;
+    }
+
+    .sortable-chosen {
+      @apply shadow-lg scale-[1.02] rotate-1;
+    }
+
+    /* Column header styles */
+    .column-header {
+      @apply flex items-center justify-between mb-4 pb-2 border-b;
+    }
+
+    .column-header h3 {
+      @apply text-lg font-semibold text-gray-800;
+    }
+
+    /* Status badges */
+    .status-badge {
+      @apply text-xs font-medium px-2 py-1 rounded-full;
+    }
+    .status-ask { @apply bg-yellow-100 text-yellow-800; }
+    .status-assigned { @apply bg-blue-100 text-blue-800; }
+    .status-in_delivery { @apply bg-purple-100 text-purple-800; }
+    .status-delivered { @apply bg-green-100 text-green-800; }
+    .status-canceled { @apply bg-red-100 text-red-800; }
   </style>
 </head>
 <body class="bg-gray-50 page-fade-in">
 
-<header class="app-header p-4">
-  <h1 class="text-xl font-bold text-center">Tableau de Bord - Gestion des Livraisons</h1>
+<header class="app-header p-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold">Tableau de Bord - Gestion des Livraisons</h1>
+  <nav class="flex space-x-4">
+    <a href="/auth/logout" class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/20 transition-colors">
+      Déconnexion
+    </a>
+    <a href="/notifier/test_notification" class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/20 transition-colors">
+      Test notification
+    </a>
+  </nav>
 </header>
 
+<div id="toast-container"></div>
+
 <section class="container mx-auto p-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {% for category, items in {'ask': ask, 'assigned': assigned, 'in_delivery': in_delivery, 'delivered': delivered, 'canceled': canceled}.items() %}
-        <div class="column shadow-md rounded-lg p-4" id="{{ category }}">
-            <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">{{ category | replace('_', ' ') | title }}</h3>
-            <div class="card-list">
-                {% for item in items %}
-                <div class="card" data-item-id="{{ item.item_id }}">
-                    <p class="text-sm font-medium">📍 {{ item.address }}</p>
-                    <p class="text-xs text-gray-600">👤 Employé : {{ item.def_empl }}</p>
-                    <p class="text-xs text-gray-600">🔁 Remplaçant : {{ item.rep_empl }}</p>
-                    <p class="text-xs text-gray-600">📦 Objets : {{ item.shipped }}</p>
-                    <p class="text-xs text-gray-600">💰 Montant dû : <span class="font-semibold">{{ item.amount }}€</span></p>
-                </div>
-                {% endfor %}
-            </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+    {% for category, items in {'ask': ask, 'assigned': assigned, 'in_delivery': in_delivery, 'delivered': delivered, 'canceled': canceled}.items() %}
+    <div class="column" id="{{ category }}">
+      <div class="column-header">
+        <h3>{{ category | replace('_', ' ') | title }}</h3>
+        <span class="status-badge status-{{ category }}">{{ items|length }}</span>
+      </div>
+      <div class="card-list">
+        {% for item in items %}
+        <div class="card" data-item-id="{{ item.item_id }}">
+          <div class="flex justify-between items-start mb-2">
+            <span class="font-medium text-sm">📍 {{ item.address }}</span>
+            <span class="font-bold text-green-600">{{ item.amount }}€</span>
+          </div>
+          <div class="space-y-1">
+            <p class="text-xs text-gray-600 flex items-center">
+              <span class="mr-2">👤</span> {{ item.def_empl or 'Non assigné' }}
+            </p>
+            {% if item.rep_empl %}
+            <p class="text-xs text-gray-600 flex items-center">
+              <span class="mr-2">🔁</span> {{ item.rep_empl }}
+            </p>
+            {% endif %}
+            <p class="text-xs text-gray-600 flex items-center">
+              <span class="mr-2">📦</span> {{ item.shipped }}
+            </p>
+          </div>
         </div>
         {% endfor %}
+      </div>
     </div>
+    {% endfor %}
+  </div>
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const lists = document.querySelectorAll('.card-list');
-        lists.forEach(list => {
-            new Sortable(list, {
-                group: 'shared',
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                dragClass: 'sortable-drag',
-                onEnd: async function (evt) {
-                    const itemEl = evt.item;
-                    const newColumnId = evt.to.parentNode.id;
+document.addEventListener('DOMContentLoaded', function () {
+  // Toast utility
+  function showToast(message, type = 'success') {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "bottom",
+      position: "right",
+      className: `toast toast-${type}`,
+    }).showToast();
+  }
 
-                    try {
-                        const response = await fetch("/admin/order/status", {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                item: itemEl.getAttribute("data-item-id"),
-                                category: newColumnId
-                            })
-                        });
+  const lists = document.querySelectorAll('.card-list');
+  lists.forEach(list => {
+    new Sortable(list, {
+      group: 'shared',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      onEnd: async function (evt) {
+        const itemEl = evt.item;
+        const newColumnId = evt.to.parentNode.id;
+        const fromColumnId = evt.from.parentNode.id;
 
-                        if (!response.ok) {
-                            // If update fails, revert the drag
-                            evt.from.appendChild(itemEl);
-                            throw new Error('Update failed');
-                        }
+        try {
+          const response = await fetch("/admin/order/status", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              item: itemEl.getAttribute("data-item-id"),
+              category: newColumnId
+            })
+          });
 
-                        // Keep the item in its new position if update succeeds
-                        const data = await response.json();
-                        console.log("Status updated:", data);
+          if (!response.ok) {
+            evt.from.appendChild(itemEl);
+            throw new Error('Update failed');
+          }
 
-                    } catch (error) {
-                        console.error("Status update error:", error);
-                        // Visual feedback could be added here
-                    }
-                }
-            });
-        });
+          const data = await response.json();
+          showToast(`Commande déplacée vers ${newColumnId.replace('_', ' ')}`);
+
+          // Update counters
+          updateColumnCounter(fromColumnId);
+          updateColumnCounter(newColumnId);
+
+        } catch (error) {
+          showToast('Erreur lors de la mise à jour du statut', 'error');
+          console.error("Status update error:", error);
+        }
+      }
     });
+  });
+
+  // Update column counter badge
+  function updateColumnCounter(columnId) {
+    const column = document.getElementById(columnId);
+    const badge = column.querySelector('.status-badge');
+    const cards = column.querySelectorAll('.card').length;
+    badge.textContent = cards;
+  }
+});
 </script>
 </body>
 </html>

@@ -3,62 +3,9 @@
 <head>
   <title>Administration - ThalassHome</title>
   {% include 'common/head.html' %}
+  <link href="/static/css/admin.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-  <style>
-    .column {
-      @apply rounded-lg shadow-md p-4;
-      min-height: 200px;
-    }
-
-    /* Column-specific colors */
-    #ask { background-color: #FEF9C3; }        /* Light yellow */
-    #assigned { background-color: #DBEAFE; }    /* Light blue */
-    #in_delivery { background-color: #F3E8FF; } /* Light purple */
-    #delivered { background-color: #DCFCE7; }   /* Light green */
-    #canceled { background-color: #FEE2E2; }    /* Light red */
-
-    .card-list {
-      min-height: 50px;
-      @apply space-y-3;
-    }
-
-    .card {
-      @apply bg-white rounded-lg shadow-sm p-4 cursor-move transition-all duration-200;
-      border: 1px solid #eee;
-    }
-
-    .card:hover {
-      @apply shadow-md transform -translate-y-0.5;
-    }
-
-    .sortable-ghost {
-      @apply opacity-50 bg-gray-100 border-2 border-dashed border-blue-400;
-    }
-
-    .sortable-chosen {
-      @apply shadow-lg scale-[1.02] rotate-1;
-    }
-
-    /* Column header styles */
-    .column-header {
-      @apply flex items-center justify-between mb-4 pb-2 border-b;
-    }
-
-    .column-header h3 {
-      @apply text-lg font-semibold text-gray-800;
-    }
-
-    /* Status badges */
-    .status-badge {
-      @apply text-xs font-medium px-2 py-1 rounded-full;
-    }
-    .status-ask { @apply bg-yellow-100 text-yellow-800; }
-    .status-assigned { @apply bg-blue-100 text-blue-800; }
-    .status-in_delivery { @apply bg-purple-100 text-purple-800; }
-    .status-delivered { @apply bg-green-100 text-green-800; }
-    .status-canceled { @apply bg-red-100 text-red-800; }
-  </style>
 </head>
 <body class="bg-gray-50 page-fade-in">
 

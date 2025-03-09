@@ -97,6 +97,8 @@ def extract_line_items_keys(data, parent_id):
 
     for item in data:
         line_item = {}
+        discount_amount = None
+
         for k, v in item.items():
             if k == "properties":
                 v_from = [vv["value"] for vv in v if vv["name"] == "From"][0]
@@ -108,9 +110,15 @@ def extract_line_items_keys(data, parent_id):
                     line_item["product"] = normalize_jac_string(v)
                 else:
                     line_item["product"] = v
+            elif k == "discount_allocations":
+                discount_amount = sum(float(discount["amount"]) for discount in v)
             elif k in interest_keys:
                 line_item[k] = v
         if line_item:
+            if discount_amount is not None:
+                # Overrides price
+                line_item["price"] = discount_amount
+
             line_item["order_id"] = parent_id
             line_items.append(line_item)
 

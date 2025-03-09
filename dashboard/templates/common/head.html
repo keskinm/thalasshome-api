@@ -1,0 +1,72 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
+
+<style>
+  /* Modern animations and effects */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .page-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  /* Common loading spinner */
+  .loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.5em;
+    height: 1.5em;
+    margin-top: -0.75em;
+    margin-left: -0.75em;
+    border: 3px solid #ddd;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
+  }
+
+  @keyframes spinner {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Modern toast notifications */
+  .toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    z-index: 50;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .toast-success { background-color: #059669; }
+  .toast-error { background-color: #dc2626; }
+
+  /* Common card styles */
+  .card {
+    @apply bg-white rounded-lg shadow-md transition-all duration-200;
+  }
+
+  .card:hover {
+    @apply shadow-lg transform translate-y-[-2px];
+  }
+
+  /* Common header style */
+  .app-header {
+    @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+</style>

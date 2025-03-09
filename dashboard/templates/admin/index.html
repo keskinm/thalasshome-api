@@ -1,39 +1,40 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    {% include 'admin/head.html' %}
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
-    <style>
-        .sortable-ghost {
-            opacity: 0.5;
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-        .sortable-chosen {
-            transform: scale(1.05);
-        }
-        .column {
-            background-color: #f0f0f0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .card-list {
-            min-height: 50px;
-        }
-        .card {
-            background-color: #fff;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 3px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            cursor: move;
-        }
-    </style>
+  <title>Administration - ThalassHome</title>
+  {% include 'common/head.html' %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+  <style>
+    .sortable-ghost {
+        opacity: 0.5;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    .sortable-chosen {
+        transform: scale(1.05);
+    }
+    .column {
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        min-height: 200px; /* Added to ensure columns are always visible */
+    }
+    .card-list {
+        min-height: 50px;
+    }
+    .card {
+        background-color: #fff;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 3px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        cursor: move;
+    }
+  </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50 page-fade-in">
 
-<header class="bg-blue-600 text-white p-4 text-center text-xl font-bold">
-    Tableau de Bord - Gestion des Livraisons
+<header class="app-header p-4">
+  <h1 class="text-xl font-bold text-center">Tableau de Bord - Gestion des Livraisons</h1>
 </header>
 
 <section class="container mx-auto p-6">
@@ -62,19 +63,39 @@
         const lists = document.querySelectorAll('.card-list');
         lists.forEach(list => {
             new Sortable(list, {
-                group: 'shared', // Permet le drag-and-drop entre les listes
+                group: 'shared',
                 animation: 150,
-                onEnd: function (evt) {
-                    const itemEl = evt.item; // L'élément déplacé
-                    const newColumnId = evt.to.parentNode.id; // Nouvelle colonne
-                    // Effectuez ici une requête pour mettre à jour le backend
-                    fetch("/admin/order/status", {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ item: itemEl.getAttribute("data-item-id"), category: newColumnId })
-                    }).then(response => response.json())
-                      .then(data => console.log("Statut mis à jour:", data))
-                      .catch(error => console.error("Erreur mise à jour statut:", error));
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: async function (evt) {
+                    const itemEl = evt.item;
+                    const newColumnId = evt.to.parentNode.id;
+
+                    try {
+                        const response = await fetch("/admin/order/status", {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                item: itemEl.getAttribute("data-item-id"),
+                                category: newColumnId
+                            })
+                        });
+
+                        if (!response.ok) {
+                            // If update fails, revert the drag
+                            evt.from.appendChild(itemEl);
+                            throw new Error('Update failed');
+                        }
+
+                        // Keep the item in its new position if update succeeds
+                        const data = await response.json();
+                        console.log("Status updated:", data);
+
+                    } catch (error) {
+                        console.error("Status update error:", error);
+                        // Visual feedback could be added here
+                    }
                 }
             });
         });

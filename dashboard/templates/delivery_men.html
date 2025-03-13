@@ -19,14 +19,19 @@
 
 <section class="container mx-auto p-6">
   <div class="bg-white shadow-md rounded-lg p-4 mb-6">
-    <details class="rounded-md p-3 cursor-pointer">
-      <summary class="font-semibold text-blue-600 flex items-center">
-        <span>Voir les commandes disponibles</span>
-        <div id="available-loading" class="ml-2 hidden">
-          <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    <details open class="group">
+      <summary class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4 cursor-pointer list-none">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+          Commandes disponibles
+          <div id="available-loading" class="ml-2 inline-block hidden">
+            <div class="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
         </div>
       </summary>
-      <ul class="space-y-2 mt-2" id="available_orders">
+      <ul class="space-y-2" id="available_orders">
         <!-- Les commandes disponibles insérées dynamiquement -->
       </ul>
     </details>
@@ -34,15 +39,22 @@
 
   <!-- Commandes en cours -->
   <div class="bg-white shadow-md rounded-lg p-4">
-    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
-      Mes commandes en cours
-      <div id="ongoing-loading" class="ml-2 inline-block hidden">
-        <div class="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    </h3>
-    <ul class="space-y-2" id="ongoing_orders">
-      <!-- Les commandes en cours insérées dynamiquement -->
-    </ul>
+    <details open class="group">
+      <summary class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4 cursor-pointer list-none">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+          Mes commandes en cours
+          <div id="ongoing-loading" class="ml-2 inline-block hidden">
+            <div class="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      </summary>
+      <ul class="space-y-2" id="ongoing_orders">
+        <!-- Les commandes en cours insérées dynamiquement -->
+      </ul>
+    </details>
   </div>
 </section>
 

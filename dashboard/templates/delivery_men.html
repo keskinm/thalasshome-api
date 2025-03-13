@@ -124,7 +124,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
-// Move completeOrder to global scope
+// Utility function for toasts (moved to global scope)
+function showToast(message, type = 'success') {
+  Toastify({
+    text: message,
+    duration: 3000,
+    gravity: "bottom",
+    position: "right",
+    className: `toast toast-${type}`,
+  }).showToast();
+}
+
+// Global completeOrder function
 async function completeOrder(orderId) {
   try {
     const response = await fetch(`/delivery_men/orders/${orderId}/complete`, {
@@ -141,17 +152,6 @@ async function completeOrder(orderId) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Utility function for toasts
-  function showToast(message, type = 'success') {
-    Toastify({
-      text: message,
-      duration: 3000,
-      gravity: "bottom",
-      position: "right",
-      className: `toast toast-${type}`,
-    }).showToast();
-  }
-
   // Utility function to toggle loading state
   function toggleLoading(elementId, isLoading) {
     const element = document.getElementById(elementId);

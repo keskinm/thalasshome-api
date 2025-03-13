@@ -61,8 +61,6 @@ def signup_post():
     name = request.form.get("name")
     password = request.form.get("password")
     phone_number = request.form.get("numero_de_telephone")
-    country = request.form.get("country")
-    zone = request.form.get("zone")
 
     user = (
         supabase_cli.table("users")
@@ -84,8 +82,6 @@ def signup_post():
         "username": name,
         "password": generate_password_hash(password, method="pbkdf2:sha256"),
         "phone_number": phone_number,
-        "country": country,
-        "zone": zone,
     }
 
     supabase_cli.table("users").insert(new_user).execute()

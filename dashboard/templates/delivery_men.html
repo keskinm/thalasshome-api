@@ -30,7 +30,14 @@
   {{ order_section(
     title="Mes commandes en cours",
     list_id="ongoing_orders",
-    loading_id="ongoing-loading"
+    loading_id="ongoing-loading",
+    container_class="mb-6"
+  ) }}
+
+  {{ order_section(
+    title="Commandes terminées",
+    list_id="completed_orders",
+    loading_id="completed-loading"
   ) }}
 </section>
 
@@ -143,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
   async function fetchOrders() {
     toggleLoading('available-loading', true);
     toggleLoading('ongoing-loading', true);
+    toggleLoading('completed-loading', true);
 
     try {
       const response = await fetch('/delivery_men/orders');
@@ -150,9 +158,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const availableList = document.getElementById('available_orders');
       const ongoingList = document.getElementById('ongoing_orders');
+      const completedList = document.getElementById('completed_orders');
 
       availableList.innerHTML = '';
       ongoingList.innerHTML = '';
+      completedList.innerHTML = '';
 
       data.available.forEach(order => {
         availableList.insertAdjacentHTML('beforeend', `
@@ -173,9 +183,46 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       data.ongoing.forEach(order => {
-        let li = document.createElement('li');
-        li.innerHTML = `🚚 <strong>${order.address}</strong> | 📞 ${order.phone} | 📦 ${order.ship} | 💰 ${order.amount}€`;
-        ongoingList.appendChild(li);
+        ongoingList.insertAdjacentHTML('beforeend', `
+          <li class="p-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="font-medium">🚚 ${order.address}</span>
+                <div class="text-sm text-gray-600">
+                  <span>📞 ${order.phone}</span>
+                  <span class="mx-2">•</span>
+                  <span>📦 ${order.ship}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="font-bold text-green-600">${order.amount}€</span>
+                <button
+                  onclick="completeOrder(${order.id})"
+                  class="px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors text-sm">
+                  Terminer
+                </button>
+              </div>
+            </div>
+          </li>
+        `);
+      });
+
+      data.completed.forEach(order => {
+        completedList.insertAdjacentHTML('beforeend', `
+          <li class="p-3 hover:bg-gray-50 rounded-lg transition-colors opacity-75">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="font-medium">✅ ${order.address}</span>
+                <div class="text-sm text-gray-600">
+                  <span>📞 ${order.phone}</span>
+                  <span class="mx-2">•</span>
+                  <span>📦 ${order.ship}</span>
+                </div>
+              </div>
+              <span class="font-bold text-green-600">${order.amount}€</span>
+            </div>
+          </li>
+        `);
       });
 
     } catch (error) {
@@ -183,6 +230,23 @@ document.addEventListener('DOMContentLoaded', function () {
     } finally {
       toggleLoading('available-loading', false);
       toggleLoading('ongoing-loading', false);
+      toggleLoading('completed-loading', false);
+    }
+  }
+
+  // Add function to complete order
+  async function completeOrder(orderId) {
+    try {
+      const response = await fetch(`/delivery_men/orders/${orderId}/complete`, {
+        method: 'POST'
+      });
+
+      if (!response.ok) throw new Error('Failed to complete order');
+
+      showToast('Commande terminée avec succès');
+      fetchOrders(); // Refresh all lists
+    } catch (error) {
+      showToast('Erreur lors de la completion de la commande', 'error');
     }
   }
 

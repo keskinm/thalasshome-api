@@ -15,6 +15,7 @@ def get_orders():
         supabase_cli.table("orders")
         .select("*")
         .is_("delivery_men_id", None)
+        .eq("status", "ask")  # Only show 'ask' status orders as available
         .execute()
         .data
     )
@@ -22,6 +23,17 @@ def get_orders():
         supabase_cli.table("orders")
         .select("*")
         .eq("delivery_men_id", user_id)
+        .in_("status", ["assigned", "in_delivery"])  # Orders in progress
+        .execute()
+        .data
+    )
+    completed_orders = (
+        supabase_cli.table("orders")
+        .select("*")
+        .eq("delivery_men_id", user_id)
+        .eq("status", "delivered")  # Completed orders
+        .limit(10)
+        .order("updated_at", desc=True)  # Sort by last update
         .execute()
         .data
     )
@@ -39,6 +51,7 @@ def get_orders():
             ship, amount = get_ship(line_items)
             results.append(
                 {
+                    "id": order["id"],
                     "address": get_address(order),
                     "phone": order["shipping_phone"],
                     "ship": ship,
@@ -52,10 +65,33 @@ def get_orders():
             {
                 "available": process_orders(available_orders),
                 "ongoing": process_orders(ongoing_orders),
+                "completed": process_orders(completed_orders),
             }
         ),
         200,
     )
+
+
+@delivery_men_bp.route("/orders/<int:order_id>/complete", methods=["POST"])
+def complete_order(order_id):
+    """Mark an order as delivered"""
+    user_id = session["user_id"]
+
+    try:
+        resp = (
+            supabase_cli.table("orders")
+            .update({"status": "delivered", "updated_at": "now()"})
+            .match({"id": order_id, "delivery_men_id": user_id})
+            .execute()
+        )
+
+        if not resp.data:
+            return jsonify({"error": "Update failed or no matching order"}), 400
+
+        return jsonify({"message": "Order marked as delivered"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @delivery_men_bp.route("/delivery_capacity", methods=["GET"])

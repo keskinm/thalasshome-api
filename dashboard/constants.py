@@ -1,3 +1,7 @@
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent
+
 REQUIRED_VARIABLES = {
     "EMAIL_SENDER_PASSWORD",
     "SUPABASE_URL",

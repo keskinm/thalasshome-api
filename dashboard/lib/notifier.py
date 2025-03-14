@@ -4,7 +4,7 @@ import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from flask import Blueprint, redirect, request
+from flask import Blueprint, request
 
 from dashboard.db.client import supabase_cli
 from dashboard.lib.order.order import get_address, get_name, get_ship
@@ -270,25 +270,3 @@ class Notifier:
 @notifier_bp.route("/commands/accept/<token_id>", methods=["GET"])
 def _accept_command(token_id):
     return Notifier().accept_command(token_id)
-
-
-@notifier_bp.route("/test_notification", methods=["GET"])
-def test_notification():
-    order = (
-        supabase_cli.table("orders")
-        .select("*")
-        .limit(1)
-        .eq("email", "sign.pls.up@gmail.com")
-        .single()
-        .execute()
-        .data
-    )
-    line_items = (
-        supabase_cli.table("line_items")
-        .select("*")
-        .eq("order_id", order["id"])
-        .execute()
-        .data
-    )
-    Notifier()(order, line_items, test=True)
-    return redirect("/")

@@ -6,9 +6,9 @@ import logging
 import os
 
 import requests
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, redirect, request
 
-from dashboard.constants import normalize_jac_string, parse_rent_duration_jac
+from dashboard.constants import ROOT_DIR, normalize_jac_string, parse_rent_duration_jac
 from dashboard.db.client import supabase_cli
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import (
@@ -188,3 +188,42 @@ def check_availability():
             "rent_duration_day": rent_duration_day,
         }
     )
+
+
+@services_bp.route("/test_order_creation_webhook", methods=["GET"])
+def test_order_creation_webhook():
+    file_path = ROOT_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    with current_app.test_client() as client:
+
+        headers = {"X-Shopify-Hmac-SHA256": SHOPIFY_WEBHOOK_SECRET}
+        response = client.post(
+            "/services/order_creation_webhook", data=json.dumps(data), headers=headers
+        )
+        print(response.status_code, response.data.decode("utf-8"))
+
+    return redirect("/")
+
+
+@services_bp.route("/test_notification", methods=["GET"])
+def test_notification():
+    order = (
+        supabase_cli.table("orders")
+        .select("*")
+        .limit(1)
+        .eq("email", "sign.pls.up@gmail.com")
+        .single()
+        .execute()
+        .data
+    )
+    line_items = (
+        supabase_cli.table("line_items")
+        .select("*")
+        .eq("order_id", order["id"])
+        .execute()
+        .data
+    )
+    Notifier()(order, line_items, test=True)
+    return redirect("/")

@@ -194,15 +194,19 @@ def check_availability():
 def test_order_creation_webhook():
     file_path = ROOT_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
     with open(file_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+        data = json.dumps(json.load(f))
+
+    digest = hmac.new(
+        SHOPIFY_WEBHOOK_SECRET.encode("utf-8"), data.encode("utf-8"), hashlib.sha256
+    ).digest()
+    computed_hmac = base64.b64encode(digest).decode("utf-8")
 
     with current_app.test_client() as client:
-
-        headers = {"X-Shopify-Hmac-SHA256": SHOPIFY_WEBHOOK_SECRET}
+        headers = {"X-Shopify-Hmac-SHA256": computed_hmac}
         response = client.post(
-            "/services/order_creation_webhook", data=json.dumps(data), headers=headers
+            "/services/order_creation_webhook", data=data, headers=headers
         )
-        print(response.status_code, response.data.decode("utf-8"))
+        logging.info(response.status_code, response.data.decode("utf-8"))
 
     return redirect("/")
 

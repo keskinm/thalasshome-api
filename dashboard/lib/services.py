@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 
 import requests
@@ -22,77 +23,51 @@ SHOPIFY_ADMIN_API_ACCESS_TOKEN = os.getenv("SHOPIFY_ADMIN_API_ACCESS_TOKEN")
 SHOPIFY_WEBHOOK_SECRET = os.getenv("SHOPIFY_WEBHOOK_SECRET")
 
 
-class Hooks:
-    def __init__(self, elt_limit=20):
-        self.elt_limit = elt_limit
-        self.gottens = {"orders/create": {}}
-
-    def check_request(self, request):
-        topic = request.headers.get("X-Shopify-Topic")
-        hook_id = request.headers.get("X-Shopify-Order-Id")
-
-        if hook_id not in self.gottens[topic]:
-            self.gottens[topic][hook_id] = 0
-            return True
-        else:
-            self.gottens[topic][hook_id] += 1
-            return False
-
-    def flush(self):
-        for k, v in self.gottens.items():
-            if len(v) == self.elt_limit:
-                self.gottens[k].pop(list(v.keys())[0])
-
-
 def verify_webhook(data, hmac_header):
+    if hmac_header is None:
+        raise ValueError("Missing X-Shopify-Hmac-SHA256 header")
     digest = hmac.new(
-        SHOPIFY_WEBHOOK_SECRET, data.encode("utf-8"), hashlib.sha256
+        SHOPIFY_WEBHOOK_SECRET.encode("utf-8"), data, hashlib.sha256
     ).digest()
     computed_hmac = base64.b64encode(digest)
     verified = hmac.compare_digest(computed_hmac, hmac_header.encode("utf-8"))
     return verified
 
 
-secure_hooks = Hooks()
-
 services_bp = Blueprint("services", __name__)
 
 
 @services_bp.route("/order_creation_webhook", methods=["POST"])
-def handle_order_creation_webhook():
+def order_creation_webhook():
     notifier = Notifier()
-
-    secure_hooks.flush()
 
     data = request.get_data()
 
-    try:
-        verify_webhook(data, request.headers.get("X-Shopify-Hmac-SHA256"))
-    except BaseException as e:
-        print(e)
+    provided_header = request.headers.get("X-Shopify-Hmac-SHA256")
+    if not verify_webhook(data, provided_header):
+        logging.error(
+            f"Webhook verification failed. Provided header: {provided_header}"
+        )
+        raise ValueError("Webhook verification failed. Check logs for details.")
 
-    if secure_hooks.check_request(request):
-        order = json.loads(data.decode("utf-8"))
-        parsed_order = extract_order_keys(order)
-        lat, long = get_coordinates(order)
-        parsed_order = {
-            **parsed_order,
-            "shipping_lat": lat,
-            "shipping_lon": long,
-            "shipping_phone": parsed_order["shipping_address"]["phone"],
-        }
-        line_items = parsed_order.pop("line_items")
-        line_items = extract_line_items_keys(line_items, parsed_order["id"])
+    order = json.loads(data.decode("utf-8"))
+    parsed_order = extract_order_keys(order)
+    lat, long = get_coordinates(order)
+    parsed_order = {
+        **parsed_order,
+        "shipping_lat": lat,
+        "shipping_lon": long,
+        "shipping_phone": parsed_order["shipping_address"]["phone"],
+    }
+    line_items = parsed_order.pop("line_items")
+    line_items = extract_line_items_keys(line_items, parsed_order["id"])
 
-        _ = supabase_cli.table("orders").insert(parsed_order).execute()
+    _ = supabase_cli.table("orders").insert(parsed_order).execute()
 
-        _ = supabase_cli.table("line_items").insert(line_items).execute()
-        notifier(parsed_order, line_items)
+    _ = supabase_cli.table("line_items").insert(line_items).execute()
+    notifier(parsed_order, line_items)
 
-        return "ok", 200
-
-    else:
-        return "you already sent me this hook!", 404
+    return "ok", 200
 
 
 @services_bp.route("/create-20pct-draft", methods=["POST"])

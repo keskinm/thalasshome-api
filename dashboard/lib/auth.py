@@ -2,10 +2,6 @@ from flask import Blueprint, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from dashboard.db.client import supabase_cli
-from dashboard.lib.hooks import Hooks
-
-secure_hooks = Hooks()
-
 
 auth_bp = Blueprint("auth", __name__)
 

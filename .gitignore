@@ -1,4 +1,3 @@
 /venv*/
 /.venv*/
-env/.local_env
 env/danger.yaml

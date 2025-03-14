@@ -1,16 +1,7 @@
-import base64
-import hashlib
-import hmac
-import random
-
-from flask import Blueprint, jsonify, render_template, request, session
+from flask import Blueprint, jsonify, request
 
 from dashboard.db.client import supabase_cli
-from dashboard.lib.hooks import Hooks
 from dashboard.lib.order.order import get_address, get_ship
-
-secure_hooks = Hooks()
-
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -79,15 +70,6 @@ def patch_order_status():
         "id", item_id
     ).execute()
     return jsonify({"message": "Order status updated"})
-
-
-def verify_webhook(data, hmac_header):
-    # SECRET = 'hush'
-    SECRET = "cc226b71cdbaea95db7f42e1d05503f92282097b4fa6409ce8063b81b8727b48"
-    digest = hmac.new(SECRET, data.encode("utf-8"), hashlib.sha256).digest()
-    computed_hmac = base64.b64encode(digest)
-    verified = hmac.compare_digest(computed_hmac, hmac_header.encode("utf-8"))
-    return verified
 
 
 @admin_bp.route("/remove_cards", methods=["POST"])

@@ -35,15 +35,14 @@ def get_nominatim_coordinates(address):
 
 
 def get_coordinates(item):
-    if item["billing_address"]["latitude"]:
-        lat = item["billing_address"]["latitude"]
-        long = item["billing_address"]["longitude"]
-    elif item["shipping_address"]["latitude"]:
-        lat = item["shipping_address"]["latitude"]
-        long = item["shipping_address"]["longitude"]
-    else:
+    lat = item["shipping_address"]["latitude"]
+    long = item["shipping_address"]["longitude"]
+    if not lat or lat == "None":
         lat, long = get_nominatim_coordinates(
-            f"{item['shipping_address']['address1']} {item['shipping_address']['zip']} {item['shipping_address']['city']} {item['shipping_address']['country']}"
+            f"{item['shipping_address']['address1']} "
+            f"{item['shipping_address']['zip']} "
+            f"{item['shipping_address']['city']} "
+            f"{item['shipping_address']['country']}"
         )
     return lat, long
 

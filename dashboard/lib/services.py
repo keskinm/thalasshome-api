@@ -53,8 +53,8 @@ def order_creation_webhook():
     order = json.loads(data.decode("utf-8"))
     parsed_order, line_items = parse_order(order)
 
-    result = insert_into_table("orders", parsed_order)
-    result = insert_into_table("line_items", line_items)
+    insert_into_table("orders", parsed_order)
+    insert_into_table("line_items", line_items)
 
     notifier(parsed_order, line_items)
 

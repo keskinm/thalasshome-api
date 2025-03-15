@@ -1,7 +1,14 @@
-from dashboard.container import container
-from dashboard.db.client import supabase_cli
+import os
 
-container.register_singleton("supabase_cli", supabase_cli)
+from supabase import create_client
+
+from dashboard.container import container
+
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+
+
+container.register_singleton("supabase_cli", create_client(url, key))
 
 from dashboard.db.client_wrapper import DBClient
 

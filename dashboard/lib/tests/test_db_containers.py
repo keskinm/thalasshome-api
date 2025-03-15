@@ -1,12 +1,14 @@
 # test_db_testcontainers.py
+import json
 import os
 
 import pytest
 import sqlalchemy
 from testcontainers.postgres import PostgresContainer
 
-from dashboard.constants import DB_DIR
-from dashboard.db.client import call_rpc, select_from_table
+from dashboard.constants import APP_DIR, DB_DIR
+from dashboard.db.client import call_rpc, insert_into_table, select_from_table
+from dashboard.lib.services import parse_order
 
 
 @pytest.fixture(scope="session")
@@ -38,6 +40,22 @@ def db_engine(postgres_container):
     return engine
 
 
+#  ------------------------------------ FUNCTION SCOPED ------------------------------
+
+
+@pytest.fixture(scope="function")
+def insert_random_order_with_line_item_sample(db_engine):
+    file_path = APP_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
+    with open(file_path, "r", encoding="utf-8") as f:
+        order = json.load(f)
+    parsed_order, line_items = parse_order(order)
+    insert_into_table("orders", parsed_order, db_engine=db_engine)
+    insert_into_table("line_items", line_items, db_engine=db_engine)
+
+
+#  ------------------------------------------------------------------------------------
+
+
 def test_example(db_engine):
     with db_engine.connect() as conn:
         result = conn.execute("SELECT COUNT(*) FROM users;")
@@ -54,11 +72,11 @@ def test_rpc(db_engine):
     assert result is not None
 
 
-def test_select_order(db_engine):
+def test_select_order(db_engine, insert_random_order_with_line_item_sample):
     result = select_from_table(
         "orders",
         select_columns="*",
-        conditions={"email": "neuneu@gmail.com"},
+        conditions={"email": "sign.pls.up@gmail.com"},
         limit=1,
         single=True,
         db_engine=db_engine,

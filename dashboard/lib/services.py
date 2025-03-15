@@ -9,7 +9,7 @@ import requests
 from flask import Blueprint, current_app, jsonify, redirect, request
 
 from dashboard.constants import APP_DIR, normalize_jac_string, parse_rent_duration_jac
-from dashboard.db.client import call_rpc, supabase_cli
+from dashboard.db.client import call_rpc, insert_into_table, supabase_cli
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import (
     extract_line_items_keys,
@@ -51,6 +51,17 @@ def order_creation_webhook():
         raise ValueError("Webhook verification failed. Check logs for details.")
 
     order = json.loads(data.decode("utf-8"))
+    parsed_order, line_items = parse_order(order)
+
+    result = insert_into_table("orders", parsed_order)
+    result = insert_into_table("line_items", line_items)
+
+    notifier(parsed_order, line_items)
+
+    return "ok", 200
+
+
+def parse_order(order: dict):
     parsed_order = extract_order_keys(order)
     lat, long = get_coordinates(order)
     parsed_order = {
@@ -61,13 +72,7 @@ def order_creation_webhook():
     }
     line_items = parsed_order.pop("line_items")
     line_items = extract_line_items_keys(line_items, parsed_order["id"])
-
-    _ = supabase_cli.table("orders").insert(parsed_order).execute()
-
-    _ = supabase_cli.table("line_items").insert(line_items).execute()
-    notifier(parsed_order, line_items)
-
-    return "ok", 200
+    return parsed_order, line_items
 
 
 @services_bp.route("/create-20pct-draft", methods=["POST"])

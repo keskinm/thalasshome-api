@@ -24,6 +24,8 @@ load_yaml_env(ENV_DIR / "danger.yaml")
 
 
 def create_app(testing=False):
+    from dashboard.registerer import EOF_REGISTERER
+
     for var in REQUIRED_VARIABLES:
         if var not in os.environ:
             raise Exception(f"Required environment variable {var} is missing")
@@ -39,7 +41,6 @@ def create_app(testing=False):
     from dashboard.lib.notifier import notifier_bp
     from dashboard.lib.services import services_bp
     from dashboard.lib.splash import splash_bp
-    from dashboard.registerer import EOF_REGISTERER
 
     app.register_blueprint(splash_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")

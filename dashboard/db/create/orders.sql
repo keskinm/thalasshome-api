@@ -36,6 +36,7 @@ CREATE TABLE line_items (
     CONSTRAINT fk_order
       FOREIGN KEY (order_id)
       REFERENCES orders(id)
+      ON DELETE CASCADE
 );
 
 

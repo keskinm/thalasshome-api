@@ -9,7 +9,7 @@ import requests
 from flask import Blueprint, current_app, jsonify, redirect, request
 
 from dashboard.constants import APP_DIR, normalize_jac_string, parse_rent_duration_jac
-from dashboard.db.client import insert_into_table, supabase_cli
+from dashboard.db.client import supabase_cli
 from dashboard.db.client_wrapper import DB_CLIENT
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import (
@@ -54,8 +54,8 @@ def order_creation_webhook():
     order = json.loads(data.decode("utf-8"))
     parsed_order, line_items = parse_order(order)
 
-    insert_into_table("orders", parsed_order)
-    insert_into_table("line_items", line_items)
+    DB_CLIENT.insert_into_table("orders", parsed_order)
+    DB_CLIENT.insert_into_table("line_items", line_items)
 
     notifier(parsed_order, line_items)
 

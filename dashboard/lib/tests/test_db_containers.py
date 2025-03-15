@@ -1,4 +1,5 @@
-from dashboard.db.client import call_rpc, select_from_table
+from dashboard.db.client import select_from_table
+from dashboard.db.client_wrapper import DB_CLIENT
 
 
 def test_example(db_engine):
@@ -9,10 +10,9 @@ def test_example(db_engine):
 
 
 def test_rpc(db_engine):
-    result = call_rpc(
+    result = DB_CLIENT.call_rpc(
         "check_delivery_men_around_point",
         {"in_shipping_lon": 4.31, "in_shipping_lat": 45.39},
-        test_db_engine=db_engine,
     )
     assert result is not None
 

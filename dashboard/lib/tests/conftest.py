@@ -7,7 +7,7 @@ from testcontainers.postgres import PostgresContainer
 
 from dashboard import create_app
 from dashboard.constants import APP_DIR, DB_DIR
-from dashboard.db.client import insert_into_table
+from dashboard.db.client_wrapper import DB_CLIENT
 from dashboard.lib.services import parse_order
 
 
@@ -64,8 +64,8 @@ def insert_random_order_with_line_item_sample(db_engine):
     with open(file_path, "r", encoding="utf-8") as f:
         order = json.load(f)
     parsed_order, line_items = parse_order(order)
-    insert_into_table("orders", parsed_order, db_engine=db_engine)
-    insert_into_table("line_items", line_items, db_engine=db_engine)
+    DB_CLIENT.insert_into_table("orders", parsed_order, db_engine=db_engine)
+    DB_CLIENT.insert_into_table("line_items", line_items, db_engine=db_engine)
 
 
 #  ------------------------------------------------------------------------------------

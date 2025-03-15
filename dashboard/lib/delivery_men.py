@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request, session
 
 from dashboard.constants import JACUZZI4P, JACUZZI6P
-from dashboard.db.client import supabase_cli
+from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
+
+supabase_cli = container.get("supabase_cli")
 
 delivery_men_bp = Blueprint("delivery_men", __name__)
 

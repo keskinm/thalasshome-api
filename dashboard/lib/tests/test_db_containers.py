@@ -1,4 +1,6 @@
-from dashboard.db.client_wrapper import DB_CLIENT
+from dashboard.container import container
+
+DB_CLIENT = container.get("DB_CLIENT")
 
 
 def test_example(db_engine):

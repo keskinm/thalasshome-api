@@ -9,14 +9,16 @@ import requests
 from flask import Blueprint, current_app, jsonify, redirect, request
 
 from dashboard.constants import APP_DIR, normalize_jac_string, parse_rent_duration_jac
-from dashboard.db.client import supabase_cli
-from dashboard.db.client_wrapper import DB_CLIENT
+from dashboard.container import container
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import (
     extract_line_items_keys,
     extract_order_keys,
     get_coordinates,
 )
+
+supabase_cli = container.get("supabase_cli")
+DB_CLIENT = container.get("DB_CLIENT")
 
 SHOPIFY_STORE_DOMAIN = "spa-detente.myshopify.com"
 SHOPIFY_ADMIN_API_VERSION = "2025-01"

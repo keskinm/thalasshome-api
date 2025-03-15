@@ -7,11 +7,13 @@ from testcontainers.postgres import PostgresContainer
 
 from dashboard import create_app
 from dashboard.constants import APP_DIR, DB_DIR
-from dashboard.db.client_wrapper import DB_CLIENT
+from dashboard.container import container
 from dashboard.lib.services import parse_order
 
+DB_CLIENT = container.get("DB_CLIENT")
 
-@pytest.fixture
+
+@pytest.fixture()
 def app():
     return create_app(testing=True)
 

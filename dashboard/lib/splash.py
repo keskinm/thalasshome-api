@@ -1,7 +1,10 @@
 from flask import Blueprint, render_template, session
 
-from dashboard.db.client import supabase_cli
+from dashboard.container import container
 from dashboard.lib.admin import get_cards
+
+supabase_cli = container.get("supabase_cli")
+
 
 splash_bp = Blueprint("splash", __name__)
 

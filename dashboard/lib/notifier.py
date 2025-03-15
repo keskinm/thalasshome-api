@@ -6,8 +6,10 @@ from email.mime.text import MIMEText
 
 from flask import Blueprint, request
 
-from dashboard.db.client import supabase_cli
+from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_name, get_ship
+
+supabase_cli = container.get("supabase_cli")
 
 notifier_bp = Blueprint("notifier", __name__)
 

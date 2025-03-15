@@ -3,7 +3,9 @@ import os
 import sqlalchemy
 from psycopg2.extras import Json
 
-from dashboard.db.client import supabase_cli
+from dashboard.container import Singleton, container
+
+supabase_cli = container.get("supabase_cli")
 
 
 def jsonify_needed_columns(record):
@@ -40,17 +42,6 @@ def env_checker(method):
         return result
 
     return wrapped
-
-
-class Singleton(type):
-    """Metaclass to make the class a singleton."""
-
-    _instances = {}  # Stores singleton instances
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
 
 
 def wrap_all_methods_with_env_checker(cls):
@@ -140,8 +131,3 @@ class DBClient(metaclass=Singleton):
                 query_builder = query_builder.single()
             response = query_builder.execute()
             return response.data
-
-
-DB_CLIENT = (
-    DBClient()
-)  # @todo Please give it to a container (and same for supabase cli)

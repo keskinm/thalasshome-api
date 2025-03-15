@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 
-from dashboard.db.client import supabase_cli
+from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
+supabase_cli = container.get("supabase_cli")
 admin_bp = Blueprint("admin", __name__)
 
 

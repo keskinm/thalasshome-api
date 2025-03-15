@@ -39,6 +39,7 @@ def create_app(testing=False):
     from dashboard.lib.notifier import notifier_bp
     from dashboard.lib.services import services_bp
     from dashboard.lib.splash import splash_bp
+    from dashboard.registerer import EOF_REGISTERER
 
     app.register_blueprint(splash_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")

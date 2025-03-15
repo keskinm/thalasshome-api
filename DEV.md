@@ -39,6 +39,10 @@ Generate requirements.txt (as shown above).
 Ensure requirements.txt is included in Git (git add requirements.txt).
 Deploy to App Engine: `gcloud app deploy`
 
+## Dev library installation
+
+`poetry install --with dev`
+
 
 ## Install pre-commit hooks
 

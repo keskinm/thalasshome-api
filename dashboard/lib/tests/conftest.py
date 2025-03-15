@@ -65,8 +65,3 @@ def insert_random_order_with_line_item_sample(db_engine):
 
 
 #  ------------------------------------------------------------------------------------
-
-
-@pytest.fixture(scope="function")
-def mock_supabase(mocker):
-    return mocker.patch("dashboard.db.client.supabase_cli", autospec=True)

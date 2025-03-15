@@ -1,4 +1,3 @@
-from dashboard.db.client import select_from_table
 from dashboard.db.client_wrapper import DB_CLIENT
 
 
@@ -18,7 +17,7 @@ def test_rpc(db_engine):
 
 
 def test_select_order(db_engine, insert_random_order_with_line_item_sample):
-    result = select_from_table(
+    result = DB_CLIENT.select_from_table(
         "orders",
         select_columns="*",
         conditions={"email": "sign.pls.up@gmail.com"},

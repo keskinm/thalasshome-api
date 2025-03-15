@@ -2,7 +2,6 @@ import os
 
 import sqlalchemy
 from psycopg2.extras import Json
-from supabase import Client, create_client
 
 from dashboard.db.client import supabase_cli
 
@@ -42,10 +41,11 @@ class DBClient:
             return response.data
 
     def insert_into_table(self, table: str, record, db_engine=None):
-        if (
-            os.environ.get("TESTING", "false").lower() == "true"
-            and db_engine is not None
-        ):
+        if os.environ.get("TESTING", "false").lower() == "true":
+            if self.test_db_engine is None:
+                raise ValueError(
+                    "Test db engine should be accessible in testing environment!"
+                )
             record = wrap_json_columns(record)
             if isinstance(record, list):
                 keys = record[0].keys()
@@ -68,6 +68,49 @@ class DBClient:
                     return result.rowcount
         else:
             response = supabase_cli.table(table).insert(record).execute()
+            return response.data
+
+    def select_from_table(
+        self,
+        table: str,
+        select_columns: str = "*",
+        conditions: dict = None,
+        limit: int = None,
+        single: bool = False,
+        db_engine=None,
+    ):
+        conditions = conditions or {}
+
+        if os.environ.get("TESTING", "false").lower() == "true":
+            if self.test_db_engine is None:
+                raise ValueError(
+                    "Test db engine should be accessible in testing environment!"
+                )
+
+            query = f"SELECT {select_columns} FROM {table}"
+            if conditions:
+                cond_str = " AND ".join(
+                    [f"{key} = :{key}" for key in conditions.keys()]
+                )
+                query += f" WHERE {cond_str}"
+            if limit:
+                query += f" LIMIT {limit}"
+            sql_query = sqlalchemy.text(query)
+            with db_engine.connect() as conn:
+                result = conn.execute(sql_query, **conditions)
+                rows = result.fetchall()
+            if single:
+                return rows[0] if rows else None
+            return rows
+        else:
+            query_builder = supabase_cli.table(table).select(select_columns)
+            for key, value in conditions.items():
+                query_builder = query_builder.eq(key, value)
+            if limit:
+                query_builder = query_builder.limit(limit)
+            if single:
+                query_builder = query_builder.single()
+            response = query_builder.execute()
             return response.data
 
 

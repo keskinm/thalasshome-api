@@ -27,12 +27,4 @@ def admin_index():
         **{"employees": list(map(lambda x: x.get("username"), employee_names))},
     }
 
-    delete_button_template = """
-      <button class="delete-btn text-red-500 hover:text-red-700" onclick="deleteAllCanceled()">
-        🗑️ Tout supprimer
-      </button>
-    """
-
-    return render_template(
-        "admin.html", delete_button_template=delete_button_template, **res
-    )
+    return render_template("admin.html", **res)

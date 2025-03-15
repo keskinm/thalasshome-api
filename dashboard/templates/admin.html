@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
+{% macro delete_button() %}
+<button class="delete-btn text-red-500 hover:text-red-700" onclick="deleteAllCanceled()">
+  🗑️ Tout supprimer
+</button>
+{% endmacro %}
+
 <head>
   <title>Administration - ThalassHome</title>
   {% include 'common/head.html' %}
@@ -23,7 +29,7 @@
 <section class="container mx-auto p-6">
   <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
     <template id="delete-button-template">
-      {{ delete_button_template | safe }}
+      {{ delete_button() }}
     </template>
 
     {% for category, items in {'ask': ask, 'assigned': assigned, 'in_delivery': in_delivery, 'delivered': delivered, 'canceled': canceled}.items() %}
@@ -36,7 +42,7 @@
           </div>
           <div class="delete-button-container">
             {% if category == 'canceled' and items|length > 0 %}
-              {{ delete_button_template | safe }}
+              {{ delete_button() }}
             {% endif %}
           </div>
         </div>

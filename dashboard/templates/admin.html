@@ -33,7 +33,12 @@
         <div class="card" data-item-id="{{ item.item_id }}">
           <div class="flex justify-between items-start mb-2">
             <span class="font-medium text-sm">📍 {{ item.address }}</span>
-            <span class="font-bold text-green-600">{{ item.amount }}€</span>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-green-600">{{ item.amount }}€</span>
+              <button class="delete-btn text-red-500 hover:text-red-700" onclick="deleteCard(event, {{ item.item_id }})">
+                🗑️
+              </button>
+            </div>
           </div>
           <div class="space-y-1">
             <p class="text-xs text-gray-600 flex items-center">
@@ -119,6 +124,34 @@ document.addEventListener('DOMContentLoaded', function () {
     const cards = column.querySelectorAll('.card').length;
     badge.textContent = cards;
   }
+
+  // Add delete card function
+  window.deleteCard = async function(event, itemId) {
+    event.stopPropagation();
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/admin/order", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item: itemId })
+      });
+
+      if (!response.ok) throw new Error('Delete failed');
+
+      const data = await response.json();
+      const card = document.querySelector(`[data-item-id="${itemId}"]`);
+      const columnId = card.closest('.column').id;
+      card.remove();
+      updateColumnCounter(columnId);
+      showToast('Commande supprimée avec succès');
+    } catch (error) {
+      showToast('Erreur lors de la suppression', 'error');
+      console.error("Delete error:", error);
+    }
+  };
 });
 </script>
 </body>

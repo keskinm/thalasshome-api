@@ -72,16 +72,15 @@ def patch_order_status():
     return jsonify({"message": "Order status updated"})
 
 
-@admin_bp.route("/remove_cards", methods=["POST"])
+@admin_bp.route("/order", methods=["DELETE"])
 def on_remove_cards():
     data = request.get_json()
-    list_id = data["list_id"]
-    print("\n ----ON REMOVE CARDS------ \n")
+    item_id = int(data["item"])
 
-    response = supabase_cli.table("orders").delete().in_("id", list_id).execute()
+    response = supabase_cli.table("orders").delete().in_("id", item_id).execute()
     return jsonify(
         {
             "message": f"{response.count or 0} cards removed from list",
-            "list_id": list_id,
+            "list_id": item_id,
         }
     )

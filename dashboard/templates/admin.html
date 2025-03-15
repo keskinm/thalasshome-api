@@ -22,6 +22,10 @@
 
 <section class="container mx-auto p-6">
   <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+    <template id="delete-button-template">
+      {{ delete_button_template | safe }}
+    </template>
+
     {% for category, items in {'ask': ask, 'assigned': assigned, 'in_delivery': in_delivery, 'delivered': delivered, 'canceled': canceled}.items() %}
     <div class="column" id="{{ category }}">
       <div class="column-header">
@@ -30,11 +34,11 @@
             <h3>{{ category | replace('_', ' ') | title }}</h3>
             <span class="status-badge status-{{ category }}">{{ items|length }}</span>
           </div>
-          {% if category == 'canceled' and items|length > 0 %}
-          <button class="delete-btn text-red-500 hover:text-red-700" onclick="deleteAllCanceled()">
-            🗑️ Tout supprimer
-          </button>
-          {% endif %}
+          <div class="delete-button-container">
+            {% if category == 'canceled' and items|length > 0 %}
+              {{ delete_button_template | safe }}
+            {% endif %}
+          </div>
         </div>
       </div>
       <div class="card-list">
@@ -115,8 +119,8 @@ document.addEventListener('DOMContentLoaded', function () {
           showToast(`Commande déplacée vers ${newColumnId.replace('_', ' ')}`);
 
           // Update counters
-          updateColumnCounter(fromColumnId);
-          updateColumnCounter(newColumnId);
+          updateColumnHeader(fromColumnId);
+          updateColumnHeader(newColumnId);
 
         } catch (error) {
           showToast('Erreur lors de la mise à jour du statut', 'error');
@@ -126,13 +130,27 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Update column counter badge
-  function updateColumnCounter(columnId) {
+  // Update column header
+  function updateColumnHeader(columnId) {
     const column = document.getElementById(columnId);
-    const badge = column.querySelector('.status-badge');
     const cards = column.querySelectorAll('.card').length;
+    const badge = column.querySelector('.status-badge');
     badge.textContent = cards;
+
+    // Update delete button visibility for canceled column
+    if (columnId === 'canceled') {
+      const deleteContainer = column.querySelector('.delete-button-container');
+      if (cards > 0 && !deleteContainer.querySelector('.delete-btn')) {
+        const template = document.getElementById('delete-button-template');
+        deleteContainer.innerHTML = template.innerHTML;
+      } else if (cards === 0) {
+        deleteContainer.innerHTML = '';
+      }
+    }
   }
+
+  // Replace the existing updateColumnCounter with our new function
+  window.updateColumnCounter = updateColumnHeader;
 
   // Add delete card function
   window.deleteCard = async function(event, itemId) {

@@ -6,12 +6,12 @@ from psycopg2.extras import Json
 from dashboard.db.client import supabase_cli
 
 
-def wrap_json_columns(record):
+def jsonify_needed_columns(record):
     """
     Wrapper for JSONB type columns.
     """
     if isinstance(record, list):
-        return [wrap_json_columns(r) for r in record]
+        return [jsonify_needed_columns(r) for r in record]
     elif isinstance(record, dict):
         return {
             key: Json(value) if isinstance(value, dict) else value
@@ -21,16 +21,53 @@ def wrap_json_columns(record):
         return record
 
 
-class DBClient:
+def env_checker(method):
+    def wrapped(*args, **kwargs):
+        if not "_" in method.__name__:
+            db_client = args[0]
+            test_db_engine_is_none = db_client.test_db_engine is None
+            is_test_env = os.environ.get("TESTING", "false").lower() == "true"
+            if is_test_env and test_db_engine_is_none:
+                raise ValueError(
+                    "Test db engine should be accessible in testing environment!"
+                )
+            elif not is_test_env and not test_db_engine_is_none:
+                raise ValueError(
+                    "Test db engine should not be provided for execution environment!"
+                )
+
+        result = method(*args, **kwargs)
+        return result
+
+    return wrapped
+
+
+class Singleton(type):
+    """Metaclass to make the class a singleton."""
+
+    _instances = {}  # Stores singleton instances
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+def wrap_all_methods_with_env_checker(cls):
+    """Class decorator to wrap all methods of a class with a decorator."""
+    for attr_name, attr_value in cls.__dict__.items():
+        if callable(attr_value):
+            setattr(cls, attr_name, env_checker(attr_value))
+    return cls
+
+
+@wrap_all_methods_with_env_checker
+class DBClient(metaclass=Singleton):
     def __init__(self, test_db_engine=None):
         self.test_db_engine = test_db_engine
 
     def call_rpc(self, fn_name: str, params: dict):
-        if os.environ.get("TESTING", "false").lower() == "true":
-            if self.test_db_engine is None:
-                raise ValueError(
-                    "Test db engine should be accessible in testing environment!"
-                )
+        if self.test_db_engine is not None:
             placeholders = ", ".join(":" + key for key in params.keys())
             query = sqlalchemy.text(f"SELECT * FROM public.{fn_name}({placeholders})")
             with self.test_db_engine.connect() as conn:
@@ -41,12 +78,8 @@ class DBClient:
             return response.data
 
     def insert_into_table(self, table: str, record, db_engine=None):
-        if os.environ.get("TESTING", "false").lower() == "true":
-            if self.test_db_engine is None:
-                raise ValueError(
-                    "Test db engine should be accessible in testing environment!"
-                )
-            record = wrap_json_columns(record)
+        if self.test_db_engine is not None:
+            record = jsonify_needed_columns(record)
             if isinstance(record, list):
                 keys = record[0].keys()
                 columns = ", ".join(keys)
@@ -81,12 +114,7 @@ class DBClient:
     ):
         conditions = conditions or {}
 
-        if os.environ.get("TESTING", "false").lower() == "true":
-            if self.test_db_engine is None:
-                raise ValueError(
-                    "Test db engine should be accessible in testing environment!"
-                )
-
+        if self.test_db_engine is not None:
             query = f"SELECT {select_columns} FROM {table}"
             if conditions:
                 cond_str = " AND ".join(
@@ -114,4 +142,6 @@ class DBClient:
             return response.data
 
 
-DB_CLIENT = DBClient()  # @todo Create a singleton please
+DB_CLIENT = (
+    DBClient()
+)  # @todo Please give it to a container (and same for supabase cli)

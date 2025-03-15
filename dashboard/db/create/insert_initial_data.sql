@@ -1,4 +1,4 @@
-INSERT INTO users (username, password, email, is_staff, country, zone, phone_number) VALUES
+INSERT INTO users (username, password, email, is_staff, phone_number) VALUES
 ('python', 'pbkdf2:sha256:1000000$3DdeCIsJlSyGs1Bi$9743fe7068be6602cab76b03edfdab326bdf62fe89793e5832098801a13db4ca', 'neuneu@yopmail.com', true, '+33666666666'),
 ('python2', 'pbkdf2:sha256:1000000$3DdeCIsJlSyGs1Bi$9743fe7068be6602cab76b03edfdab326bdf62fe89793e5832098801a13db4ca', 'neuneu2@yopmail.com', true, '+33666666666'),
 ('python3', 'pbkdf2:sha256:1000000$3DdeCIsJlSyGs1Bi$9743fe7068be6602cab76b03edfdab326bdf62fe89793e5832098801a13db4ca', 'neuneu3@yopmail.com', true, '+33666666666'),

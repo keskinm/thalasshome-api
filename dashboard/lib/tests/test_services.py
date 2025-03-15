@@ -23,7 +23,7 @@ def test_check_availability_jacuzzi(client, mock_supabase):
 """
 
 
-def test_check_availability_jacuzzi(client):
+def test_check_availability_jacuzzi(client, db_engine):
     data = {
         "location": {"lat": 48.8566, "lon": 2.3522},
         "productName": "Jacuzzi 4 places 1 nuit",

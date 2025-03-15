@@ -51,26 +51,6 @@ def insert_into_table(table: str, record, db_engine=None):
         return response.data
 
 
-def call_rpc(fn_name: str, params: dict, test_db_engine=None):
-    if os.environ.get("TESTING", "false").lower() == "true":
-        if test_db_engine is None:
-            raise ValueError(
-                "Test db engine should be accessible in testing environment!"
-            )
-        placeholders = ", ".join(":" + key for key in params.keys())
-        query = sqlalchemy.text(f"SELECT * FROM public.{fn_name}({placeholders})")
-        with test_db_engine.connect() as conn:
-            result = conn.execute(query, **params)
-            return result.fetchall()
-    else:
-        if test_db_engine is not None:
-            raise ValueError(
-                "Test db engine should not be passed in execution environment!"
-            )
-        response = supabase_cli.rpc(fn_name, params).execute()
-        return response.data
-
-
 def select_from_table(
     table: str,
     select_columns: str = "*",

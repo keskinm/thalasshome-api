@@ -9,7 +9,8 @@ import requests
 from flask import Blueprint, current_app, jsonify, redirect, request
 
 from dashboard.constants import APP_DIR, normalize_jac_string, parse_rent_duration_jac
-from dashboard.db.client import call_rpc, insert_into_table, supabase_cli
+from dashboard.db.client import insert_into_table, supabase_cli
+from dashboard.db.client_wrapper import DB_CLIENT
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import (
     extract_line_items_keys,
@@ -168,7 +169,7 @@ def check_availability():
     rent_duration_day = parse_rent_duration_jac(product_name)
     product_name = normalize_jac_string(product_name)
 
-    dates = call_rpc(
+    dates = DB_CLIENT.call_rpc(
         "get_availability_calendar_within_75days",
         {
             "in_shipping_lon": lon,

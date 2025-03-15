@@ -47,6 +47,11 @@ def db_engine(postgres_container):
             sql = f.read()
         with engine.begin() as conn:
             conn.execute(sql)
+    from dashboard.db.client_wrapper import (  # importer le module contenant TEST_DB_ENGINE
+        DB_CLIENT,
+    )
+
+    DB_CLIENT.test_db_engine = engine
     return engine
 
 

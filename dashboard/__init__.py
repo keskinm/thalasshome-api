@@ -4,8 +4,7 @@ import yaml
 from flask import Flask
 from flask_cors import CORS
 
-from dashboard.constants import REQUIRED_VARIABLES
-from env import ENV_DIR
+from dashboard.constants import ENV_DIR, REQUIRED_VARIABLES
 
 
 def load_yaml_env(path_to_yaml):

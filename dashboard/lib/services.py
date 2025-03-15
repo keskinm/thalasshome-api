@@ -8,7 +8,7 @@ import os
 import requests
 from flask import Blueprint, current_app, jsonify, redirect, request
 
-from dashboard.constants import ROOT_DIR, normalize_jac_string, parse_rent_duration_jac
+from dashboard.constants import APP_DIR, normalize_jac_string, parse_rent_duration_jac
 from dashboard.db.client import supabase_cli
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import (
@@ -191,7 +191,7 @@ def check_availability():
 
 @services_bp.route("/test_order_creation_webhook", methods=["GET"])
 def test_order_creation_webhook():
-    file_path = ROOT_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
+    file_path = APP_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.dumps(json.load(f))
 

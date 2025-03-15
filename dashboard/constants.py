@@ -1,6 +1,9 @@
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).parent
+APP_DIR = Path(__file__).parent
+ROOT_DIR = APP_DIR.parent
+ENV_DIR = ROOT_DIR / "env"
+DB_DIR = APP_DIR / "db"
 
 REQUIRED_VARIABLES = {
     "EMAIL_SENDER_PASSWORD",

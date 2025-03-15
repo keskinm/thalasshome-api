@@ -3,7 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from dashboard.container import container
 
-supabase_cli = container.get("supabase_cli")
+SUPABASE_CLI = container.get("SUPABASE_CLI")
 auth_bp = Blueprint("auth", __name__)
 
 
@@ -15,7 +15,7 @@ def login():
     POST_PASSWORD = str(request.form["password"])
 
     response = (
-        supabase_cli.table("users")
+        SUPABASE_CLI.table("users")
         .select("*")
         .eq("email", POST_EMAIL)
         .maybe_single()
@@ -60,7 +60,7 @@ def signup_post():
     phone_number = request.form.get("numero_de_telephone")
 
     user = (
-        supabase_cli.table("users")
+        SUPABASE_CLI.table("users")
         .select("*")
         .eq("email", email)
         .maybe_single()
@@ -81,6 +81,6 @@ def signup_post():
         "phone_number": phone_number,
     }
 
-    supabase_cli.table("users").insert(new_user).execute()
+    SUPABASE_CLI.table("users").insert(new_user).execute()
 
     return splash()

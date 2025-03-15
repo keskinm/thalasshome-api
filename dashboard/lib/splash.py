@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, session
 from dashboard.container import container
 from dashboard.lib.admin import get_cards
 
-supabase_cli = container.get("supabase_cli")
+SUPABASE_CLI = container.get("SUPABASE_CLI")
 
 
 splash_bp = Blueprint("splash", __name__)
@@ -24,7 +24,7 @@ def admin_index():
         return "Accès interdit", 403
 
     cards = get_cards()
-    employee_names = supabase_cli.table("users").select("username").execute().data
+    employee_names = SUPABASE_CLI.table("users").select("username").execute().data
     res = {
         **cards,
         **{"employees": list(map(lambda x: x.get("username"), employee_names))},

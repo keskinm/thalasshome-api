@@ -9,7 +9,7 @@ from flask import Blueprint, request
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_name, get_ship
 
-supabase_cli = container.get("supabase_cli")
+SUPABASE_CLI = container.get("SUPABASE_CLI")
 
 notifier_bp = Blueprint("notifier", __name__)
 
@@ -31,7 +31,7 @@ class Notifier:
         lat, lon = order["shipping_lat"], order["shipping_lon"]
 
         delivery_mens = (
-            supabase_cli.rpc(
+            SUPABASE_CLI.rpc(
                 "check_delivery_men_around_point",
                 {
                     "in_shipping_lon": lon,
@@ -109,7 +109,7 @@ class Notifier:
     def accept_command(self, token_id):
         order_id, provider_username = token_id.split("|")
         order = (
-            supabase_cli.table("orders")
+            SUPABASE_CLI.table("orders")
             .select("*")
             .eq("id", order_id)
             .limit(1)
@@ -126,7 +126,7 @@ class Notifier:
 
         else:
             provider = (
-                supabase_cli.table("users")
+                SUPABASE_CLI.table("users")
                 .select("*")
                 .eq("username", provider_username)
                 .limit(1)
@@ -135,7 +135,7 @@ class Notifier:
                 .data
             )
             line_items = (
-                supabase_cli.table("line_items")
+                SUPABASE_CLI.table("line_items")
                 .select("*")
                 .eq("order_id", order_id)
                 .execute()
@@ -144,7 +144,7 @@ class Notifier:
             provider_email = provider["email"]
 
             order["provider"] = {"username": provider_username, "email": provider_email}
-            supabase_cli.table("orders").update({"delivery_men_id": provider["id"]}).eq(
+            SUPABASE_CLI.table("orders").update({"delivery_men_id": provider["id"]}).eq(
                 "id", order_id
             ).execute()
 

@@ -3,12 +3,12 @@ from flask import Blueprint, jsonify, request
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
-supabase_cli = container.get("supabase_cli")
+SUPABASE_CLI = container.get("SUPABASE_CLI")
 admin_bp = Blueprint("admin", __name__)
 
 
 def get_cards():
-    all_keys = supabase_cli.table("orders").select("*").execute().data
+    all_keys = SUPABASE_CLI.table("orders").select("*").execute().data
     res = {}
 
     for item in all_keys:
@@ -17,7 +17,7 @@ def get_cards():
         delivery_men_id, delivery_men = item.get("delivery_men_id"), None
         if delivery_men_id:
             delivery_men = (
-                supabase_cli.table("users")
+                SUPABASE_CLI.table("users")
                 .select("*")
                 .eq("id", delivery_men_id)
                 .limit(1)
@@ -29,7 +29,7 @@ def get_cards():
         adr = get_address(item)
 
         line_items = (
-            supabase_cli.table("line_items")
+            SUPABASE_CLI.table("line_items")
             .select("*")
             .eq("order_id", item["id"])
             .execute()
@@ -67,7 +67,7 @@ def ask_zone():
 def patch_order_status():
     data = request.get_json()
     item_id = int(data["item"])
-    supabase_cli.table("orders").update({"status": data["category"]}).eq(
+    SUPABASE_CLI.table("orders").update({"status": data["category"]}).eq(
         "id", item_id
     ).execute()
     return jsonify({"message": "Order status updated"})
@@ -78,7 +78,7 @@ def delete_order():
     data = request.get_json()
     item_id = int(data["item"])
 
-    response = supabase_cli.table("orders").delete().eq("id", item_id).execute()
+    response = SUPABASE_CLI.table("orders").delete().eq("id", item_id).execute()
     return jsonify(
         {
             "message": f"{response.count or 0} cards removed from list",
@@ -92,7 +92,7 @@ def delete_canceled_orders():
     data = request.get_json()
     item_ids = data["items"]
 
-    response = supabase_cli.table("orders").delete().in_("id", item_ids).execute()
+    response = SUPABASE_CLI.table("orders").delete().in_("id", item_ids).execute()
     return jsonify(
         {
             "message": f"{response.count or 0} cards removed from list",

@@ -4,7 +4,7 @@ from dashboard.constants import JACUZZI4P, JACUZZI6P
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
-supabase_cli = container.get("supabase_cli")
+SUPABASE_CLI = container.get("SUPABASE_CLI")
 
 delivery_men_bp = Blueprint("delivery_men", __name__)
 
@@ -14,7 +14,7 @@ def get_orders():
     user_id = session["user_id"]
 
     available_orders = (
-        supabase_cli.table("orders")
+        SUPABASE_CLI.table("orders")
         .select("*")
         .is_("delivery_men_id", None)
         .eq("status", "ask")  # Only show 'ask' status orders as available
@@ -22,7 +22,7 @@ def get_orders():
         .data
     )
     ongoing_orders = (
-        supabase_cli.table("orders")
+        SUPABASE_CLI.table("orders")
         .select("*")
         .eq("delivery_men_id", user_id)
         .in_("status", ["assigned", "in_delivery"])  # Orders in progress
@@ -30,7 +30,7 @@ def get_orders():
         .data
     )
     completed_orders = (
-        supabase_cli.table("orders")
+        SUPABASE_CLI.table("orders")
         .select("*")
         .eq("delivery_men_id", user_id)
         .eq("status", "delivered")  # Completed orders
@@ -44,7 +44,7 @@ def get_orders():
         results = []
         for order in orders:
             line_items = (
-                supabase_cli.table("line_items")
+                SUPABASE_CLI.table("line_items")
                 .select("*")
                 .eq("order_id", order["id"])
                 .execute()
@@ -81,7 +81,7 @@ def complete_order(order_id):
 
     try:
         resp = (
-            supabase_cli.table("orders")
+            SUPABASE_CLI.table("orders")
             .update({"status": "delivered", "updated_at": "now()"})
             .match({"id": order_id, "delivery_men_id": user_id})
             .execute()
@@ -101,7 +101,7 @@ def get_delivery_capacity():
     user_id = session["user_id"]
 
     dcs = (
-        supabase_cli.table("delivery_capacity")
+        SUPABASE_CLI.table("delivery_capacity")
         .select("*")
         .eq("user_id", user_id)
         .execute()
@@ -122,7 +122,7 @@ def patch_delivery_capacity():
     j4p = {"user_id": user_id, "product": JACUZZI4P, "quantity": data[JACUZZI4P]}
     j6p = {"user_id": user_id, "product": JACUZZI6P, "quantity": data[JACUZZI6P]}
 
-    _ = supabase_cli.table("delivery_capacity").upsert([j4p, j6p]).execute()
+    _ = SUPABASE_CLI.table("delivery_capacity").upsert([j4p, j6p]).execute()
     return jsonify({"message": "Mise à jour réussie !"}), 200
 
 
@@ -133,7 +133,7 @@ def patch_delivery_capacity():
 def list_zones():
     user_id = session["user_id"]
     zones = (
-        supabase_cli.table("user_delivery_zones")
+        SUPABASE_CLI.table("user_delivery_zones")
         .select("*")
         .eq("user_id", user_id)
         .execute()
@@ -170,7 +170,7 @@ def create_zone():
     if center_geog:
         row["center_geog"] = center_geog
 
-    resp = supabase_cli.table("user_delivery_zones").insert(row).execute()
+    resp = SUPABASE_CLI.table("user_delivery_zones").insert(row).execute()
 
     if not resp.data:
         return jsonify({"error": "Insert failed or returned no data"}), 400
@@ -205,7 +205,7 @@ def update_zone(zone_id):
 
     try:
         resp = (
-            supabase_cli.table("user_delivery_zones")
+            SUPABASE_CLI.table("user_delivery_zones")
             .update(update_data)
             .match({"id": zone_id, "user_id": user_id})
             .execute()
@@ -226,7 +226,7 @@ def delete_zone(zone_id):
 
     try:
         resp = (
-            supabase_cli.table("user_delivery_zones")
+            SUPABASE_CLI.table("user_delivery_zones")
             .delete()
             .match({"id": zone_id, "user_id": user_id})
             .execute()

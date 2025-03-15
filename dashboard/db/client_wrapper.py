@@ -5,7 +5,7 @@ from psycopg2.extras import Json
 
 from dashboard.container import Singleton, container
 
-supabase_cli = container.get("supabase_cli")
+SUPABASE_CLI = container.get("SUPABASE_CLI")
 
 
 def jsonify_needed_columns(record):
@@ -65,7 +65,7 @@ class DBClient(metaclass=Singleton):
                 result = conn.execute(query, **params)
                 return result.fetchall()
         else:
-            response = supabase_cli.rpc(fn_name, params).execute()
+            response = SUPABASE_CLI.rpc(fn_name, params).execute()
             return response.data
 
     def insert_into_table(self, table: str, record, db_engine=None):
@@ -91,7 +91,7 @@ class DBClient(metaclass=Singleton):
                     result = conn.execute(query, record)
                     return result.rowcount
         else:
-            response = supabase_cli.table(table).insert(record).execute()
+            response = SUPABASE_CLI.table(table).insert(record).execute()
             return response.data
 
     def select_from_table(
@@ -122,7 +122,7 @@ class DBClient(metaclass=Singleton):
                 return rows[0] if rows else None
             return rows
         else:
-            query_builder = supabase_cli.table(table).select(select_columns)
+            query_builder = SUPABASE_CLI.table(table).select(select_columns)
             for key, value in conditions.items():
                 query_builder = query_builder.eq(key, value)
             if limit:

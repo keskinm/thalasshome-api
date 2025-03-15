@@ -9,7 +9,7 @@ url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
 
 
-container.register_singleton("supabase_cli", create_client(url, key))
+container.register_singleton("SUPABASE_CLI", create_client(url, key))
 
 from dashboard.db.client_wrapper import DBClient
 

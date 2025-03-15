@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 @pytest.fixture(scope="function")
 def mock_supabase(mocker):
-    return mocker.patch("dashboard.db.client.supabase_cli", autospec=True)
+    return mocker.patch("dashboard.db.client.SUPABASE_CLI", autospec=True)
 
 def test_check_availability_jacuzzi(client, mock_supabase):
     def fake_rpc(fn, params):

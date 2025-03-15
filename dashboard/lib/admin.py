@@ -73,14 +73,28 @@ def patch_order_status():
 
 
 @admin_bp.route("/order", methods=["DELETE"])
-def on_remove_cards():
+def delete_order():
     data = request.get_json()
     item_id = int(data["item"])
 
-    response = supabase_cli.table("orders").delete().in_("id", item_id).execute()
+    response = supabase_cli.table("orders").delete().eq("id", item_id).execute()
     return jsonify(
         {
             "message": f"{response.count or 0} cards removed from list",
             "list_id": item_id,
+        }
+    )
+
+
+@admin_bp.route("/canceled_orders", methods=["DELETE"])
+def delete_canceled_orders():
+    data = request.get_json()
+    item_ids = data["items"]
+
+    response = supabase_cli.table("orders").delete().in_("id", item_ids).execute()
+    return jsonify(
+        {
+            "message": f"{response.count or 0} cards removed from list",
+            "list_ids": item_ids,
         }
     )

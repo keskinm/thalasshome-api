@@ -25,8 +25,17 @@
     {% for category, items in {'ask': ask, 'assigned': assigned, 'in_delivery': in_delivery, 'delivered': delivered, 'canceled': canceled}.items() %}
     <div class="column" id="{{ category }}">
       <div class="column-header">
-        <h3>{{ category | replace('_', ' ') | title }}</h3>
-        <span class="status-badge status-{{ category }}">{{ items|length }}</span>
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-2">
+            <h3>{{ category | replace('_', ' ') | title }}</h3>
+            <span class="status-badge status-{{ category }}">{{ items|length }}</span>
+          </div>
+          {% if category == 'canceled' and items|length > 0 %}
+          <button class="delete-btn text-red-500 hover:text-red-700" onclick="deleteAllCanceled()">
+            🗑️ Tout supprimer
+          </button>
+          {% endif %}
+        </div>
       </div>
       <div class="card-list">
         {% for item in items %}
@@ -147,6 +156,36 @@ document.addEventListener('DOMContentLoaded', function () {
       card.remove();
       updateColumnCounter(columnId);
       showToast('Commande supprimée avec succès');
+    } catch (error) {
+      showToast('Erreur lors de la suppression', 'error');
+      console.error("Delete error:", error);
+    }
+  };
+
+  // Add delete all canceled function
+  window.deleteAllCanceled = async function() {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer toutes les commandes annulées ?')) {
+      return;
+    }
+
+    const canceledCards = document.querySelectorAll('#canceled .card');
+    const itemIds = Array.from(canceledCards).map(card =>
+      parseInt(card.getAttribute('data-item-id'))
+    );
+
+    try {
+      const response = await fetch("/admin/canceled_orders", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: itemIds })
+      });
+
+      if (!response.ok) throw new Error('Delete failed');
+
+      const data = await response.json();
+      canceledCards.forEach(card => card.remove());
+      updateColumnCounter('canceled');
+      showToast('Commandes annulées supprimées avec succès');
     } catch (error) {
       showToast('Erreur lors de la suppression', 'error');
       console.error("Delete error:", error);

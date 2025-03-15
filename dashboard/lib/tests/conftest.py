@@ -57,13 +57,13 @@ def db_engine(postgres_container):
 
 
 @pytest.fixture(scope="function")
-def insert_random_order_with_line_item_sample(db_engine):
+def insert_random_order_with_line_item_sample():
     file_path = APP_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
     with open(file_path, "r", encoding="utf-8") as f:
         order = json.load(f)
     parsed_order, line_items = parse_order(order)
-    DB_CLIENT.insert_into_table("orders", parsed_order, db_engine=db_engine)
-    DB_CLIENT.insert_into_table("line_items", line_items, db_engine=db_engine)
+    DB_CLIENT.insert_into_table("orders", parsed_order)
+    DB_CLIENT.insert_into_table("line_items", line_items)
 
 
 #  ------------------------------------------------------------------------------------

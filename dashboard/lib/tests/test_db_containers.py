@@ -10,7 +10,7 @@ def test_example(db_engine):
         assert count >= 4
 
 
-def test_rpc(db_engine):
+def test_rpc():
     result = DB_CLIENT.call_rpc(
         "check_delivery_men_around_point",
         {"in_shipping_lon": 4.31, "in_shipping_lat": 45.39},
@@ -18,13 +18,12 @@ def test_rpc(db_engine):
     assert result is not None
 
 
-def test_select_order(db_engine, insert_random_order_with_line_item_sample):
+def test_select_order(insert_random_order_with_line_item_sample):
     result = DB_CLIENT.select_from_table(
         "orders",
         select_columns="*",
         conditions={"email": "sign.pls.up@gmail.com"},
         limit=1,
         single=True,
-        db_engine=db_engine,
     )
     assert result is not None

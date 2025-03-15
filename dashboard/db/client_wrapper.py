@@ -68,7 +68,7 @@ class DBClient(metaclass=Singleton):
             response = SUPABASE_CLI.rpc(fn_name, params).execute()
             return response.data
 
-    def insert_into_table(self, table: str, record, db_engine=None):
+    def insert_into_table(self, table: str, record):
         if self.test_db_engine is not None:
             record = jsonify_needed_columns(record)
             if isinstance(record, list):
@@ -78,7 +78,7 @@ class DBClient(metaclass=Singleton):
                 query = sqlalchemy.text(
                     f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
                 )
-                with db_engine.begin() as conn:
+                with self.test_db_engine.begin() as conn:
                     result = conn.execute(query, record)
                     return result.rowcount
             else:
@@ -87,7 +87,7 @@ class DBClient(metaclass=Singleton):
                 query = sqlalchemy.text(
                     f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
                 )
-                with db_engine.begin() as conn:
+                with self.test_db_engine.begin() as conn:
                     result = conn.execute(query, record)
                     return result.rowcount
         else:
@@ -101,7 +101,6 @@ class DBClient(metaclass=Singleton):
         conditions: dict = None,
         limit: int = None,
         single: bool = False,
-        db_engine=None,
     ):
         conditions = conditions or {}
 
@@ -115,7 +114,7 @@ class DBClient(metaclass=Singleton):
             if limit:
                 query += f" LIMIT {limit}"
             sql_query = sqlalchemy.text(query)
-            with db_engine.connect() as conn:
+            with self.test_db_engine.connect() as conn:
                 result = conn.execute(sql_query, **conditions)
                 rows = result.fetchall()
             if single:

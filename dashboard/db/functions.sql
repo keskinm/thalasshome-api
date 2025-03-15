@@ -1,14 +1,3 @@
-CREATE OR REPLACE FUNCTION get_user_by_zone(command_zone text)
-RETURNS SETOF users
-LANGUAGE sql
-AS $$
-  SELECT * FROM users
-   WHERE users.zone = command_zone;
-$$;
-
-
-
-------------------------------------------------------------------
 
 
 CREATE OR REPLACE FUNCTION public.get_availability_calendar_within_75days(
@@ -91,24 +80,24 @@ $$;
 ------------------------------------------------------------------
 
 
+
 CREATE OR REPLACE FUNCTION public.check_delivery_men_around_point(
   in_shipping_lon float8,
   in_shipping_lat float8
 )
-RETURNS TABLE (
-    n_delivery_men integer
-)
+RETURNS SETOF users
 LANGUAGE sql STABLE AS
 $$
 WITH client AS (
   SELECT ST_SetSRID(ST_MakePoint(in_shipping_lon, in_shipping_lat), 4326)::geography AS client_geog
 )
-SELECT count(DISTINCT udz.user_id) as n_delivery_men
+SELECT DISTINCT ON (u.id) u.*
 FROM user_delivery_zones udz
-JOIN client c ON true
-WHERE ST_DWithin(
+JOIN client c ON ST_DWithin(
   udz.center_geog,
   c.client_geog,
   udz.radius_km * 1000
-);
+)
+JOIN users u ON udz.user_id = u.id
+ORDER BY u.id;
 $$;

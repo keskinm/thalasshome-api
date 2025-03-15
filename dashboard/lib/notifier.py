@@ -20,28 +20,30 @@ class Notifier:
         self.email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
 
     def __call__(self, order, line_items, test=False):
-        providers = self.get_providers(order, test=test)
+        providers = self.get_delivery_mens(order, test=test)
         tokens = self.create_tokens(order["id"], providers)
         self.notify_providers(providers, tokens, order, line_items)
 
     @staticmethod
-    def get_providers(order, test=False) -> list[dict]:
-        command_country = order["shipping_address"]["country"]
-        command_zip = order["shipping_address"]["zip"]
-        raise NotImplementedError(
-            "find_zone does not exists anymore, code will be update soon"
-        )
-        # command_zone = find_zone(command_zip, command_country)
+    def get_delivery_mens(order, test=False) -> list[dict]:
+        lat, lon = order["shipping_lat"], order["shipping_lon"]
 
-        providers = (
-            supabase_cli.rpc("get_user_by_zone", {"command_zone": command_zone})
+        delivery_mens = (
+            supabase_cli.rpc(
+                "check_delivery_men_around_point",
+                {
+                    "in_shipping_lon": lon,
+                    "in_shipping_lat": lat,
+                },
+            )
             .execute()
             .data
         )
-
         if test:
-            providers = list(filter(lambda x: "python" in x["username"], providers))
-        return providers
+            delivery_mens = list(
+                filter(lambda x: "python" in x["username"], delivery_mens)
+            )
+        return delivery_mens
 
     @staticmethod
     def create_tokens(order_id, providers: list[dict]) -> list[str]:

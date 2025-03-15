@@ -142,7 +142,7 @@ def check_availability():
 
     product_name = data["productName"]
     if not "jac" in product_name.lower():
-        n_delivery_men = (
+        delivery_mens = (
             supabase_cli.rpc(
                 "check_delivery_men_around_point",
                 {
@@ -150,14 +150,13 @@ def check_availability():
                     "in_shipping_lat": lat,
                 },
             )
-            .single()
             .execute()
-            .data["n_delivery_men"]
+            .data
         )
         return jsonify(
             {
                 "unavailable_dates": [],
-                "product_available": bool(n_delivery_men),
+                "product_available": bool(len(delivery_mens)),
                 "rent_duration_day": None,
             }
         )

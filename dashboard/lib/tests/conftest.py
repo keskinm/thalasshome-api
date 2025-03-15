@@ -30,12 +30,6 @@ def postgres_container():
 
 
 @pytest.fixture(autouse=True, scope="session")
-def set_testing_env():
-    """Used in custom db client wrapper."""
-    os.environ["TESTING"] = "true"
-
-
-@pytest.fixture(scope="session")
 def db_engine(postgres_container):
     engine = sqlalchemy.create_engine(postgres_container.get_connection_url())
     for sql_filepath_suffix in [

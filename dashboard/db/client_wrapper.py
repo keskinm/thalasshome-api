@@ -1,5 +1,3 @@
-import os
-
 import sqlalchemy
 from psycopg2.extras import Json
 
@@ -23,36 +21,6 @@ def jsonify_needed_columns(record):
         return record
 
 
-def env_checker(method):
-    def wrapped(*args, **kwargs):
-        if not "_" in method.__name__:
-            db_client = args[0]
-            test_db_engine_is_none = db_client.test_db_engine is None
-            is_test_env = os.environ.get("TESTING", "false").lower() == "true"
-            if is_test_env and test_db_engine_is_none:
-                raise ValueError(
-                    "Test db engine should be accessible in testing environment!"
-                )
-            elif not is_test_env and not test_db_engine_is_none:
-                raise ValueError(
-                    "Test db engine should not be provided for execution environment!"
-                )
-
-        result = method(*args, **kwargs)
-        return result
-
-    return wrapped
-
-
-def wrap_all_methods_with_env_checker(cls):
-    """Class decorator to wrap all methods of a class with a decorator."""
-    for attr_name, attr_value in cls.__dict__.items():
-        if callable(attr_value):
-            setattr(cls, attr_name, env_checker(attr_value))
-    return cls
-
-
-@wrap_all_methods_with_env_checker
 class DBClient(metaclass=Singleton):
     def __init__(self, test_db_engine=None):
         self.test_db_engine = test_db_engine

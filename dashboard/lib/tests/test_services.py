@@ -1,6 +1,6 @@
 """
 from unittest.mock import MagicMock
-
+import pytest
 @pytest.fixture(scope="function")
 def mock_supabase(mocker):
     return mocker.patch("dashboard.db.client.SUPABASE_CLI", autospec=True)

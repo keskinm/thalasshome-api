@@ -15,13 +15,14 @@ def postgres_container():
 @pytest.fixture(scope="session")
 def db_engine(postgres_container):
     engine = sqlalchemy.create_engine(postgres_container.get_connection_url())
-    for sql_file in [
-        "users.sql",
-        "orders.sql",
-        "locations.sql",
-        "insert_initial_data.sql",
+    for sql_filepath_suffix in [
+        "create/users.sql",
+        "create/orders.sql",
+        "create/locations.sql",
+        "create/insert_initial_data.sql",
+        "functions.sql",
     ]:
-        with open(DB_DIR / "create" / sql_file, "r") as f:
+        with open(DB_DIR / sql_filepath_suffix, "r") as f:
             sql = f.read()
         with engine.begin() as conn:
             conn.execute(sql)

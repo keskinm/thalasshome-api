@@ -152,13 +152,9 @@ class Notifier:
 
             notifier.notify_customer(provider)
             notifier.notify_admins(order, provider, line_items)
-            notifier.update_employee(order, provider)
 
             return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail
             contenant des informations supplémentaires pour votre commande. A bientôt ! """
-
-    def update_employee(self, order, provider):
-        pass
 
     def notify_customer(self, provider: dict):
         subject = "ThalassHome - Contact prestataire pour votre commande"

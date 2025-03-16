@@ -94,6 +94,7 @@ class Notifier:
 
     def accept_command(self, token_id):
         order_id, provider_username = token_id.split("|")
+
         order = (
             SUPABASE_CLI.table("orders")
             .select("*")

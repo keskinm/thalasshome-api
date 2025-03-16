@@ -50,13 +50,26 @@ def db_engine(postgres_container):
 
 
 @pytest.fixture(scope="function")
-def insert_random_order_with_line_item_sample(db_engine):
+def sample_order_line_item(db_engine):
     file_path = APP_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
     with open(file_path, "r", encoding="utf-8") as f:
         order = json.load(f)
     parsed_order, line_items = parse_order(order)
     DB_CLIENT.insert_into_table("orders", parsed_order)
     DB_CLIENT.insert_into_table("line_items", line_items)
+    yield (parsed_order, line_items)
+
+
+@pytest.fixture
+def sample_provider():
+    _user = DB_CLIENT.select_from_table(
+        "users",
+        "*",
+        conditions=None,
+        limit=1,
+        single=True,
+    )
+    yield _user
 
 
 @pytest.fixture
@@ -104,16 +117,6 @@ def sample_line_items():
             "order_id": 5555123486903,
         }
     ]
-
-
-@pytest.fixture
-def sample_provider():
-    return {
-        "id": "456",
-        "username": "provider1",
-        "email": "provider@test.com",
-        "phone_number": "9876543210",
-    }
 
 
 #  ------------------------------------------------------------------------------------

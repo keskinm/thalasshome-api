@@ -20,7 +20,7 @@ def test_rpc(db_engine):
     assert result is not None
 
 
-def test_select_order(insert_random_order_with_line_item_sample):
+def test_select_order(sample_order_line_item):
     result = DB_CLIENT.select_from_table(
         "orders",
         select_columns="*",

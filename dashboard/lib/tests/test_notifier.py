@@ -30,7 +30,7 @@ def test_notify_providers(mock_smtp, sample_order, sample_provider, sample_line_
 
 
 def test_notify_customer(mock_smtp, sample_provider):
-    notifier = Notifier()
+    notifier = Notifier(flask_address="test.com")
     notifier.notify_customer(sample_provider)
 
     mock_smtp.return_value.__enter__.return_value.sendmail.assert_called_once()
@@ -41,7 +41,7 @@ def test_notify_customer(mock_smtp, sample_provider):
 
 
 def test_notify_admins(mock_smtp, sample_order, sample_provider, sample_line_items):
-    notifier = Notifier()
+    notifier = Notifier(flask_address="test.com")
     notifier.notify_admins(sample_order, sample_provider, sample_line_items)
 
     mock_smtp.return_value.__enter__.return_value.sendmail.assert_called_once()
@@ -51,22 +51,12 @@ def test_notify_admins(mock_smtp, sample_order, sample_provider, sample_line_ite
     assert "Commande prise en charge par un prestataire" in args[2]
 
 
-def test_accept_command(
-    mocker, mock_smtp, sample_order, sample_provider, sample_line_items
-):
-    mock_supabase = MagicMock()
-    mock_supabase.table.return_value.select.return_value.eq.return_value.limit.return_value.single.return_value.execute.return_value.data = (
-        sample_order
+def test_accept_command(db_engine, mock_smtp, sample_provider, sample_order_line_item):
+    sample_order, sample_line_items = sample_order_line_item
+    notifier = Notifier(flask_address="test.com")
+    result = notifier.accept_command(
+        f"{sample_order['id']}|{sample_provider['username']}"
     )
-    mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = (
-        sample_line_items
-    )
-
-    with patch("dashboard.lib.notifier.SUPABASE_CLI", mock_supabase):
-        notifier = Notifier()
-        result = notifier.accept_command(
-            f"{sample_order['id']}|{sample_provider['username']}"
-        )
 
     assert "La prise en charge de la commande a bien été accepté" in result
     assert (

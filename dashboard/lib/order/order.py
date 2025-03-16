@@ -68,10 +68,10 @@ def get_address(item):
     adr_item = item["shipping_address"]
     adr = " ".join(
         [
-            adr_item["city"] or "",
-            adr_item["zip"] or "",
-            adr_item["address1"] or "",
-            adr_item["address2"] or "",
+            adr_item.get("city", "") or "",
+            adr_item.get("zip", "") or "",
+            adr_item.get("address1", "") or "",
+            adr_item.get("address2", "") or "",
         ]
     )
     return adr

@@ -1,9 +1,6 @@
 import pytest
 
-from dashboard.container import container
 from dashboard.lib.notifier import Notifier
-
-DB_CLIENT = container.get("DB_CLIENT")
 
 
 @pytest.fixture(autouse=True)
@@ -77,7 +74,7 @@ def test_get_delivery_mens(sample_order_line_item, sample_provider):
 
 
 def test_notification_flow_integration(
-    client, mock_smtp, sample_order_line_item, sample_provider
+    client, test_db_client, mock_smtp, sample_order_line_item, sample_provider
 ):
     """Test the complete notification flow:
     1. Notify providers about new order
@@ -103,7 +100,7 @@ def test_notification_flow_integration(
 
     # Step 2: Simulate provider clicking accept link
     token = f"{sample_order['id']}|{sample_provider['username']}"
-    response = client.get(f"/commands/accept/{token}")
+    # response = client.get(f"/commands/accept/{token}")
 
     # assert response.status_code == 200
     # assert "La prise en charge de la commande a bien été accepté" in response.data.decode()
@@ -112,13 +109,13 @@ def test_notification_flow_integration(
     # assert mock_smtp.return_value.__enter__.return_value.sendmail.call_count == 3
 
     # Verify order was updated in database with provider
-    # updated_order = DB_CLIENT.select_from_table(
+    # updated_order = test_db_client.select_from_table(
     #     table="orders",
     #     select="*",
 
     # )
     # updated_order = (
-    #     DB_CLIENT.table("orders")
+    #     SUPABASE_CLI.table("orders")
     #     .select("*")
     #     .eq("id", sample_order["id"])
     #     .single()

@@ -134,56 +134,20 @@ class Notifier:
                 "id", order_id
             ).execute()
 
-            html_customer_phone_number = (
-                "Numéro du client : {phone} <br>".format(phone=order["phone"])
-                if "phone" in order
-                else ""
-            )
-            html_customer_mail = (
-                "E-mail : {mail} <br>".format(mail=order["email"])
-                if "email" in order
-                else ""
-            )
-
-            text_customer_phone_number = (
-                "Numéro du client : {phone} \n".format(phone=order["phone"])
-                if "phone" in order
-                else ""
-            )
-            text_customer_mail = (
-                "E-mail : {mail} \n".format(mail=order["email"])
-                if "email" in order
-                else ""
-            )
-
             plain_customer_name = get_name(order)
-            text_customer_name = "Nom : {name} \n".format(name=plain_customer_name)
-            html_customer_name = "Nom : {name} <br>".format(name=plain_customer_name)
 
-            text = """\
-                Merci d'avoir accepté la commande ! Voici les détails conçernant le client :
-                {customer_phone_number}
-                {customer_mail}
-                {customer_name}""".format(
-                customer_phone_number=text_customer_phone_number,
-                customer_mail=text_customer_mail,
-                customer_name=text_customer_name,
-            )
-            html = """\
-                <html>
-                  <body>
-                    <p>Merci d'avoir accepté la commande ! Voici les détails conçernant le client : <br>
-                    {customer_phone_number}
-                    {customer_mail}
-                    {customer_name}
-                    </p>
-                  </body>
-                </html>
-                """.format(
-                customer_phone_number=html_customer_phone_number,
-                customer_mail=html_customer_mail,
-                customer_name=html_customer_name,
-            )
+            template_vars = {
+                "phone": order.get("phone", ""),
+                "email": order.get("email", ""),
+                "customer_name": plain_customer_name,
+            }
+
+            text_template = self.jinja_env.get_template("accept_command.txt")
+            html_template = self.jinja_env.get_template("accept_command.html")
+
+            text = text_template.render(**template_vars)
+            html = html_template.render(**template_vars)
+
             subject = "Détails sur votre commande ThalassHome"
             self.send_mail(provider_email, subject, html, text)
 
@@ -199,14 +163,14 @@ class Notifier:
 
     def notify_customer(self, provider: dict):
         subject = "ThalassHome - Contact prestataire pour votre commande"
-        html = """<p>
-                    Voici les coordonnées de notre prestataire qui se charge de votre commande : <br>
-                    {provider_email}
-                    {provider_number}
-                  </p>
-               """.format(
-            provider_email=provider["email"], provider_number=provider["phone_number"]
-        )
+
+        template_vars = {
+            "provider_email": provider["email"],
+            "provider_number": provider["phone_number"],
+        }
+
+        html_template = self.jinja_env.get_template("notify_customer.html")
+        html = html_template.render(**template_vars)
 
         self.send_mail(provider["email"], subject, html)
 

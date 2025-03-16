@@ -1,0 +1,9 @@
+<html>
+  <body>
+    <p>Merci d'avoir accepté la commande ! Voici les détails conçernant le client : <br>
+    {% if phone %}Numéro du client : {{ phone }}<br>{% endif %}
+    {% if email %}E-mail : {{ email }}<br>{% endif %}
+    Nom : {{ customer_name }}<br>
+    </p>
+  </body>
+</html>

@@ -33,8 +33,11 @@ class Notifier:
     @classmethod
     def notify(cls, order, line_items, test=False, flask_address=""):
         notifier = cls(flask_address)
-        logging.info("notifying client with %s", notifier.flask_address)
         providers = notifier.get_delivery_mens(order, test=test)
+        logging.info(
+            "notified providers: %s for a new order!",
+            [(d.username, d.email) for d in providers],
+        )
         tokens = notifier.create_tokens(order["id"], providers)
         notifier.notify_providers(providers, tokens, order, line_items)
 

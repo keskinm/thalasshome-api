@@ -24,7 +24,9 @@ class Notifier:
     template_dir = str(APP_DIR / "templates" / "notification")
 
     def __init__(self, flask_address=""):
-        self.flask_address = flask_address or request.host_url.rstrip("/")
+        self.flask_address = (
+            flask_address or urllib.parse.urlparse(request.host_url).netloc
+        )
         self.jinja_env = Environment(loader=FileSystemLoader(self.template_dir))
 
     @classmethod

@@ -20,7 +20,7 @@ class Notifier:
     protocol = "http"
     sender_email = "spa.detente.france@gmail.com"
     email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
-    template_dir = str(APP_DIR / "templates")
+    template_dir = str(APP_DIR / "templates" / "notification")
 
     def __init__(self, flask_address=""):
         self.flask_address = flask_address or request.host_url.rstrip("/")

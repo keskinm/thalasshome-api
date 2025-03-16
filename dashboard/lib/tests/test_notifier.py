@@ -118,5 +118,4 @@ def test_notification_flow_integration(
         single=True,
         limit=1,
     )
-    breakpoint()
     assert updated_order["delivery_men_id"] == sample_provider["id"]

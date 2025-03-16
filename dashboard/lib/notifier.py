@@ -12,7 +12,7 @@ from dashboard.constants import APP_DIR
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_name, get_ship
 
-SUPABASE_CLI = container.get("SUPABASE_CLI")
+DB_CLIENT = container.get("DB_CLIENT")
 
 notifier_bp = Blueprint("notifier", __name__)
 
@@ -40,16 +40,12 @@ class Notifier:
     def get_delivery_mens(order, test=False) -> list[dict]:
         lat, lon = order["shipping_lat"], order["shipping_lon"]
 
-        delivery_mens = (
-            SUPABASE_CLI.rpc(
-                "check_delivery_men_around_point",
-                {
-                    "in_shipping_lon": lon,
-                    "in_shipping_lat": lat,
-                },
-            )
-            .execute()
-            .data
+        delivery_mens = DB_CLIENT.call_rpc(
+            "check_delivery_men_around_point",
+            {
+                "in_shipping_lon": lon,
+                "in_shipping_lat": lat,
+            },
         )
         if test:
             delivery_mens = list(
@@ -99,14 +95,8 @@ class Notifier:
         decoded_token = urllib.parse.unquote(token_id)
         order_id, provider_username = decoded_token.split("|")
 
-        order = (
-            SUPABASE_CLI.table("orders")
-            .select("*")
-            .eq("id", order_id)
-            .limit(1)
-            .single()
-            .execute()
-            .data
+        order = DB_CLIENT.select_from_table(
+            "orders", select_columns="*", conditions={"id": order_id}, single=True
         )
 
         if order is None:
@@ -115,27 +105,26 @@ class Notifier:
             return "La commande a déjà été accepté par un autre livreur."
 
         else:
-            provider = (
-                SUPABASE_CLI.table("users")
-                .select("*")
-                .eq("username", provider_username)
-                .limit(1)
-                .single()
-                .execute()
-                .data
+            provider = DB_CLIENT.select_from_table(
+                "users",
+                select_columns="*",
+                conditions={"username": provider_username},
+                limit=1,
+                single=True,
             )
-            line_items = (
-                SUPABASE_CLI.table("line_items")
-                .select("*")
-                .eq("order_id", order_id)
-                .execute()
-                .data
+            line_items = DB_CLIENT.select_from_table(
+                "line_items",
+                select_columns="*",
+                conditions={"order_id": order_id},
             )
+
             provider_email = provider["email"]
 
-            SUPABASE_CLI.table("orders").update({"delivery_men_id": provider["id"]}).eq(
-                "id", order_id
-            ).execute()
+            DB_CLIENT.update_table(
+                "orders",
+                {"delivery_men_id": provider["id"]},
+                conditions={"id": order_id},
+            )
 
             plain_customer_name = get_name(order)
 

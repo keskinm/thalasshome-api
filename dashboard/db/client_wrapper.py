@@ -120,3 +120,25 @@ class DBClient(metaclass=Singleton):
         else:
             response = self.supabase_client.table(table).delete(conditions).execute()
             return response.data
+
+    def update_table(self, table: str, record: dict, conditions: dict):
+        if self.test_db_engine is not None:
+            import sqlalchemy
+
+            set_str = ", ".join(f"{key} = :{key}" for key in record.keys())
+            where_str = " AND ".join(
+                f"{key} = :cond_{key}" for key in conditions.keys()
+            )
+            query = sqlalchemy.text(f"UPDATE {table} SET {set_str} WHERE {where_str}")
+            params = record.copy()
+            for key, value in conditions.items():
+                params[f"cond_{key}"] = value
+            with self.test_db_engine.begin() as conn:
+                result = conn.execute(query, params)
+                return result.rowcount
+        else:
+            query_builder = self.supabase_client.table(table).update(record)
+            for key, value in conditions.items():
+                query_builder = query_builder.eq(key, value)
+            response = query_builder.execute()
+            return response.data

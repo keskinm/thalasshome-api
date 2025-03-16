@@ -55,9 +55,9 @@ def get_ship(_item):
         ship += " --+-- " if start_separator else ""
         ship += str(item["quantity"]) + " " + item["product"] + " "
 
-        ship += " ".join(["Du", item["from_date"], "  Au", item["to_date"]]).replace(
-            "\\", ""
-        )
+        ship += " ".join(
+            ["Du", str(item["from_date"]), "  Au", str(item["to_date"])]
+        ).replace("\\", "")
 
         amount += item["price"]
 

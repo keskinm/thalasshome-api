@@ -102,3 +102,21 @@ class DBClient(metaclass=Singleton):
                 query_builder = query_builder.single()
             response = query_builder.execute()
             return response.data
+
+    def delete_from_table(self, table: str, conditions: dict):
+        if self.test_db_engine is not None:
+            import sqlalchemy
+
+            query = f"DELETE FROM {table}"
+            if conditions:
+                cond_str = " AND ".join(
+                    [f"{key} = :{key}" for key in conditions.keys()]
+                )
+                query += f" WHERE {cond_str}"
+            sql_query = sqlalchemy.text(query)
+            with self.test_db_engine.begin() as conn:
+                result = conn.execute(sql_query, conditions)
+                return result.rowcount
+        else:
+            response = self.supabase_client.table(table).delete(conditions).execute()
+            return response.data

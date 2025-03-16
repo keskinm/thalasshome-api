@@ -10,7 +10,7 @@ def test_example(db_engine):
         assert count >= 4
 
 
-def test_rpc():
+def test_rpc(db_engine):
     result = DB_CLIENT.call_rpc(
         "check_delivery_men_around_point",
         {"in_shipping_lon": 4.31, "in_shipping_lat": 45.39},

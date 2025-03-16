@@ -3,8 +3,6 @@ from psycopg2.extras import Json
 
 from dashboard.container import Singleton, container
 
-SUPABASE_CLI = container.get("SUPABASE_CLI")
-
 
 def jsonify_needed_columns(record):
     """
@@ -22,8 +20,9 @@ def jsonify_needed_columns(record):
 
 
 class DBClient(metaclass=Singleton):
-    def __init__(self, test_db_engine=None):
+    def __init__(self, test_db_engine=None, supabase_client=None):
         self.test_db_engine = test_db_engine
+        self.supabase_client = supabase_client or container.get("SUPABASE_CLI")
 
     def call_rpc(self, fn_name: str, params: dict):
         if self.test_db_engine is not None:
@@ -33,7 +32,7 @@ class DBClient(metaclass=Singleton):
                 result = conn.execute(query, **params)
                 return result.fetchall()
         else:
-            response = SUPABASE_CLI.rpc(fn_name, params).execute()
+            response = self.supabase_client.rpc(fn_name, params).execute()
             return response.data
 
     def insert_into_table(self, table: str, record):
@@ -59,7 +58,7 @@ class DBClient(metaclass=Singleton):
                     result = conn.execute(query, record)
                     return result.rowcount
         else:
-            response = SUPABASE_CLI.table(table).insert(record).execute()
+            response = self.supabase_client.table(table).insert(record).execute()
             return response.data
 
     def select_from_table(
@@ -89,7 +88,7 @@ class DBClient(metaclass=Singleton):
                 return rows[0] if rows else None
             return rows
         else:
-            query_builder = SUPABASE_CLI.table(table).select(select_columns)
+            query_builder = self.supabase_client.table(table).select(select_columns)
             for key, value in conditions.items():
                 query_builder = query_builder.eq(key, value)
             if limit:

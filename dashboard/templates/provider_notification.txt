@@ -1,0 +1,5 @@
+Bonjour, une nouvelle commande à livrer est disponible !
+Commande:  {{ ship }}
+Adresse de la commande : {{ adr }}
+Total restant pour vous : {{ amount }}€
+Pour accepter la commande : {{ protocol }}://{{ flask_address }}/commands/accept/{{ token_id }}

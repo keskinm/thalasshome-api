@@ -5,7 +5,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from flask import Blueprint, request
+from jinja2 import Environment, FileSystemLoader
 
+from dashboard.constants import APP_DIR
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_name, get_ship
 
@@ -18,9 +20,11 @@ class Notifier:
     protocol = "http"
     sender_email = "spa.detente.france@gmail.com"
     email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
+    template_dir = str(APP_DIR / "templates")
 
     def __init__(self, flask_address=""):
         self.flask_address = flask_address or request.host_url.rstrip("/")
+        self.jinja_env = Environment(loader=FileSystemLoader(self.template_dir))
 
     @classmethod
     def notify(cls, order, line_items, test=False, flask_address=""):
@@ -67,44 +71,23 @@ class Notifier:
         adr = get_address(order)
         ship, amount = get_ship(line_items)
 
+        template_vars = {
+            "protocol": self.protocol,
+            "flask_address": self.flask_address,
+            "ship": ship,
+            "adr": adr,
+            "amount": amount,
+        }
+
+        text_template = self.jinja_env.get_template("provider_notification.txt")
+        html_template = self.jinja_env.get_template("provider_notification.html")
+
         for i in range(len(providers)):
             provider = providers[i]
-            token = tokens[i]
+            template_vars["token_id"] = tokens[i]
 
-            text = """\
-            Bonjour, une nouvelle commande à livrer est disponible !
-            Commande:  {ship}
-            Adresse de la commande : {adr}
-            Total restant pour vous : {amount}€
-            Pour accepter la commande : {protocol}://{flask_address}/commands/accept/{token_id}""".format(
-                protocol=self.protocol,
-                flask_address=self.flask_address,
-                token_id=token,
-                ship=ship,
-                adr=adr,
-                amount=amount,
-            )
-
-            html = """\
-            <html>
-              <body>
-                <p>Bonjour, une nouvelle commande à livrer est disponible !<br>
-                ship: {ship} <br>
-                addr: {adr} <br>
-                <strong> Total restant pour vous: {amount}€ </strong> <br>
-                <a href="{protocol}://{flask_address}/commands/accept/{token_id}">Je me charge de cette commande !</a><br>
-                </p>
-              </body>
-            </html>
-            """.format(
-                ship=ship,
-                adr=adr,
-                protocol=self.protocol,
-                flask_address=self.flask_address,
-                token_id=token,
-                amount=amount,
-            )
-
+            text = text_template.render(**template_vars)
+            html = html_template.render(**template_vars)
             subject = "Une nouvelle commande ThalassHome !"
 
             self.send_mail(provider["email"], subject, html, text)

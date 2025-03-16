@@ -1,6 +1,3 @@
-import sqlalchemy
-from psycopg2.extras import Json
-
 from dashboard.container import Singleton, container
 
 
@@ -8,6 +5,8 @@ def jsonify_needed_columns(record):
     """
     Wrapper for JSONB type columns.
     """
+    from psycopg2.extras import Json
+
     if isinstance(record, list):
         return [jsonify_needed_columns(r) for r in record]
     elif isinstance(record, dict):
@@ -26,6 +25,8 @@ class DBClient(metaclass=Singleton):
 
     def call_rpc(self, fn_name: str, params: dict):
         if self.test_db_engine is not None:
+            import sqlalchemy
+
             placeholders = ", ".join(":" + key for key in params.keys())
             query = sqlalchemy.text(f"SELECT * FROM public.{fn_name}({placeholders})")
             with self.test_db_engine.connect() as conn:
@@ -37,6 +38,8 @@ class DBClient(metaclass=Singleton):
 
     def insert_into_table(self, table: str, record):
         if self.test_db_engine is not None:
+            import sqlalchemy
+
             record = jsonify_needed_columns(record)
             if isinstance(record, list):
                 keys = record[0].keys()
@@ -72,6 +75,8 @@ class DBClient(metaclass=Singleton):
         conditions = conditions or {}
 
         if self.test_db_engine is not None:
+            import sqlalchemy
+
             query = f"SELECT {select_columns} FROM {table}"
             if conditions:
                 cond_str = " AND ".join(

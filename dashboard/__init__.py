@@ -5,6 +5,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from dashboard.constants import ENV_DIR, REQUIRED_VARIABLES
+from dashboard.lib.logging_config import setup_logging
 
 
 def load_yaml_env(path_to_yaml):
@@ -24,6 +25,8 @@ load_yaml_env(ENV_DIR / "danger.yaml")
 
 
 def create_app(testing=False):
+    setup_logging(testing)
+
     from dashboard.registerer import EOF_REGISTERER
 
     for var in REQUIRED_VARIABLES:

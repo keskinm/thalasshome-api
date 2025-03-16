@@ -1,15 +1,8 @@
 import logging.config
-import os
-from pathlib import Path
-
-LOG_DIR = Path("/var/log/thalasshome")
 
 
 def setup_logging(testing=False):
     """Configure logging for the application"""
-    if not LOG_DIR.exists() and not testing:
-        os.makedirs(LOG_DIR, exist_ok=True)
-
     config = {
         "version": 1,
         "disable_existing_loggers": False,

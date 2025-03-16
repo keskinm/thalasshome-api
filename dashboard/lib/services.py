@@ -4,6 +4,7 @@ import hmac
 import json
 import logging
 import os
+import urllib.parse
 
 import requests
 from flask import Blueprint, current_app, jsonify, redirect, request
@@ -201,11 +202,14 @@ def test_order_creation_webhook():
         SHOPIFY_WEBHOOK_SECRET.encode("utf-8"), data.encode("utf-8"), hashlib.sha256
     ).digest()
     computed_hmac = base64.b64encode(digest).decode("utf-8")
-
+    _base_url = f"http://{urllib.parse.urlparse(request.host_url).netloc}"
     with current_app.test_client() as client:
         headers = {"X-Shopify-Hmac-SHA256": computed_hmac}
         response = client.post(
-            "/services/order_creation_webhook", data=data, headers=headers
+            "/services/order_creation_webhook",
+            data=data,
+            headers=headers,
+            base_url=_base_url,
         )
         logging.info(response.status_code, response.data.decode("utf-8"))
 

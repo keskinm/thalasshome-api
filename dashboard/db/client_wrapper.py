@@ -30,8 +30,8 @@ class DBClient(metaclass=Singleton):
             placeholders = ", ".join(":" + key for key in params.keys())
             query = sqlalchemy.text(f"SELECT * FROM public.{fn_name}({placeholders})")
             with self.test_db_engine.connect() as conn:
-                result = conn.execute(query, **params)
-                return result.fetchall()
+                result = conn.execute(query, params)
+                return result.mappings().all()
         else:
             response = self.supabase_client.rpc(fn_name, params).execute()
             return response.data
@@ -87,8 +87,8 @@ class DBClient(metaclass=Singleton):
                 query += f" LIMIT {limit}"
             sql_query = sqlalchemy.text(query)
             with self.test_db_engine.connect() as conn:
-                result = conn.execute(sql_query, **conditions)
-                rows = result.fetchall()
+                result = conn.execute(sql_query, conditions)
+                rows = result.mappings().all()
             if single:
                 return rows[0] if rows else None
             return rows

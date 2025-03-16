@@ -41,7 +41,7 @@ def db_engine(postgres_container):
         with open(DB_DIR / sql_filepath_suffix, "r") as f:
             sql = f.read()
         with engine.begin() as conn:
-            conn.execute(sql)
+            conn.execute(sqlalchemy.text(sql))
     DB_CLIENT.test_db_engine = engine
     return engine
 

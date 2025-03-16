@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from dashboard.container import container
 
 DB_CLIENT = container.get("DB_CLIENT")
@@ -5,7 +7,7 @@ DB_CLIENT = container.get("DB_CLIENT")
 
 def test_example(db_engine):
     with db_engine.connect() as conn:
-        result = conn.execute("SELECT COUNT(*) FROM users;")
+        result = conn.execute(sqlalchemy.text("SELECT COUNT(*) FROM users;"))
         count = result.scalar()
         assert count >= 4
 

@@ -1,3 +1,6 @@
+import email
+from pathlib import Path
+
 import pytest
 
 from dashboard.lib.notifier import Notifier
@@ -8,9 +11,38 @@ def mock_env_vars(monkeypatch):
     monkeypatch.setenv("EMAIL_SENDER_PASSWORD", "test_password")
 
 
+@pytest.fixture(autouse=True)
+def setup_inspect_dir():
+    inspect_dir = Path("inspect")
+    inspect_dir.mkdir(exist_ok=True)
+    yield
+
+
+def save_email_content(email_str: str, filename: str):
+    msg = email.message_from_string(email_str)
+    for part in msg.walk():
+        if part.get_content_type() == "text/html":
+            html_content = part.get_payload(decode=True).decode()
+            with open(f"inspect/{filename}.html", "w", encoding="utf-8") as f:
+                f.write(html_content)
+            break
+
+
 @pytest.fixture
 def mock_smtp(mocker):
-    return mocker.patch("smtplib.SMTP_SSL")
+    smtp_mock = mocker.patch("smtplib.SMTP_SSL")
+    mock_sendmail = mocker.Mock()
+
+    def sendmail_and_save(*args):
+        # args[2] contains the email content
+        subject = email.message_from_string(args[2])["Subject"]
+        sanitized_subject = "".join(c if c.isalnum() else "_" for c in subject)
+        save_email_content(args[2], f"email_{sanitized_subject}")
+        return None  # Return None instead of calling the mock again
+
+    mock_sendmail.side_effect = sendmail_and_save
+    smtp_mock.return_value.__enter__.return_value.sendmail = mock_sendmail
+    return smtp_mock
 
 
 def test_notify_providers(mock_smtp, sample_order, sample_provider, sample_line_items):

@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from dashboard.lib.notifier import Notifier
@@ -64,21 +62,10 @@ def test_accept_command(db_engine, mock_smtp, sample_provider, sample_order_line
     )  # Provider + Customer + Admin notifications
 
 
-def test_get_delivery_mens(mocker, sample_order):
-    mock_supabase = MagicMock()
-    mock_supabase.rpc.return_value.execute.return_value.data = [
-        {"username": "provider1"}
-    ]
+def test_get_delivery_mens(sample_order_line_item, sample_provider):
+    sample_order, sample_line_items = sample_order_line_item
 
-    with patch("dashboard.lib.notifier.SUPABASE_CLI", mock_supabase):
-        delivery_mens = Notifier.get_delivery_mens(sample_order)
+    delivery_mens = Notifier.get_delivery_mens(sample_order)
 
     assert len(delivery_mens) == 1
-    assert delivery_mens[0]["username"] == "provider1"
-    mock_supabase.rpc.assert_called_once_with(
-        "check_delivery_men_around_point",
-        {
-            "in_shipping_lon": sample_order["shipping_lon"],
-            "in_shipping_lat": sample_order["shipping_lat"],
-        },
-    )
+    assert "python" in delivery_mens[0]["username"]

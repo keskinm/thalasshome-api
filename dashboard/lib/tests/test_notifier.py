@@ -53,9 +53,8 @@ def test_accept_command(
     test_db_client, mock_smtp, sample_provider, sample_order_line_item
 ):
     sample_order, sample_line_items = sample_order_line_item
-    notifier = Notifier(flask_address="test.com")
-    result = notifier.accept_command(
-        f"{sample_order['id']}|{sample_provider['username']}"
+    result = Notifier.accept_command(
+        f"{sample_order['id']}|{sample_provider['username']}", flask_address="test.com"
     )
 
     assert "La prise en charge de la commande a bien été accepté" in result

@@ -32,7 +32,7 @@ class Notifier:
 
     @classmethod
     def notify(cls, order, line_items, test=False, flask_address=""):
-        notifier = cls(flask_address)
+        notifier = cls(flask_address=flask_address)
         providers = notifier.get_delivery_mens(order, test=test)
         logging.info(
             "notified providers: %s for a new order!",
@@ -96,7 +96,9 @@ class Notifier:
 
             self.send_mail(provider["email"], subject, html, text)
 
-    def accept_command(self, token_id):
+    @classmethod
+    def accept_command(cls, token_id, flask_address=""):
+        notifier = cls(flask_address=flask_address)
         decoded_token = urllib.parse.unquote(token_id)
         order_id, provider_username = decoded_token.split("|")
 
@@ -139,18 +141,18 @@ class Notifier:
                 "customer_name": plain_customer_name,
             }
 
-            text_template = self.jinja_env.get_template("accept_command.txt")
-            html_template = self.jinja_env.get_template("accept_command.html")
+            text_template = notifier.jinja_env.get_template("accept_command.txt")
+            html_template = notifier.jinja_env.get_template("accept_command.html")
 
             text = text_template.render(**template_vars)
             html = html_template.render(**template_vars)
 
             subject = "Détails sur votre commande ThalassHome"
-            self.send_mail(provider_email, subject, html, text)
+            notifier.send_mail(provider_email, subject, html, text)
 
-            self.notify_customer(provider)
-            self.notify_admins(order, provider, line_items)
-            self.update_employee(order, provider)
+            notifier.notify_customer(provider)
+            notifier.notify_admins(order, provider, line_items)
+            notifier.update_employee(order, provider)
 
             return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail
             contenant des informations supplémentaires pour votre commande. A bientôt ! """
@@ -212,5 +214,5 @@ class Notifier:
 
 
 @notifier_bp.route("/commands/accept/<token_id>", methods=["GET"])
-def _accept_command(token_id):
-    return Notifier().accept_command(token_id)
+def accept_command(token_id):
+    return Notifier.accept_command(token_id)

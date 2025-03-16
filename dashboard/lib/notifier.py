@@ -1,6 +1,7 @@
 import os
 import smtplib
 import ssl
+import urllib.parse
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -93,7 +94,8 @@ class Notifier:
             self.send_mail(provider["email"], subject, html, text)
 
     def accept_command(self, token_id):
-        order_id, provider_username = token_id.split("|")
+        decoded_token = urllib.parse.unquote(token_id)
+        order_id, provider_username = decoded_token.split("|")
 
         order = (
             SUPABASE_CLI.table("orders")

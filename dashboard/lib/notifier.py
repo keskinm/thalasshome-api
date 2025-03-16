@@ -15,16 +15,19 @@ notifier_bp = Blueprint("notifier", __name__)
 
 
 class Notifier:
-    def __init__(self):
-        self.protocol = "http"
-        self.sender_email = "spa.detente.france@gmail.com"
-        self.flask_address = request.host_url.rstrip("/")
-        self.email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
+    protocol = "http"
+    sender_email = "spa.detente.france@gmail.com"
+    email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
 
-    def __call__(self, order, line_items, test=False):
-        providers = self.get_delivery_mens(order, test=test)
-        tokens = self.create_tokens(order["id"], providers)
-        self.notify_providers(providers, tokens, order, line_items)
+    def __init__(self, flask_address=""):
+        self.flask_address = flask_address or request.host_url.rstrip("/")
+
+    @classmethod
+    def notify(cls, order, line_items, test=False, flask_address=""):
+        notifier = cls(flask_address)
+        providers = notifier.get_delivery_mens(order, test=test)
+        tokens = notifier.create_tokens(order["id"], providers)
+        notifier.notify_providers(providers, tokens, order, line_items)
 
     @staticmethod
     def get_delivery_mens(order, test=False) -> list[dict]:

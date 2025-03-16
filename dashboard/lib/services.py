@@ -42,8 +42,6 @@ services_bp = Blueprint("services", __name__)
 
 @services_bp.route("/order_creation_webhook", methods=["POST"])
 def order_creation_webhook():
-    notifier = Notifier()
-
     data = request.get_data()
 
     provided_header = request.headers.get("X-Shopify-Hmac-SHA256")
@@ -59,7 +57,7 @@ def order_creation_webhook():
     DB_CLIENT.insert_into_table("orders", parsed_order)
     DB_CLIENT.insert_into_table("line_items", line_items)
 
-    notifier(parsed_order, line_items)
+    Notifier.notify(parsed_order, line_items)
 
     return "ok", 200
 
@@ -232,5 +230,5 @@ def test_notification():
         .execute()
         .data
     )
-    Notifier()(order, line_items, test=True)
+    Notifier.notify(order, line_items, test=True)
     return redirect("/")

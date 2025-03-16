@@ -100,26 +100,22 @@ def test_notification_flow_integration(
 
     # Step 2: Simulate provider clicking accept link
     token = f"{sample_order['id']}|{sample_provider['username']}"
-    # response = client.get(f"/commands/accept/{token}")
+    response = client.get(f"notifier/commands/accept/{token}")
 
-    # assert response.status_code == 200
-    # assert "La prise en charge de la commande a bien été accepté" in response.data.decode()
+    assert response.status_code == 200
+    assert (
+        "La prise en charge de la commande a bien été accepté" in response.data.decode()
+    )
 
-    # # Verify all notification emails were sent (provider confirmation + customer + admin)
-    # assert mock_smtp.return_value.__enter__.return_value.sendmail.call_count == 3
+    # Verify all notification emails were sent (provider confirmation + customer + admin)
+    assert mock_smtp.return_value.__enter__.return_value.sendmail.call_count == 3
 
     # Verify order was updated in database with provider
-    # updated_order = test_db_client.select_from_table(
-    #     table="orders",
-    #     select="*",
-
-    # )
-    # updated_order = (
-    #     SUPABASE_CLI.table("orders")
-    #     .select("*")
-    #     .eq("id", sample_order["id"])
-    #     .single()
-    #     .execute()
-    #     .data
-    # )
-    # assert updated_order["delivery_men_id"] == sample_provider["id"]
+    updated_order = test_db_client.select_from_table(
+        "orders",
+        select_columns="*",
+        conditions={"id": sample_order["id"]},
+        single=True,
+        limit=1,
+    )
+    assert updated_order["delivery_men_id"] == sample_provider["id"]

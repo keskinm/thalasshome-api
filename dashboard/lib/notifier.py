@@ -110,9 +110,8 @@ class Notifier:
         )
 
         if order is None:
-            return "La commande n'existe plus. Il ne s'agissait peut-être que d'une commande test pour le développement."
-
-        if "provider" in order:
+            return "La commande n'existe plus."
+        elif order["delivery_men_id"]:
             return "La commande a déjà été accepté par un autre livreur."
 
         else:
@@ -134,7 +133,6 @@ class Notifier:
             )
             provider_email = provider["email"]
 
-            order["provider"] = {"username": provider_username, "email": provider_email}
             SUPABASE_CLI.table("orders").update({"delivery_men_id": provider["id"]}).eq(
                 "id", order_id
             ).execute()

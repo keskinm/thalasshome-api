@@ -21,11 +21,18 @@ def setup_inspect_dir():
 def save_email_content(email_str: str, filename: str):
     msg = email.message_from_string(email_str)
     for part in msg.walk():
-        if part.get_content_type() == "text/html":
-            html_content = part.get_payload(decode=True).decode()
+        content_type = part.get_content_type()
+        payload = part.get_payload(decode=True)
+
+        if not payload:
+            continue
+
+        if content_type == "text/html":
             with open(f"inspect/{filename}.html", "w", encoding="utf-8") as f:
-                f.write(html_content)
-            break
+                f.write(payload.decode())
+        elif content_type == "text/plain":
+            with open(f"inspect/{filename}.txt", "w", encoding="utf-8") as f:
+                f.write(payload.decode())
 
 
 @pytest.fixture

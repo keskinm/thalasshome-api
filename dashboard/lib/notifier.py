@@ -181,27 +181,20 @@ class Notifier:
 
         subject = "Commande prise en charge par un prestataire"
 
-        html = """
-        <p>
-        La commande : {ship} <br>
-        du client : {customer_name}, <br>
-        située à : {adr} <br>
-        coordonnées du client : {customer_mail} {customer_number} <br>
-        d'un solde à récuperer de : {amount}€ <br>
-        a été acceptée par le prestataire : {provider} <br>
-        coordonnées du prestataire : {provider_mail}, {provider_number} <br>
-        </p>
-        """.format(
-            ship=ship,
-            customer_name=customer_name,
-            adr=adr,
-            provider=provider["username"],
-            amount=amount,
-            provider_mail=provider["email"],
-            provider_number=provider["phone_number"],
-            customer_mail=order["email"] if "email" in order else "",
-            customer_number=order["phone"] if "phone" in order else "",
-        )
+        template_vars = {
+            "ship": ship,
+            "customer_name": customer_name,
+            "adr": adr,
+            "provider": provider["username"],
+            "amount": amount,
+            "provider_mail": provider["email"],
+            "provider_number": provider["phone_number"],
+            "customer_mail": order.get("email", ""),
+            "customer_number": order.get("phone", ""),
+        }
+
+        html_template = self.jinja_env.get_template("notify_admin.html")
+        html = html_template.render(**template_vars)
 
         self.send_mail(self.sender_email, subject, html)
 

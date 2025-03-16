@@ -29,7 +29,7 @@ def postgres_container():
 
 
 @pytest.fixture(autouse=True, scope="session")
-def db_engine(postgres_container):
+def test_db_client(postgres_container):
     engine = sqlalchemy.create_engine(postgres_container.get_connection_url())
     for sql_filepath_suffix in [
         "create/users.sql",
@@ -43,14 +43,14 @@ def db_engine(postgres_container):
         with engine.begin() as conn:
             conn.execute(sqlalchemy.text(sql))
     DB_CLIENT.test_db_engine = engine
-    return engine
+    return DB_CLIENT
 
 
 #  ------------------------------------ FUNCTION SCOPED ------------------------------
 
 
 @pytest.fixture(scope="function")
-def sample_order_line_item(db_engine):
+def sample_order_line_item(test_db_client):
     file_path = APP_DIR / "utils" / "orders" / "samples" / "2025_discounted.json"
     with open(file_path, "r", encoding="utf-8") as f:
         order = json.load(f)

@@ -48,7 +48,7 @@ def order_creation_webhook():
     provided_header = request.headers.get("X-Shopify-Hmac-SHA256")
     if not verify_webhook(data, provided_header):
         logging.error(
-            f"Webhook verification failed. Provided header: {provided_header}"
+            "Webhook verification failed. Provided header: %s", provided_header
         )
         raise ValueError("Webhook verification failed. Check logs for details.")
 
@@ -211,7 +211,6 @@ def test_order_creation_webhook():
             headers=headers,
             base_url=_base_url,
         )
-        logging.info(response.status_code, response.data.decode("utf-8"))
 
     return redirect("/")
 

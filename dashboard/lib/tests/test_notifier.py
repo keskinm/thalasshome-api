@@ -15,63 +15,6 @@ def mock_smtp(mocker):
     return mocker.patch("smtplib.SMTP_SSL")
 
 
-@pytest.fixture
-def sample_order():
-    return {
-        "id": 5555123486903,
-        "created_at": "2025-03-02T14:23:40+01:00",
-        "email": "sign.pls.up@gmail.com",
-        "phone": "None",
-        "total_price": "16.00",
-        "updated_at": "2025-03-02T14:23:42+01:00",
-        "shipping_address": {
-            "first_name": "Sasha",
-            "address1": "7 Rue du Stade Albert Baud",
-            "phone": "0700000000",
-            "city": "Annemasse",
-            "zip": "74100",
-            "province": "None",
-            "country": "France",
-            "last_name": "Keskin",
-            "address2": "None",
-            "company": "None",
-            "latitude": 46.190304,
-            "longitude": 6.242890999999999,
-            "name": "Sasha Keskin",
-            "country_code": "FR",
-            "province_code": "None",
-        },
-        "shipping_lat": 46.190304,
-        "shipping_lon": 6.242890999999999,
-        "shipping_phone": "0700000000",
-    }
-
-
-@pytest.fixture
-def sample_provider():
-    return {
-        "id": "456",
-        "username": "provider1",
-        "email": "provider@test.com",
-        "phone_number": "9876543210",
-    }
-
-
-@pytest.fixture
-def sample_line_items():
-    return [
-        {
-            "id": 14137901646007,
-            "product": "jacuzzi4p",
-            "price": 64.0,
-            "from_date": "2025-03-03",
-            "to_date": "2025-03-05",
-            "quantity": 1,
-            "order_id": 5555123486903,
-        }
-    ]
-
-
 def test_notify_providers(mock_smtp, sample_order, sample_provider, sample_line_items):
     notifier = Notifier(flask_address="test.com")
     providers = [sample_provider]

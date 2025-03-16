@@ -58,6 +58,15 @@ def sample_order_line_item(db_engine):
     DB_CLIENT.insert_into_table("orders", parsed_order)
     DB_CLIENT.insert_into_table("line_items", line_items)
     yield (parsed_order, line_items)
+    with db_engine.begin() as conn:
+        conn.execute(
+            sqlalchemy.text("DELETE FROM line_items WHERE order_id = :order_id"),
+            {"order_id": parsed_order["id"]},
+        )
+        conn.execute(
+            sqlalchemy.text("DELETE FROM orders WHERE id = :order_id"),
+            {"order_id": parsed_order["id"]},
+        )
 
 
 @pytest.fixture

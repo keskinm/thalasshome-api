@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, render_template, request, session
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
-SUPABASE_CLI = container.get("SUPABASE_CLI")
 DB_CLIENT = container.get("DB_CLIENT")
 admin_bp = Blueprint("admin", __name__)
 

@@ -206,7 +206,7 @@ def test_order_creation_webhook():
     with current_app.test_client() as client:
         headers = {"X-Shopify-Hmac-SHA256": computed_hmac}
         response = client.post(
-            "/services/order_creation_webhook",
+            f"/{services_bp.name}/order_creation_webhook",
             data=data,
             headers=headers,
             base_url=_base_url,

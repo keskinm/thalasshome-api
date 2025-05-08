@@ -46,11 +46,8 @@ def create_app(testing=False):
     from dashboard.lib.splash import splash_bp
 
     app.register_blueprint(splash_bp)
-    app.register_blueprint(admin_bp, url_prefix="/admin")
-    app.register_blueprint(notifier_bp, url_prefix="/notifier")
-    app.register_blueprint(services_bp, url_prefix="/services")
-    app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(delivery_men_bp, url_prefix="/delivery_men")
+    for bp in [admin_bp, notifier_bp, services_bp, auth_bp, delivery_men_bp]:
+        app.register_blueprint(bp, url_prefix=f"/{bp.name}")
 
     # @todo make it restrictive
     CORS(app)

@@ -3,7 +3,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from dashboard.container import container
 
-DB_CLIENT = container.get("DB_CLIENT")
 auth_bp = Blueprint("auth", __name__)
 
 
@@ -14,7 +13,7 @@ def login():
     )  # form field still named "username" for compatibility
     POST_PASSWORD = str(request.form["password"])
 
-    data = DB_CLIENT.select_from_table(
+    data = container.get("DB_CLIENT").select_from_table(
         "users", conditions={"email": POST_EMAIL}, maybe_single=True
     )
 
@@ -53,7 +52,7 @@ def signup_post():
     password = request.form.get("password")
     phone_number = request.form.get("numero_de_telephone")
 
-    user = DB_CLIENT.select_from_table(
+    user = container.get("DB_CLIENT").select_from_table(
         "users", conditions={"email": email}, maybe_single=True
     )
 
@@ -68,6 +67,6 @@ def signup_post():
         "phone_number": phone_number,
     }
 
-    DB_CLIENT.insert_into_table("users", new_user)
+    container.get("DB_CLIENT").insert_into_table("users", new_user)
 
     return splash()

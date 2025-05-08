@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, render_template, request, session
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
-DB_CLIENT = container.get("DB_CLIENT")
 admin_bp = Blueprint("admin", __name__)
 
 
@@ -16,7 +15,9 @@ def admin_index():
 
 
 def get_cards():
-    all_keys = DB_CLIENT.select_from_table("orders", select_columns="*")
+    all_keys = container.get("DB_CLIENT").select_from_table(
+        "orders", select_columns="*"
+    )
     res = {}
 
     for item in all_keys:
@@ -24,7 +25,7 @@ def get_cards():
 
         delivery_men_id, delivery_men = item.get("delivery_men_id"), None
         if delivery_men_id:
-            delivery_men = DB_CLIENT.select_from_table(
+            delivery_men = container.get("DB_CLIENT").select_from_table(
                 "users",
                 select_columns="*",
                 conditions={"id": delivery_men_id},
@@ -34,7 +35,7 @@ def get_cards():
 
         adr = get_address(item)
 
-        line_items = DB_CLIENT.select_from_table(
+        line_items = container.get("DB_CLIENT").select_from_table(
             "line_items", select_columns="*", conditions={"order_id": item["id"]}
         )
         ship, amount = get_ship(line_items)
@@ -69,7 +70,7 @@ def ask_zone():
 def patch_order_status():
     data = request.get_json()
     item_id = int(data["item"])
-    DB_CLIENT.update_table(
+    container.get("DB_CLIENT").update_table(
         "orders", {"status": data["category"]}, conditions={"id": item_id}
     )
     return jsonify({"message": "Order status updated"})
@@ -80,7 +81,7 @@ def delete_order():
     data = request.get_json()
     item_id = int(data["item"])
 
-    DB_CLIENT.delete_from_table("orders", conditions={"id": item_id})
+    container.get("DB_CLIENT").delete_from_table("orders", conditions={"id": item_id})
     return jsonify(
         {
             "message": "Commande supprimée",
@@ -94,7 +95,7 @@ def delete_canceled_orders():
     data = request.get_json()
     item_ids = data["items"]
 
-    DB_CLIENT.delete_from_table("orders", conditions={"id": item_ids})
+    container.get("DB_CLIENT").delete_from_table("orders", conditions={"id": item_ids})
     return jsonify(
         {
             "message": "Commandes supprimées",

@@ -11,8 +11,8 @@ key: str = os.environ.get("SUPABASE_KEY")
 supabase_client = create_client(url, key)
 container.register_singleton("SUPABASE_CLI", supabase_client)
 
-from dashboard.db.client_wrapper import DBClient
+from dashboard.db.prod_client import ProdDBClient
 
-container.register_singleton("DB_CLIENT", DBClient(supabase_client=supabase_client))
+container.register_singleton("DB_CLIENT", ProdDBClient(supabase_client=supabase_client))
 
 EOF_REGISTERER = True

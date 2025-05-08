@@ -2,7 +2,7 @@ import sqlalchemy
 
 
 def test_example(test_db_client):
-    with test_db_client.test_db_engine.connect() as conn:
+    with test_db_client.engine.connect() as conn:
         result = conn.execute(sqlalchemy.text("SELECT COUNT(*) FROM users;"))
         count = result.scalar()
         assert count >= 4

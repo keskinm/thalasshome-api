@@ -13,8 +13,6 @@ from dashboard.constants import APP_DIR
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_name, get_ship
 
-DB_CLIENT = container.get("DB_CLIENT")
-
 notifier_bp = Blueprint("notifier", __name__)
 
 
@@ -45,7 +43,7 @@ class Notifier:
     def get_delivery_mens(order, test=False) -> list[dict]:
         lat, lon = order["shipping_lat"], order["shipping_lon"]
 
-        delivery_mens = DB_CLIENT.call_rpc(
+        delivery_mens = container.get("DB_CLIENT").call_rpc(
             "check_delivery_men_around_point",
             {
                 "in_shipping_lon": lon,
@@ -102,7 +100,7 @@ class Notifier:
         decoded_token = urllib.parse.unquote(token_id)
         order_id, provider_username = decoded_token.split("|")
 
-        order = DB_CLIENT.select_from_table(
+        order = container.get("DB_CLIENT").select_from_table(
             "orders", select_columns="*", conditions={"id": order_id}, single=True
         )
 
@@ -112,14 +110,14 @@ class Notifier:
             return "La commande a déjà été accepté par un autre livreur."
 
         else:
-            delivery_men = DB_CLIENT.select_from_table(
+            delivery_men = container.get("DB_CLIENT").select_from_table(
                 "users",
                 select_columns="*",
                 conditions={"username": provider_username},
                 limit=1,
                 single=True,
             )
-            line_items = DB_CLIENT.select_from_table(
+            line_items = container.get("DB_CLIENT").select_from_table(
                 "line_items",
                 select_columns="*",
                 conditions={"order_id": order_id},
@@ -127,7 +125,7 @@ class Notifier:
 
             delivery_men_email = delivery_men["email"]
 
-            DB_CLIENT.update_table(
+            container.get("DB_CLIENT").update_table(
                 "orders",
                 {"delivery_men_id": delivery_men["id"], "status": "assigned"},
                 conditions={"id": order_id},

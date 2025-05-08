@@ -102,8 +102,8 @@ def test_accept_command(
     )  # Provider + Customer + Admin notifications
 
 
-def test_get_delivery_mens(sample_order_line_item, sample_provider):
-    sample_order, sample_line_items = sample_order_line_item
+def test_get_delivery_mens(sample_order_line_item):
+    sample_order, _ = sample_order_line_item
 
     delivery_mens = Notifier.get_delivery_mens(sample_order)
 

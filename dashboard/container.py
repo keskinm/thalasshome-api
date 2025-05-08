@@ -11,8 +11,8 @@ class Container(metaclass=Singleton):
     def __init__(self):
         self._services = {}
 
-    def register_singleton(self, name: str, instance):
-        if name in self._services:
+    def register_singleton(self, name: str, instance, force: bool = False):
+        if name in self._services and not force:
             raise ValueError("service already registered")
         self._services[name] = instance
 

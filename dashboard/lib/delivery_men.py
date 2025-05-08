@@ -4,7 +4,6 @@ from dashboard.constants import JACUZZI4P, JACUZZI6P
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
-DB_CLIENT = container.get("DB_CLIENT")
 delivery_men_bp = Blueprint("delivery_men", __name__)
 
 
@@ -12,19 +11,19 @@ delivery_men_bp = Blueprint("delivery_men", __name__)
 def get_orders():
     user_id = session["user_id"]
 
-    available_orders = DB_CLIENT.select_from_table(
+    available_orders = container.get("DB_CLIENT").select_from_table(
         "orders",
         select_columns="*",
         conditions={"delivery_men_id": None, "status": "ask"},
     )
 
-    ongoing_orders = DB_CLIENT.select_from_table(
+    ongoing_orders = container.get("DB_CLIENT").select_from_table(
         "orders",
         select_columns="*",
         conditions={"delivery_men_id": user_id, "status": ["assigned", "in_delivery"]},
     )
 
-    completed_orders = DB_CLIENT.select_from_table(
+    completed_orders = container.get("DB_CLIENT").select_from_table(
         "orders",
         select_columns="*",
         conditions={"delivery_men_id": user_id, "status": "delivered"},
@@ -36,7 +35,7 @@ def get_orders():
     def process_orders(orders):
         results = []
         for order in orders:
-            line_items = DB_CLIENT.select_from_table(
+            line_items = container.get("DB_CLIENT").select_from_table(
                 "line_items", select_columns="*", conditions={"order_id": order["id"]}
             )
             ship, amount = get_ship(line_items)
@@ -69,7 +68,7 @@ def complete_order(order_id):
     user_id = session["user_id"]
 
     try:
-        resp = DB_CLIENT.update_table(
+        resp = container.get("DB_CLIENT").update_table(
             "orders",
             {"status": "delivered", "updated_at": "now()"},
             conditions={"id": order_id, "delivery_men_id": user_id},
@@ -88,7 +87,7 @@ def complete_order(order_id):
 def get_delivery_capacity():
     user_id = session["user_id"]
 
-    dcs = DB_CLIENT.select_from_table(
+    dcs = container.get("DB_CLIENT").select_from_table(
         "delivery_capacity", select_columns="*", conditions={"user_id": user_id}
     )
     _response = {}
@@ -106,7 +105,7 @@ def patch_delivery_capacity():
     j4p = {"user_id": user_id, "product": JACUZZI4P, "quantity": data[JACUZZI4P]}
     j6p = {"user_id": user_id, "product": JACUZZI6P, "quantity": data[JACUZZI6P]}
 
-    _ = DB_CLIENT.insert_into_table("delivery_capacity", [j4p, j6p])
+    _ = container.get("DB_CLIENT").insert_into_table("delivery_capacity", [j4p, j6p])
     return jsonify({"message": "Mise à jour réussie !"}), 200
 
 
@@ -116,7 +115,7 @@ def patch_delivery_capacity():
 @delivery_men_bp.route("/delivery_zones", methods=["GET"])
 def list_zones():
     user_id = session["user_id"]
-    zones = DB_CLIENT.select_from_table(
+    zones = container.get("DB_CLIENT").select_from_table(
         "user_delivery_zones", select_columns="*", conditions={"user_id": user_id}
     )
     return jsonify(zones), 200
@@ -150,7 +149,7 @@ def create_zone():
     if center_geog:
         row["center_geog"] = center_geog
 
-    resp = DB_CLIENT.insert_into_table("user_delivery_zones", row)
+    resp = container.get("DB_CLIENT").insert_into_table("user_delivery_zones", row)
 
     if not resp:
         return jsonify({"error": "Insert failed or returned no data"}), 400
@@ -184,7 +183,7 @@ def update_zone(zone_id):
         update_data["center_geog"] = f"SRID=4326;POINT({lon} {lat})"
 
     try:
-        resp = DB_CLIENT.update_table(
+        resp = container.get("DB_CLIENT").update_table(
             "user_delivery_zones",
             update_data,
             conditions={"id": zone_id, "user_id": user_id},
@@ -204,7 +203,7 @@ def delete_zone(zone_id):
     user_id = session["user_id"]
 
     try:
-        success = DB_CLIENT.delete_from_table(
+        success = container.get("DB_CLIENT").delete_from_table(
             "user_delivery_zones", conditions={"id": zone_id, "user_id": user_id}
         )
 

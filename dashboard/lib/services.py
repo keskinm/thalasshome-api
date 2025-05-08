@@ -18,8 +18,6 @@ from dashboard.lib.order.order import (
     get_coordinates,
 )
 
-DB_CLIENT = container.get("DB_CLIENT")
-
 SHOPIFY_STORE_DOMAIN = "spa-detente.myshopify.com"
 SHOPIFY_ADMIN_API_VERSION = "2025-01"
 SHOPIFY_ADMIN_API_ACCESS_TOKEN = os.getenv("SHOPIFY_ADMIN_API_ACCESS_TOKEN")
@@ -54,8 +52,8 @@ def order_creation_webhook():
     order = json.loads(data.decode("utf-8"))
     parsed_order, line_items = parse_order(order)
 
-    DB_CLIENT.insert_into_table("orders", parsed_order)
-    DB_CLIENT.insert_into_table("line_items", line_items)
+    container.get("DB_CLIENT").insert_into_table("orders", parsed_order)
+    container.get("DB_CLIENT").insert_into_table("line_items", line_items)
 
     Notifier.notify(parsed_order, line_items)
 
@@ -148,7 +146,7 @@ def check_availability():
 
     product_name = data["productName"]
     if not "jac" in product_name.lower():
-        delivery_mens = DB_CLIENT.call_rpc(
+        delivery_mens = container.get("DB_CLIENT").call_rpc(
             "check_delivery_men_around_point",
             {
                 "in_shipping_lon": lon,
@@ -165,7 +163,7 @@ def check_availability():
     rent_duration_day = parse_rent_duration_jac(product_name)
     product_name = normalize_jac_string(product_name)
 
-    dates = DB_CLIENT.call_rpc(
+    dates = container.get("DB_CLIENT").call_rpc(
         "get_availability_calendar_within_75days",
         {
             "in_shipping_lon": lon,
@@ -212,7 +210,7 @@ def test_order_creation_webhook():
 
 @services_bp.route("/test_notification", methods=["GET"])
 def test_notification():
-    order = DB_CLIENT.select_from_table(
+    order = container.get("DB_CLIENT").select_from_table(
         "orders",
         select_columns="*",
         conditions={"email": "sign.pls.up@gmail.com"},
@@ -220,7 +218,7 @@ def test_notification():
         single=True,
     )
 
-    line_items = DB_CLIENT.select_from_table(
+    line_items = container.get("DB_CLIENT").select_from_table(
         "line_items", select_columns="*", conditions={"order_id": order["id"]}
     )
 

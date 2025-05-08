@@ -8,9 +8,8 @@ from testcontainers.postgres import PostgresContainer
 from dashboard import create_app
 from dashboard.constants import APP_DIR, DB_DIR
 from dashboard.container import container
+from dashboard.db.test_client import TestDBClient
 from dashboard.lib.services import parse_order
-
-DB_CLIENT = container.get("DB_CLIENT")
 
 
 @pytest.fixture()
@@ -43,8 +42,10 @@ def test_db_client(postgres_container):
             sql = f.read()
         with engine.begin() as conn:
             conn.execute(sqlalchemy.text(sql))
-    DB_CLIENT.test_db_engine = engine
-    return DB_CLIENT
+
+    test_client = TestDBClient(engine)
+    container.register_singleton("DB_CLIENT", test_client, force=True)
+    return test_client
 
 
 #  ------------------------------------ FUNCTION SCOPED ------------------------------
@@ -62,16 +63,16 @@ def sample_order_line_item(test_db_client):
     line_items[0]["to_date"] = (
         datetime.now(timezone.utc).date() + timedelta(days=6)
     ).isoformat()
-    DB_CLIENT.insert_into_table("orders", parsed_order)
-    DB_CLIENT.insert_into_table("line_items", line_items)
+    test_db_client.insert_into_table("orders", parsed_order)
+    test_db_client.insert_into_table("line_items", line_items)
     yield (parsed_order, line_items)
-    DB_CLIENT.delete_from_table("line_items", {"order_id": parsed_order["id"]})
-    DB_CLIENT.delete_from_table("orders", {"id": parsed_order["id"]})
+    test_db_client.delete_from_table("line_items", {"order_id": parsed_order["id"]})
+    test_db_client.delete_from_table("orders", {"id": parsed_order["id"]})
 
 
 @pytest.fixture
-def sample_provider():
-    _user = DB_CLIENT.select_from_table(
+def sample_provider(test_db_client):
+    _user = test_db_client.select_from_table(
         "users",
         "*",
         conditions=None,

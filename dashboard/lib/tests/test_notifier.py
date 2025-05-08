@@ -68,12 +68,12 @@ def test_notify_providers(mock_smtp, sample_order, sample_provider, sample_line_
 
 def test_notify_customer(mock_smtp, sample_provider):
     notifier = Notifier(flask_address="test.com")
-    notifier.notify_customer(sample_provider)
+    notifier.notify_customer(sample_provider, "customer@yopmail.com")
 
     mock_smtp.return_value.__enter__.return_value.sendmail.assert_called_once()
     args = mock_smtp.return_value.__enter__.return_value.sendmail.call_args[0]
     assert args[0] == notifier.sender_email
-    assert args[1] == sample_provider["email"]
+    assert args[1] == "customer@yopmail.com"
     assert "ThalassHome - Contact prestataire" in args[2]
 
 

@@ -42,9 +42,9 @@ def test_check_availability_jacuzzi(
     assert data["product_available"] is True
     assert data["unavailable_dates"] == []
 
-    parsed_order, _ = sample_order_line_item
+    parsed_order, line_items = sample_order_line_item
 
-    # MAKE THE DELIVERY MEN UNAVAILABLE
+    # MAKE THE DELIVERY MEN UNAVAILABLE @todo please add an autocommit False
     test_db_client.update_table(
         "orders",
         {"delivery_men_id": sample_provider["id"], "status": "assigned"},
@@ -56,8 +56,10 @@ def test_check_availability_jacuzzi(
         "productName": "Jacuzzi 4 places 1 nuit",
     }
 
-    # NO AVAILABILITY SHOULD BE RETURNED
+    # 2 days are unavailable!
     response = client.post("/services/check_availability", json=send_data)
     assert response.status_code == 200
     data = response.json
-    data
+    assert data["rent_duration_day"] == 1
+    assert data["product_available"] is True
+    assert len(data["unavailable_dates"]) == 2

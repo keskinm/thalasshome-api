@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta, timezone
 
 import pytest
 import sqlalchemy
@@ -55,6 +56,12 @@ def sample_order_line_item(test_db_client):
     with open(file_path, "r", encoding="utf-8") as f:
         order = json.load(f)
     parsed_order, line_items = parse_order(order)
+    line_items[0]["from_date"] = (
+        datetime.now(timezone.utc).date() + timedelta(days=5)
+    ).isoformat()
+    line_items[0]["to_date"] = (
+        datetime.now(timezone.utc).date() + timedelta(days=6)
+    ).isoformat()
     DB_CLIENT.insert_into_table("orders", parsed_order)
     DB_CLIENT.insert_into_table("line_items", line_items)
     yield (parsed_order, line_items)

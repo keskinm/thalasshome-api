@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from dashboard.lib.delivery_men import accept_order
 from dashboard.lib.notifier import Notifier
 
 
@@ -92,7 +93,7 @@ def test_accept_command(
     test_db_client, mock_smtp, sample_provider, sample_order_line_item
 ):
     sample_order, sample_line_items = sample_order_line_item
-    result = Notifier.accept_command(
+    result = accept_order(
         f"{sample_order['id']}|{sample_provider['username']}", flask_address="test.com"
     )
 

@@ -94,67 +94,6 @@ class Notifier:
 
             self.send_mail(provider["email"], subject, html, text)
 
-    @classmethod
-    def accept_command(cls, token_id, flask_address=""):
-        notifier = cls(flask_address=flask_address)
-        decoded_token = urllib.parse.unquote(token_id)
-        order_id, provider_username = decoded_token.split("|")
-
-        order = container.get("DB_CLIENT").select_from_table(
-            "orders", select_columns="*", conditions={"id": order_id}, single=True
-        )
-
-        if order is None:
-            return "La commande n'existe plus."
-        elif order["delivery_men_id"]:
-            return "La commande a déjà été accepté par un autre livreur."
-
-        else:
-            delivery_men = container.get("DB_CLIENT").select_from_table(
-                "users",
-                select_columns="*",
-                conditions={"username": provider_username},
-                limit=1,
-                single=True,
-            )
-            line_items = container.get("DB_CLIENT").select_from_table(
-                "line_items",
-                select_columns="*",
-                conditions={"order_id": order_id},
-            )
-
-            delivery_men_email = delivery_men["email"]
-
-            container.get("DB_CLIENT").update_table(
-                "orders",
-                {"delivery_men_id": delivery_men["id"], "status": "assigned"},
-                conditions={"id": order_id},
-            )
-
-            plain_customer_name = get_name(order)
-
-            order_email = order.get("email", "")
-            template_vars = {
-                "phone": order.get("phone", ""),
-                "email": order_email,
-                "customer_name": plain_customer_name,
-            }
-
-            text_template = notifier.jinja_env.get_template("accept_command.txt")
-            html_template = notifier.jinja_env.get_template("accept_command.html")
-
-            text = text_template.render(**template_vars)
-            html = html_template.render(**template_vars)
-
-            subject = "Détails sur votre commande ThalassHome"
-            notifier.send_mail(delivery_men_email, subject, html, text)
-
-            notifier.notify_customer(delivery_men, order_email)
-            notifier.notify_admins(order, delivery_men, line_items)
-
-            return """La prise en charge de la commande a bien été accepté. Vous recevrez très prochainement un mail
-            contenant des informations supplémentaires pour votre commande. A bientôt ! """
-
     def notify_customer(self, provider: dict, order_email: str):
         subject = "ThalassHome - Contact prestataire pour votre commande"
 

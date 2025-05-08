@@ -180,7 +180,7 @@ def check_availability():
         {
             "unavailable_dates": unavailables_within_two_months,
             "product_available": bool(
-                len(dates) == len(unavailables_within_two_months)
+                len(dates) != len(unavailables_within_two_months)
             ),
             "rent_duration_day": rent_duration_day,
         }

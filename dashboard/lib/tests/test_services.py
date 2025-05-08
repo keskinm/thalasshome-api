@@ -21,7 +21,9 @@ def test_check_availability_jacuzzi(test_db_client, client):
     response = client.post("/services/check_availability", json=send_data)
     assert response.status_code == 200
     data = response.json
-    assert "rent_duration_day" in data
+    assert data["rent_duration_day"] == 1
+    assert data["product_available"] is True
+    assert data["unavailable_dates"] == []
 
     send_data = {
         "location": {"lat": 48.8566, "lon": 181},  # fancy lon
@@ -29,4 +31,7 @@ def test_check_availability_jacuzzi(test_db_client, client):
     }
 
     response2 = client.post("/services/check_availability", json=send_data)
-    data2 = response.json
+    data2 = response2.json
+    assert data2["rent_duration_day"] == 1
+    assert data2["product_available"] is False
+    assert len(data2["unavailable_dates"]) > 50

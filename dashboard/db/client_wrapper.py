@@ -126,8 +126,16 @@ class DBClient(metaclass=Singleton):
                 result = conn.execute(sql_query, conditions)
                 return result.rowcount
         else:
-            response = self.supabase_client.table(table).delete(conditions).execute()
-            return response.data
+            query_builder = self.supabase_client.table(table).delete()
+            # Handle special case for IN condition
+            if isinstance(next(iter(conditions.values())), (list, tuple)):
+                key = next(iter(conditions.keys()))
+                query_builder = query_builder.in_(key, conditions[key])
+            else:
+                for key, value in conditions.items():
+                    query_builder = query_builder.eq(key, value)
+            response = query_builder.execute()
+            return response.count
 
     def update_table(self, table: str, record: dict, conditions: dict):
         if self.test_db_engine is not None:

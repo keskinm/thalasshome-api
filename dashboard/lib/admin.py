@@ -30,15 +30,13 @@ def get_cards():
                 select_columns="*",
                 conditions={"id": delivery_men_id},
                 limit=1,
-                single=True
+                single=True,
             )
 
         adr = get_address(item)
 
         line_items = DB_CLIENT.select_from_table(
-            "line_items",
-            select_columns="*",
-            conditions={"order_id": item["id"]}
+            "line_items", select_columns="*", conditions={"order_id": item["id"]}
         )
         ship, amount = get_ship(line_items)
 
@@ -73,9 +71,7 @@ def patch_order_status():
     data = request.get_json()
     item_id = int(data["item"])
     DB_CLIENT.update_table(
-        "orders",
-        {"status": data["category"]},
-        conditions={"id": item_id}
+        "orders", {"status": data["category"]}, conditions={"id": item_id}
     )
     return jsonify({"message": "Order status updated"})
 
@@ -85,10 +81,10 @@ def delete_order():
     data = request.get_json()
     item_id = int(data["item"])
 
-    response = SUPABASE_CLI.table("orders").delete().eq("id", item_id).execute()
+    response = DB_CLIENT.delete_from_table("orders", conditions={"id": item_id})
     return jsonify(
         {
-            "message": f"{response.count or 0} cards removed from list",
+            "message": f"{response} cards removed from list",
             "list_id": item_id,
         }
     )
@@ -99,10 +95,10 @@ def delete_canceled_orders():
     data = request.get_json()
     item_ids = data["items"]
 
-    response = SUPABASE_CLI.table("orders").delete().in_("id", item_ids).execute()
+    response = DB_CLIENT.delete_from_table("orders", conditions={"id": item_ids})
     return jsonify(
         {
-            "message": f"{response.count or 0} cards removed from list",
+            "message": f"{response} cards removed from list",
             "list_ids": item_ids,
         }
     )

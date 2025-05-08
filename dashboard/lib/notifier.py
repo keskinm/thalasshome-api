@@ -129,7 +129,7 @@ class Notifier:
 
             DB_CLIENT.update_table(
                 "orders",
-                {"delivery_men_id": delivery_men["id"]},
+                {"delivery_men_id": delivery_men["id"], "status": "assigned"},
                 conditions={"id": order_id},
             )
 

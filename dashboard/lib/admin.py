@@ -80,10 +80,10 @@ def delete_order():
     data = request.get_json()
     item_id = int(data["item"])
 
-    response = DB_CLIENT.delete_from_table("orders", conditions={"id": item_id})
+    DB_CLIENT.delete_from_table("orders", conditions={"id": item_id})
     return jsonify(
         {
-            "message": f"{response} cards removed from list",
+            "message": "Commande supprimée",
             "list_id": item_id,
         }
     )
@@ -94,10 +94,10 @@ def delete_canceled_orders():
     data = request.get_json()
     item_ids = data["items"]
 
-    response = DB_CLIENT.delete_from_table("orders", conditions={"id": item_ids})
+    DB_CLIENT.delete_from_table("orders", conditions={"id": item_ids})
     return jsonify(
         {
-            "message": f"{response} cards removed from list",
+            "message": "Commandes supprimées",
             "list_ids": item_ids,
         }
     )

@@ -64,6 +64,17 @@ class DBClient(metaclass=Singleton):
             response = self.supabase_client.table(table).insert(record).execute()
             return response.data
 
+    def _apply_conditions(self, query_builder, conditions: dict):
+        """Helper method to consistently apply conditions across all query types"""
+        for key, value in conditions.items():
+            if value is None:
+                query_builder = query_builder.is_(key, None)
+            elif isinstance(value, (list, tuple)):
+                query_builder = query_builder.in_(key, value)
+            else:
+                query_builder = query_builder.eq(key, value)
+        return query_builder
+
     def select_from_table(
         self,
         table: str,
@@ -72,6 +83,8 @@ class DBClient(metaclass=Singleton):
         limit: int = None,
         single: bool = False,
         maybe_single: bool = False,
+        order_by: str = None,
+        desc: bool = False,
     ):
         conditions = conditions or {}
 
@@ -84,6 +97,10 @@ class DBClient(metaclass=Singleton):
                     [f"{key} = :{key}" for key in conditions.keys()]
                 )
                 query += f" WHERE {cond_str}"
+            if order_by:
+                query += f" ORDER BY {order_by}"
+                if desc:
+                    query += " DESC"
             if limit:
                 query += f" LIMIT {limit}"
             sql_query = sqlalchemy.text(query)
@@ -97,8 +114,9 @@ class DBClient(metaclass=Singleton):
             return rows
         else:
             query_builder = self.supabase_client.table(table).select(select_columns)
-            for key, value in conditions.items():
-                query_builder = query_builder.eq(key, value)
+            query_builder = self._apply_conditions(query_builder, conditions)
+            if order_by:
+                query_builder = query_builder.order(order_by, desc=desc)
             if limit:
                 query_builder = query_builder.limit(limit)
             if maybe_single:
@@ -127,15 +145,10 @@ class DBClient(metaclass=Singleton):
                 return result.rowcount
         else:
             query_builder = self.supabase_client.table(table).delete()
-            # Handle special case for IN condition
-            if isinstance(next(iter(conditions.values())), (list, tuple)):
-                key = next(iter(conditions.keys()))
-                query_builder = query_builder.in_(key, conditions[key])
-            else:
-                for key, value in conditions.items():
-                    query_builder = query_builder.eq(key, value)
+            query_builder = self._apply_conditions(query_builder, conditions)
+
             response = query_builder.execute()
-            return response.count
+            return bool(response.data)
 
     def update_table(self, table: str, record: dict, conditions: dict):
         if self.test_db_engine is not None:
@@ -154,7 +167,6 @@ class DBClient(metaclass=Singleton):
                 return result.rowcount
         else:
             query_builder = self.supabase_client.table(table).update(record)
-            for key, value in conditions.items():
-                query_builder = query_builder.eq(key, value)
+            query_builder = self._apply_conditions(query_builder, conditions)
             response = query_builder.execute()
             return response.data

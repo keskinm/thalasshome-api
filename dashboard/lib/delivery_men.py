@@ -4,8 +4,7 @@ from dashboard.constants import JACUZZI4P, JACUZZI6P
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
-SUPABASE_CLI = container.get("SUPABASE_CLI")
-
+DB_CLIENT = container.get("DB_CLIENT")
 delivery_men_bp = Blueprint("delivery_men", __name__)
 
 
@@ -13,42 +12,32 @@ delivery_men_bp = Blueprint("delivery_men", __name__)
 def get_orders():
     user_id = session["user_id"]
 
-    available_orders = (
-        SUPABASE_CLI.table("orders")
-        .select("*")
-        .is_("delivery_men_id", None)
-        .eq("status", "ask")  # Only show 'ask' status orders as available
-        .execute()
-        .data
+    available_orders = DB_CLIENT.select_from_table(
+        "orders",
+        select_columns="*",
+        conditions={"delivery_men_id": None, "status": "ask"},
     )
-    ongoing_orders = (
-        SUPABASE_CLI.table("orders")
-        .select("*")
-        .eq("delivery_men_id", user_id)
-        .in_("status", ["assigned", "in_delivery"])  # Orders in progress
-        .execute()
-        .data
+
+    ongoing_orders = DB_CLIENT.select_from_table(
+        "orders",
+        select_columns="*",
+        conditions={"delivery_men_id": user_id, "status": ["assigned", "in_delivery"]},
     )
-    completed_orders = (
-        SUPABASE_CLI.table("orders")
-        .select("*")
-        .eq("delivery_men_id", user_id)
-        .eq("status", "delivered")  # Completed orders
-        .limit(10)
-        .order("updated_at", desc=True)  # Sort by last update
-        .execute()
-        .data
+
+    completed_orders = DB_CLIENT.select_from_table(
+        "orders",
+        select_columns="*",
+        conditions={"delivery_men_id": user_id, "status": "delivered"},
+        limit=10,
+        order_by="updated_at",
+        desc=True,
     )
 
     def process_orders(orders):
         results = []
         for order in orders:
-            line_items = (
-                SUPABASE_CLI.table("line_items")
-                .select("*")
-                .eq("order_id", order["id"])
-                .execute()
-                .data
+            line_items = DB_CLIENT.select_from_table(
+                "line_items", select_columns="*", conditions={"order_id": order["id"]}
             )
             ship, amount = get_ship(line_items)
             results.append(
@@ -80,14 +69,13 @@ def complete_order(order_id):
     user_id = session["user_id"]
 
     try:
-        resp = (
-            SUPABASE_CLI.table("orders")
-            .update({"status": "delivered", "updated_at": "now()"})
-            .match({"id": order_id, "delivery_men_id": user_id})
-            .execute()
+        resp = DB_CLIENT.update_table(
+            "orders",
+            {"status": "delivered", "updated_at": "now()"},
+            conditions={"id": order_id, "delivery_men_id": user_id},
         )
 
-        if not resp.data:
+        if not resp:
             return jsonify({"error": "Update failed or no matching order"}), 400
 
         return jsonify({"message": "Order marked as delivered"}), 200
@@ -100,12 +88,8 @@ def complete_order(order_id):
 def get_delivery_capacity():
     user_id = session["user_id"]
 
-    dcs = (
-        SUPABASE_CLI.table("delivery_capacity")
-        .select("*")
-        .eq("user_id", user_id)
-        .execute()
-        .data
+    dcs = DB_CLIENT.select_from_table(
+        "delivery_capacity", select_columns="*", conditions={"user_id": user_id}
     )
     _response = {}
     for rd in dcs:
@@ -122,7 +106,7 @@ def patch_delivery_capacity():
     j4p = {"user_id": user_id, "product": JACUZZI4P, "quantity": data[JACUZZI4P]}
     j6p = {"user_id": user_id, "product": JACUZZI6P, "quantity": data[JACUZZI6P]}
 
-    _ = SUPABASE_CLI.table("delivery_capacity").upsert([j4p, j6p]).execute()
+    _ = DB_CLIENT.insert_into_table("delivery_capacity", [j4p, j6p])
     return jsonify({"message": "Mise à jour réussie !"}), 200
 
 
@@ -132,12 +116,8 @@ def patch_delivery_capacity():
 @delivery_men_bp.route("/delivery_zones", methods=["GET"])
 def list_zones():
     user_id = session["user_id"]
-    zones = (
-        SUPABASE_CLI.table("user_delivery_zones")
-        .select("*")
-        .eq("user_id", user_id)
-        .execute()
-        .data
+    zones = DB_CLIENT.select_from_table(
+        "user_delivery_zones", select_columns="*", conditions={"user_id": user_id}
     )
     return jsonify(zones), 200
 
@@ -170,9 +150,9 @@ def create_zone():
     if center_geog:
         row["center_geog"] = center_geog
 
-    resp = SUPABASE_CLI.table("user_delivery_zones").insert(row).execute()
+    resp = DB_CLIENT.insert_into_table("user_delivery_zones", row)
 
-    if not resp.data:
+    if not resp:
         return jsonify({"error": "Insert failed or returned no data"}), 400
 
     return jsonify({"message": "Zone created"}), 201
@@ -204,14 +184,13 @@ def update_zone(zone_id):
         update_data["center_geog"] = f"SRID=4326;POINT({lon} {lat})"
 
     try:
-        resp = (
-            SUPABASE_CLI.table("user_delivery_zones")
-            .update(update_data)
-            .match({"id": zone_id, "user_id": user_id})
-            .execute()
+        resp = DB_CLIENT.update_table(
+            "user_delivery_zones",
+            update_data,
+            conditions={"id": zone_id, "user_id": user_id},
         )
 
-        if not resp.data:
+        if not resp:
             return jsonify({"error": "Update failed or no matching zone"}), 400
 
         return jsonify({"message": "Zone updated"}), 200
@@ -225,17 +204,14 @@ def delete_zone(zone_id):
     user_id = session["user_id"]
 
     try:
-        resp = (
-            SUPABASE_CLI.table("user_delivery_zones")
-            .delete()
-            .match({"id": zone_id, "user_id": user_id})
-            .execute()
+        success = DB_CLIENT.delete_from_table(
+            "user_delivery_zones", conditions={"id": zone_id, "user_id": user_id}
         )
 
-        if not resp.data:
-            return jsonify({"error": "Delete failed or zone not found"}), 400
+        if not success:
+            return jsonify({"error": "Zone not found"}), 404
 
-        return jsonify({"message": "Zone deleted"}), 200
+        return jsonify({"message": "Zone deleted successfully"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

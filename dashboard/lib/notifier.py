@@ -54,7 +54,7 @@ class Notifier:
         )
         if test:
             delivery_mens = list(
-                filter(lambda x: "python" in x["username"], delivery_mens)
+                filter(lambda x: "neuneu" in x["email"], delivery_mens)
             )
         return delivery_mens
 

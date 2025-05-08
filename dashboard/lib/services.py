@@ -18,7 +18,6 @@ from dashboard.lib.order.order import (
     get_coordinates,
 )
 
-SUPABASE_CLI = container.get("SUPABASE_CLI")
 DB_CLIENT = container.get("DB_CLIENT")
 
 SHOPIFY_STORE_DOMAIN = "spa-detente.myshopify.com"
@@ -149,16 +148,12 @@ def check_availability():
 
     product_name = data["productName"]
     if not "jac" in product_name.lower():
-        delivery_mens = (
-            SUPABASE_CLI.rpc(
-                "check_delivery_men_around_point",
-                {
-                    "in_shipping_lon": lon,
-                    "in_shipping_lat": lat,
-                },
-            )
-            .execute()
-            .data
+        delivery_mens = DB_CLIENT.call_rpc(
+            "check_delivery_men_around_point",
+            {
+                "in_shipping_lon": lon,
+                "in_shipping_lat": lat,
+            },
         )
         return jsonify(
             {
@@ -217,21 +212,17 @@ def test_order_creation_webhook():
 
 @services_bp.route("/test_notification", methods=["GET"])
 def test_notification():
-    order = (
-        SUPABASE_CLI.table("orders")
-        .select("*")
-        .limit(1)
-        .eq("email", "sign.pls.up@gmail.com")
-        .single()
-        .execute()
-        .data
+    order = DB_CLIENT.select_from_table(
+        "orders",
+        select_columns="*",
+        conditions={"email": "sign.pls.up@gmail.com"},
+        limit=1,
+        single=True,
     )
-    line_items = (
-        SUPABASE_CLI.table("line_items")
-        .select("*")
-        .eq("order_id", order["id"])
-        .execute()
-        .data
+
+    line_items = DB_CLIENT.select_from_table(
+        "line_items", select_columns="*", conditions={"order_id": order["id"]}
     )
+
     Notifier.notify(order, line_items, test=True)
     return redirect("/")

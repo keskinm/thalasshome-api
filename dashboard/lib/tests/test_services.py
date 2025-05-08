@@ -45,7 +45,7 @@ def test_check_availability_jacuzzi(
 
     parsed_order, line_items = sample_order_line_item
 
-    # MAKE THE DELIVERY MEN UNAVAILABLE @todo please add an autocommit False
+    # Les modifications seront automatiquement rollback à la fin du test
     test_db_client.update_table(
         "orders",
         {"delivery_men_id": sample_provider["id"], "status": "assigned"},
@@ -71,11 +71,12 @@ def test_check_availability_jacuzzi(
         "user_delivery_zones",
         {
             "user_id": sample_provider["id"] + 1,
-            "zone_name": "Lyon",  # utilisez zone_name au lieu de delivery_zone_name
+            "zone_name": "Lyon",
             "radius_km": 30,
             "center_geog": f"SRID=4326;POINT({long} {lat})",
         },
     )
+
     # The previously unavailable dates should be available now (another delivery men is available)
     response = client.post("/services/check_availability", json=send_data)
     assert response.status_code == 200
@@ -83,3 +84,4 @@ def test_check_availability_jacuzzi(
     assert data["rent_duration_day"] == 1
     assert data["product_available"] is True
     assert len(data["unavailable_dates"]) == 0
+    # Pas besoin de rollback explicite, le fixture s'en charge

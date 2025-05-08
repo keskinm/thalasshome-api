@@ -48,6 +48,14 @@ def test_db_client(postgres_container):
     return test_client
 
 
+@pytest.fixture(autouse=True)
+def db_transaction(test_db_client):
+    """Rollback all changes after each test."""
+    test_db_client.begin()
+    yield
+    test_db_client.rollback()
+
+
 #  ------------------------------------ FUNCTION SCOPED ------------------------------
 
 

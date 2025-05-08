@@ -40,8 +40,8 @@ def test_check_availability_jacuzzi(
     assert data["product_available"] is True
     assert data["unavailable_dates"] == []
 
-    sample_provider
-    parsed_order, line_items = sample_order_line_item
+    parsed_order, _ = sample_order_line_item
+
     # MAKE THE DELIVERY MEN UNAVAILABLE
     test_db_client.update_table(
         "orders",
@@ -54,6 +54,7 @@ def test_check_availability_jacuzzi(
         "productName": "Jacuzzi 4 places 1 nuit",
     }
 
+    # NO AVAILABILITY SHOULD BE RETURNED
     response = client.post("/services/check_availability", json=send_data)
     assert response.status_code == 200
     data = response.json

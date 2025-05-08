@@ -4,7 +4,6 @@ CREATE TABLE user_delivery_zones (
     zone_name TEXT NOT NULL,
     center_geog geography(Point, 4326),
     radius_km FLOAT NOT NULL DEFAULT 30,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT unique_user_delivery_zone UNIQUE (user_id, center_geog)
 );
-
--- creer contrainte unicite pour le couple (user_id, center_geog)

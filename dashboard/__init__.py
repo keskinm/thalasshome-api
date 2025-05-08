@@ -41,12 +41,11 @@ def create_app(testing=False):
     from dashboard.lib.admin import admin_bp
     from dashboard.lib.auth import auth_bp
     from dashboard.lib.delivery_men import delivery_men_bp
-    from dashboard.lib.notifier import notifier_bp
     from dashboard.lib.services import services_bp
     from dashboard.lib.splash import splash_bp
 
     app.register_blueprint(splash_bp)
-    for bp in [admin_bp, notifier_bp, services_bp, auth_bp, delivery_men_bp]:
+    for bp in [admin_bp, services_bp, auth_bp, delivery_men_bp]:
         app.register_blueprint(bp, url_prefix=f"/{bp.name}")
 
     # @todo make it restrictive

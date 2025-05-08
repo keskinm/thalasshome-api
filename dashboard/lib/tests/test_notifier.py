@@ -5,6 +5,7 @@ import pytest
 
 from dashboard.lib.delivery_men import accept_order
 from dashboard.lib.notifier import Notifier
+from dashboard.lib.services import get_delivery_mens, notify_receive_command
 
 
 @pytest.fixture(autouse=True)
@@ -106,7 +107,7 @@ def test_accept_command(
 def test_get_delivery_mens(sample_order_line_item):
     sample_order, _ = sample_order_line_item
 
-    delivery_mens = Notifier.get_delivery_mens(sample_order)
+    delivery_mens = get_delivery_mens(sample_order)
 
     assert len(delivery_mens) == 1
     assert "python" in delivery_mens[0]["username"]
@@ -120,12 +121,9 @@ def test_notification_flow_integration(
     2. Provider accepts the order by clicking the email link
     """
     sample_order, sample_line_items = sample_order_line_item
-    notifier = Notifier(flask_address="test.com")
 
-    # Step 1: Notify providers
-    providers = [sample_provider]
-    tokens = notifier.create_tokens(sample_order["id"], providers)
-    notifier.notify_providers(providers, tokens, sample_order, sample_line_items)
+    # Step 1: Notify providers through the new service function
+    notify_receive_command(sample_order, sample_line_items, flask_address="test.com")
 
     # Verify provider notification was sent
     assert mock_smtp.return_value.__enter__.return_value.sendmail.call_count == 1

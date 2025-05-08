@@ -55,7 +55,7 @@ def order_creation_webhook():
     container.get("DB_CLIENT").insert_into_table("orders", parsed_order)
     container.get("DB_CLIENT").insert_into_table("line_items", line_items)
 
-    Notifier.notify(parsed_order, line_items)
+    notify_receive_command(parsed_order, line_items)
 
     return "ok", 200
 
@@ -222,5 +222,38 @@ def test_notification():
         "line_items", select_columns="*", conditions={"order_id": order["id"]}
     )
 
-    Notifier.notify(order, line_items, test=True)
+    notify_receive_command(order, line_items, test=True)
     return redirect("/")
+
+
+def notify_receive_command(order, line_items, test=False, flask_address=""):
+    providers = get_delivery_mens(order, test=test)
+    logging.info(
+        "notified providers: %s for a new order!",
+        [(d.get("username"), d.get("email")) for d in providers],
+    )
+    tokens = create_tokens(order["id"], providers)
+    notifier = Notifier(flask_address=flask_address)
+    notifier.notify_providers(providers, tokens, order, line_items)
+
+
+def get_delivery_mens(order, test=False) -> list[dict]:
+    lat, lon = order["shipping_lat"], order["shipping_lon"]
+
+    delivery_mens = container.get("DB_CLIENT").call_rpc(
+        "check_delivery_men_around_point",
+        {
+            "in_shipping_lon": lon,
+            "in_shipping_lat": lat,
+        },
+    )
+    if test:
+        delivery_mens = list(filter(lambda x: "neuneu" in x["email"], delivery_mens))
+    return delivery_mens
+
+
+def create_tokens(order_id, providers: list[dict]) -> list[str]:
+    tokens = []
+    for provider in providers:
+        tokens.append(f"{str(order_id)}|{provider['username']}")
+    return tokens

@@ -10,10 +10,7 @@ from flask import Blueprint, request
 from jinja2 import Environment, FileSystemLoader
 
 from dashboard.constants import APP_DIR
-from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_name, get_ship
-
-notifier_bp = Blueprint("notifier", __name__)
 
 
 class Notifier:
@@ -27,41 +24,6 @@ class Notifier:
             flask_address or urllib.parse.urlparse(request.host_url).netloc
         )
         self.jinja_env = Environment(loader=FileSystemLoader(self.template_dir))
-
-    @classmethod
-    def notify(cls, order, line_items, test=False, flask_address=""):
-        notifier = cls(flask_address=flask_address)
-        providers = notifier.get_delivery_mens(order, test=test)
-        logging.info(
-            "notified providers: %s for a new order!",
-            [(d.get("username"), d.get("email")) for d in providers],
-        )
-        tokens = notifier.create_tokens(order["id"], providers)
-        notifier.notify_providers(providers, tokens, order, line_items)
-
-    @staticmethod
-    def get_delivery_mens(order, test=False) -> list[dict]:
-        lat, lon = order["shipping_lat"], order["shipping_lon"]
-
-        delivery_mens = container.get("DB_CLIENT").call_rpc(
-            "check_delivery_men_around_point",
-            {
-                "in_shipping_lon": lon,
-                "in_shipping_lat": lat,
-            },
-        )
-        if test:
-            delivery_mens = list(
-                filter(lambda x: "neuneu" in x["email"], delivery_mens)
-            )
-        return delivery_mens
-
-    @staticmethod
-    def create_tokens(order_id, providers: list[dict]) -> list[str]:
-        tokens = []
-        for provider in providers:
-            tokens.append(f"{str(order_id)}|{provider['username']}")
-        return tokens
 
     def notify_providers(
         self,

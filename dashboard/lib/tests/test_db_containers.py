@@ -17,7 +17,7 @@ def test_rpc(test_db_client):
         "check_delivery_men_around_point",
         {"in_shipping_lon": 4.31, "in_shipping_lat": 45.39},
     )
-    assert result is not None
+    assert result
 
 
 def test_select_order(sample_order_line_item):
@@ -28,4 +28,4 @@ def test_select_order(sample_order_line_item):
         limit=1,
         single=True,
     )
-    assert result is not None
+    assert result

@@ -3,7 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from dashboard.container import container
 
-SUPABASE_CLI = container.get("SUPABASE_CLI")
+DB_CLIENT = container.get("DB_CLIENT")
 auth_bp = Blueprint("auth", __name__)
 
 
@@ -14,17 +14,11 @@ def login():
     )  # form field still named "username" for compatibility
     POST_PASSWORD = str(request.form["password"])
 
-    response = (
-        SUPABASE_CLI.table("users")
-        .select("*")
-        .eq("email", POST_EMAIL)
-        .maybe_single()
-        .execute()
+    data = DB_CLIENT.select_from_table(
+        "users", conditions={"email": POST_EMAIL}, maybe_single=True
     )
 
-    if response:
-        data = response.data
-    else:
+    if not data:
         flash("Email not found")
         return "Email not found"
 
@@ -59,21 +53,14 @@ def signup_post():
     password = request.form.get("password")
     phone_number = request.form.get("numero_de_telephone")
 
-    user = (
-        SUPABASE_CLI.table("users")
-        .select("*")
-        .eq("email", email)
-        .maybe_single()
-        .execute()
+    user = DB_CLIENT.select_from_table(
+        "users", conditions={"email": email}, maybe_single=True
     )
 
-    if (
-        user is not None
-    ):  # if a user is found, we want to redirect back to signup page so user can try again
+    if user is not None:
         flash("Email address already exists")
         return render_signup()
 
-    # create a new user with the form data. Hash the password so the plaintext version isn't saved.
     new_user = {
         "email": email,
         "username": name,
@@ -81,6 +68,6 @@ def signup_post():
         "phone_number": phone_number,
     }
 
-    SUPABASE_CLI.table("users").insert(new_user).execute()
+    DB_CLIENT.insert_into_table("users", new_user)
 
     return splash()

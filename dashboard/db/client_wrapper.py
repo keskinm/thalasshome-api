@@ -71,6 +71,7 @@ class DBClient(metaclass=Singleton):
         conditions: dict = None,
         limit: int = None,
         single: bool = False,
+        maybe_single: bool = False,
     ):
         conditions = conditions or {}
 
@@ -90,6 +91,8 @@ class DBClient(metaclass=Singleton):
                 result = conn.execute(sql_query, conditions)
                 rows = result.mappings().all()
             if single:
+                return rows[0]
+            elif maybe_single:
                 return rows[0] if rows else None
             return rows
         else:
@@ -98,7 +101,12 @@ class DBClient(metaclass=Singleton):
                 query_builder = query_builder.eq(key, value)
             if limit:
                 query_builder = query_builder.limit(limit)
-            if single:
+            if maybe_single:
+                query_builder = query_builder.maybe_single()
+                response = query_builder.execute()
+                if response is None:
+                    return None
+            elif single:
                 query_builder = query_builder.single()
             response = query_builder.execute()
             return response.data

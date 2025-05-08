@@ -1,10 +1,18 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, render_template, request, session
 
 from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
 SUPABASE_CLI = container.get("SUPABASE_CLI")
 admin_bp = Blueprint("admin", __name__)
+
+
+@admin_bp.route("/")
+def admin_index():
+    if not session.get("logged_in") or not session.get("is_staff"):
+        return "Accès interdit", 403
+
+    return render_template("admin.html", **get_cards())
 
 
 def get_cards():

@@ -4,6 +4,7 @@ from dashboard.container import container
 from dashboard.lib.order.order import get_address, get_ship
 
 SUPABASE_CLI = container.get("SUPABASE_CLI")
+DB_CLIENT = container.get("DB_CLIENT")
 admin_bp = Blueprint("admin", __name__)
 
 
@@ -16,7 +17,7 @@ def admin_index():
 
 
 def get_cards():
-    all_keys = SUPABASE_CLI.table("orders").select("*").execute().data
+    all_keys = DB_CLIENT.select_from_table("orders", select_columns="*")
     res = {}
 
     for item in all_keys:
@@ -24,24 +25,20 @@ def get_cards():
 
         delivery_men_id, delivery_men = item.get("delivery_men_id"), None
         if delivery_men_id:
-            delivery_men = (
-                SUPABASE_CLI.table("users")
-                .select("*")
-                .eq("id", delivery_men_id)
-                .limit(1)
-                .single()
-                .execute()
-                .data
+            delivery_men = DB_CLIENT.select_from_table(
+                "users",
+                select_columns="*",
+                conditions={"id": delivery_men_id},
+                limit=1,
+                single=True
             )
 
         adr = get_address(item)
 
-        line_items = (
-            SUPABASE_CLI.table("line_items")
-            .select("*")
-            .eq("order_id", item["id"])
-            .execute()
-            .data
+        line_items = DB_CLIENT.select_from_table(
+            "line_items",
+            select_columns="*",
+            conditions={"order_id": item["id"]}
         )
         ship, amount = get_ship(line_items)
 
@@ -75,9 +72,11 @@ def ask_zone():
 def patch_order_status():
     data = request.get_json()
     item_id = int(data["item"])
-    SUPABASE_CLI.table("orders").update({"status": data["category"]}).eq(
-        "id", item_id
-    ).execute()
+    DB_CLIENT.update_table(
+        "orders",
+        {"status": data["category"]},
+        conditions={"id": item_id}
+    )
     return jsonify({"message": "Order status updated"})
 
 

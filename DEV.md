@@ -33,7 +33,7 @@ poetry export generates a flat list of dependencies in requirements.txt.
 The `--without-hashes` flag ensures App Engine can process the file correctly.
 Poetry is only used locally as a dependency management tool.
 
-🚀 Deployment Process:
+## 🚀 Deployment Process:
 
 Generate requirements.txt (as shown above).
 Ensure requirements.txt is included in Git (git add requirements.txt).

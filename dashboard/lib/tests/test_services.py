@@ -12,7 +12,22 @@ def test_check_delivery_men_around_point(test_db_client):
     assert not result
 
 
-def test_check_availability_jacuzzi(test_db_client, client):
+def test_check_availability_jacuzzi(
+    test_db_client, client, sample_order_line_item, sample_provider
+):
+    # NO AVAILABILITY WITH FANCY LONGITUDE
+    send_data = {
+        "location": {"lat": 48.8566, "lon": 181},  # fancy lon
+        "productName": "Jacuzzi 4 places 1 nuit",
+    }
+
+    response = client.post("/services/check_availability", json=send_data)
+    data = response.json
+    assert data["rent_duration_day"] == 1
+    assert data["product_available"] is False
+    assert len(data["unavailable_dates"]) > 50
+
+    # 1 AVAILABLITY
     send_data = {
         "location": {"lat": 48.8566, "lon": 2.3522},
         "productName": "Jacuzzi 4 places 1 nuit",
@@ -25,13 +40,21 @@ def test_check_availability_jacuzzi(test_db_client, client):
     assert data["product_available"] is True
     assert data["unavailable_dates"] == []
 
+    sample_provider
+    parsed_order, line_items = sample_order_line_item
+    # MAKE THE DELIVERY MEN UNAVAILABLE
+    test_db_client.update_table(
+        "orders",
+        {"delivery_men_id": sample_provider["id"], "status": "assigned"},
+        conditions={"id": parsed_order["id"]},
+    )
+
     send_data = {
-        "location": {"lat": 48.8566, "lon": 181},  # fancy lon
+        "location": {"lat": 48.8566, "lon": 2.3522},
         "productName": "Jacuzzi 4 places 1 nuit",
     }
 
-    response2 = client.post("/services/check_availability", json=send_data)
-    data2 = response2.json
-    assert data2["rent_duration_day"] == 1
-    assert data2["product_available"] is False
-    assert len(data2["unavailable_dates"]) > 50
+    response = client.post("/services/check_availability", json=send_data)
+    assert response.status_code == 200
+    data = response.json
+    data

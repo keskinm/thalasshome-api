@@ -206,8 +206,3 @@ class Notifier:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
             server.login(self.sender_email, self.email_sender_password)
             server.sendmail(self.sender_email, receiver_email, message.as_string())
-
-
-@notifier_bp.route("/commands/accept/<token_id>", methods=["GET"])
-def accept_command(token_id):
-    return Notifier.accept_command(token_id)

@@ -138,7 +138,7 @@ def test_notification_flow_integration(
 
     # Step 2: Simulate provider clicking accept link
     token = f"{sample_order['id']}|{sample_provider['username']}"
-    response = client.get(f"notifier/commands/accept/{token}")
+    response = client.get(f"/delivery_men/orders/{token}/accept")
 
     assert response.status_code == 200
     assert (

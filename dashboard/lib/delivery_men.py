@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, session
 
 from dashboard.constants import JACUZZI4P, JACUZZI6P
 from dashboard.container import container
+from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import get_address, get_ship
 
 delivery_men_bp = Blueprint("delivery_men", __name__)
@@ -81,6 +82,11 @@ def complete_order(order_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@delivery_men_bp.route("/orders/<token_id>/accept", methods=["GET"])
+def accept_order(token_id):
+    return Notifier.accept_command(token_id)
 
 
 @delivery_men_bp.route("/delivery_capacity", methods=["GET"])

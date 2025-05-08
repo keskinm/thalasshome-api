@@ -12,9 +12,7 @@ def test_check_delivery_men_around_point(test_db_client):
     assert not result
 
 
-def test_check_availability_jacuzzi(
-    test_db_client, client, sample_order_line_item, sample_provider
-):
+def test_check_no_availability_jacuzzi(test_db_client, client):
     # NO AVAILABILITY WITH FANCY LONGITUDE
     send_data = {
         "location": {"lat": 48.8566, "lon": 181},  # fancy lon
@@ -27,6 +25,10 @@ def test_check_availability_jacuzzi(
     assert data["product_available"] is False
     assert len(data["unavailable_dates"]) > 50
 
+
+def test_check_availability_jacuzzi(
+    test_db_client, client, sample_order_line_item, sample_provider
+):
     # 1 AVAILABLITY
     send_data = {
         "location": {"lat": 48.8566, "lon": 2.3522},

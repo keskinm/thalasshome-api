@@ -13,9 +13,9 @@ def test_check_delivery_men_around_point(test_db_client):
 
 
 def test_check_no_availability_jacuzzi(test_db_client, client):
-    # NO AVAILABILITY WITH FANCY LONGITUDE
+    # NO AVAILABILITY WITH FANCY COORDINATES
     send_data = {
-        "location": {"lat": 48.8566, "lon": 181},  # fancy lon
+        "location": {"lat": 91, "lon": 181},  # fancy lon
         "productName": "Jacuzzi 4 places 1 nuit",
     }
 
@@ -29,9 +29,10 @@ def test_check_no_availability_jacuzzi(test_db_client, client):
 def test_check_availability_jacuzzi(
     test_db_client, client, sample_order_line_item, sample_provider
 ):
-    # 1 AVAILABLITY
+    lat, long = 48.8566, 2.3522
+    # AVAILABLE (1 delivery men can)
     send_data = {
-        "location": {"lat": 48.8566, "lon": 2.3522},
+        "location": {"lat": lat, "lon": long},
         "productName": "Jacuzzi 4 places 1 nuit",
     }
 
@@ -52,7 +53,7 @@ def test_check_availability_jacuzzi(
     )
 
     send_data = {
-        "location": {"lat": 48.8566, "lon": 2.3522},
+        "location": {"lat": lat, "lon": long},
         "productName": "Jacuzzi 4 places 1 nuit",
     }
 
@@ -63,3 +64,22 @@ def test_check_availability_jacuzzi(
     assert data["rent_duration_day"] == 1
     assert data["product_available"] is True
     assert len(data["unavailable_dates"]) == 2
+
+    # Insert a new user_delivery_zone on the same zone
+
+    test_db_client.insert_into_table(
+        "user_delivery_zones",
+        {
+            "user_id": sample_provider["id"] + 1,
+            "zone_name": "Lyon",  # utilisez zone_name au lieu de delivery_zone_name
+            "radius_km": 30,
+            "center_geog": f"SRID=4326;POINT({long} {lat})",
+        },
+    )
+    # The previously unavailable dates should be available now (another delivery men is available)
+    response = client.post("/services/check_availability", json=send_data)
+    assert response.status_code == 200
+    data = response.json
+    assert data["rent_duration_day"] == 1
+    assert data["product_available"] is True
+    assert len(data["unavailable_dates"]) == 0

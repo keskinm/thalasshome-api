@@ -6,3 +6,5 @@ CREATE TABLE user_delivery_zones (
     radius_km FLOAT NOT NULL DEFAULT 30,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- creer contrainte unicite pour le couple (user_id, center_geog)

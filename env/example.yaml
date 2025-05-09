@@ -1,0 +1,11 @@
+# Example configuration file
+# Copy this to env/local.yaml for development
+# or env/danger.yaml for production
+# and fill in the real values
+
+env_variables:
+  EMAIL_SENDER_PASSWORD: "The password of email sender (notifier)"
+  SUPABASE_URL: "supabase url"
+  SUPABASE_KEY: "supabase key"
+  SHOPIFY_ADMIN_API_ACCESS_TOKEN: "shopify admin api access token"
+  SHOPIFY_WEBHOOK_SECRET: "shopify webhook secret"

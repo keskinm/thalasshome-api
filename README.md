@@ -1,4 +1,5 @@
-https://github.com/keskinm/thalasshome-api/actions/workflows/ci.yml/badge.svg
+![CI](https://github.com/keskinm/thalasshome-api/actions/workflows/ci.yml/badge.svg)
+
 
 ## Browse
 

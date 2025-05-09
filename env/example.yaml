@@ -1,8 +1,3 @@
-# Example configuration file
-# Copy this to env/local.yaml for development
-# or env/danger.yaml for production
-# and fill in the real values
-
 env_variables:
   EMAIL_SENDER_PASSWORD: "The password of email sender (notifier)"
   SUPABASE_URL: "supabase url"

@@ -1,7 +1,7 @@
 import logging
 import urllib.parse
 
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, render_template, request, session
 
 from dashboard.constants import JACUZZI4P, JACUZZI6P
 from dashboard.container import container
@@ -89,6 +89,37 @@ def complete_order(order_id):
 
 @delivery_men_bp.route("/orders/<token_id>/accept", methods=["GET"])
 def accept_order_route(token_id):
+    """Show confirmation page for accepting an order"""
+    decoded_token = urllib.parse.unquote(token_id)
+    order_id, provider_username = decoded_token.split("|")
+
+    order = container.get("DB_CLIENT").select_from_table(
+        "orders", select_columns="*", conditions={"id": order_id}, single=True
+    )
+
+    error = None
+    if order is None:
+        error = "La commande n'existe plus."
+    elif order["delivery_men_id"]:
+        error = "La commande a déjà été acceptée par un autre livreur."
+        provider = container.get("DB_CLIENT").select_from_table(
+            "users",
+            select_columns="*",
+            conditions={"username": provider_username},
+            limit=1,
+            single=True,
+        )
+        if provider and order["delivery_men_id"] == provider["id"]:
+            error = "Vous avez déjà accepté cette commande."
+
+    return render_template(
+        "notification/confirm_accept.html", error=error, token_id=token_id
+    )
+
+
+@delivery_men_bp.route("/orders/<token_id>/accept", methods=["POST"])
+def accept_order_post(token_id):
+    """Actually accept the order after confirmation"""
     return accept_order(token_id)
 
 

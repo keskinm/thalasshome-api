@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Confirmation - ThalassHome</title>
+  {% include 'common/head.html' %}
+</head>
+<body class="bg-gray-50 page-fade-in">
+  <div class="container mx-auto p-6">
+    <div class="bg-white shadow-md rounded-lg p-4 max-w-md mx-auto mt-10">
+      <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
+        Confirmation de prise en charge
+      </h3>
+      {% if error %}
+        <div class="text-red-600 mb-4">{{ error }}</div>
+      {% else %}
+        <p class="mb-4">Voulez-vous vraiment prendre en charge cette commande ?</p>
+        <form method="POST" action="{{ url_for('delivery_men.accept_order_post', token_id=token_id) }}">
+          <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+            Confirmer la prise en charge
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

@@ -281,8 +281,8 @@ def accept_order(token_id, flask_address=""):
         "customer_name": plain_customer_name,
     }
 
-    text_template = notifier.jinja_env.get_template("accept_command.txt")
-    html_template = notifier.jinja_env.get_template("accept_command.html")
+    text_template = notifier.jinja_env.get_template("command_accepted.txt")
+    html_template = notifier.jinja_env.get_template("command_accepted.html")
 
     text = text_template.render(**template_vars)
     html = html_template.render(**template_vars)

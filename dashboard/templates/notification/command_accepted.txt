@@ -1,0 +1,4 @@
+Merci d'avoir accepté la commande ! Voici les détails conçernant le client :
+{% if phone %}Numéro du client : {{ phone }}{% endif %}
+{% if email %}E-mail : {{ email }}{% endif %}
+Nom : {{ customer_name }}

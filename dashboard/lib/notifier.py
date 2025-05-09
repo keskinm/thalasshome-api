@@ -42,8 +42,8 @@ class Notifier:
             "amount": amount,
         }
 
-        text_template = self.jinja_env.get_template("provider_notification.txt")
-        html_template = self.jinja_env.get_template("provider_notification.html")
+        text_template = self.jinja_env.get_template("accept_command.txt")
+        html_template = self.jinja_env.get_template("accept_command.html")
 
         for i in range(len(providers)):
             provider = providers[i]

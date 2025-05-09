@@ -209,47 +209,6 @@ def create_zone():
     return jsonify({"message": "Zone created"}), 201
 
 
-@delivery_men_bp.route("/delivery_zones/<int:zone_id>", methods=["PATCH"])
-def update_zone(zone_id):
-    """
-    Expects JSON, e.g.:
-    {
-      "zone_name": "New name",
-      "lat": 46.0,
-      "lon": 3.1,
-      "radius_km": 50
-    }
-    """
-    user_id = session["user_id"]
-    data = request.get_json()
-
-    update_data = {}
-    if "zone_name" in data:
-        update_data["zone_name"] = data["zone_name"]
-    if "radius_km" in data:
-        update_data["radius_km"] = data["radius_km"]
-
-    lat = data.get("lat")
-    lon = data.get("lon")
-    if lat is not None and lon is not None:
-        update_data["center_geog"] = f"SRID=4326;POINT({lon} {lat})"
-
-    try:
-        resp = container.get("DB_CLIENT").update_table(
-            "user_delivery_zones",
-            update_data,
-            conditions={"id": zone_id, "user_id": user_id},
-        )
-
-        if not resp:
-            return jsonify({"error": "Update failed or no matching zone"}), 400
-
-        return jsonify({"message": "Zone updated"}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @delivery_men_bp.route("/delivery_zones/<int:zone_id>", methods=["DELETE"])
 def delete_zone(zone_id):
     user_id = session["user_id"]

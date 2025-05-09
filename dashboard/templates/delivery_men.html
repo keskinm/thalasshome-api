@@ -124,7 +124,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
-// Utility function for toasts (moved to global scope)
+// Global helper functions
 function showToast(message, type = 'success') {
   Toastify({
     text: message,
@@ -135,6 +135,86 @@ function showToast(message, type = 'success') {
   }).showToast();
 }
 
+// Utility function to toggle loading state (moved to global scope)
+function toggleLoading(elementId, isLoading) {
+  const element = document.getElementById(elementId);
+  if (isLoading) {
+    element.classList.remove('hidden');
+  } else {
+    element.classList.add('hidden');
+  }
+}
+
+// Orders fetching function (moved to global scope)
+async function fetchOrders() {
+  toggleLoading('available-loading', true);
+  toggleLoading('ongoing-loading', true);
+  toggleLoading('completed-loading', true);
+
+  try {
+    const response = await fetch('/delivery_men/orders');
+    const data = await response.json();
+
+    // Simplified rendering using the helper function
+    document.getElementById('available_orders').innerHTML =
+      data.available.map(order => renderOrder(order, 'available')).join('');
+
+    document.getElementById('ongoing_orders').innerHTML =
+      data.ongoing.map(order => renderOrder(order, 'ongoing')).join('');
+
+    document.getElementById('completed_orders').innerHTML =
+      data.completed.map(order => renderOrder(order, 'completed')).join('');
+
+  } catch (error) {
+    showToast('Erreur lors du chargement des commandes', 'error');
+  } finally {
+    toggleLoading('available-loading', false);
+    toggleLoading('ongoing-loading', false);
+    toggleLoading('completed-loading', false);
+  }
+}
+
+// Helper function for rendering orders (moved to global scope)
+function renderOrder(order, type) {
+  const icons = {
+    available: '📍',
+    ongoing: '🚚',
+    completed: '✅'
+  };
+
+  const extraClasses = type === 'completed' ? ' opacity-75' : '';
+
+  let rightContent = `<span class="font-bold text-green-600">${order.amount}€</span>`;
+  if (type === 'ongoing') {
+    rightContent = `
+      <div class="flex items-center gap-4">
+        <span class="font-bold text-green-600">${order.amount}€</span>
+        <button
+          onclick="completeOrder(${order.id})"
+          class="px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors text-sm">
+          Terminer
+        </button>
+      </div>
+    `;
+  }
+
+  return `
+    <li class="p-3 hover:bg-gray-50 rounded-lg transition-colors${extraClasses}">
+      <div class="flex justify-between items-center">
+        <div>
+          <span class="font-medium">${icons[type]} ${order.address}</span>
+          <div class="text-sm text-gray-600">
+            <span>📞 ${order.phone}</span>
+            <span class="mx-2">•</span>
+            <span>📦 ${order.ship}</span>
+          </div>
+        </div>
+        ${rightContent}
+      </div>
+    </li>
+  `;
+}
+
 // Global completeOrder function
 async function completeOrder(orderId) {
   try {
@@ -142,96 +222,20 @@ async function completeOrder(orderId) {
       method: 'POST'
     });
 
-    if (!response.ok) throw new Error('Failed to complete order');
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to complete order');
+    }
 
     showToast('Commande terminée avec succès');
     fetchOrders(); // Refresh all lists
   } catch (error) {
-    showToast('Erreur lors de la completion de la commande', 'error');
+    showToast('Erreur lors de la completion de la commande: ' + error.message, 'error');
   }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Utility function to toggle loading state
-  function toggleLoading(elementId, isLoading) {
-    const element = document.getElementById(elementId);
-    if (isLoading) {
-      element.classList.remove('hidden');
-    } else {
-      element.classList.add('hidden');
-    }
-  }
-
-  // Add renderOrder helper function
-  function renderOrder(order, type) {
-    const icons = {
-      available: '📍',
-      ongoing: '🚚',
-      completed: '✅'
-    };
-
-    const extraClasses = type === 'completed' ? ' opacity-75' : '';
-
-    let rightContent = `<span class="font-bold text-green-600">${order.amount}€</span>`;
-    if (type === 'ongoing') {
-      rightContent = `
-        <div class="flex items-center gap-4">
-          <span class="font-bold text-green-600">${order.amount}€</span>
-          <button
-            onclick="completeOrder(${order.id})"
-            class="px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors text-sm">
-            Terminer
-          </button>
-        </div>
-      `;
-    }
-
-    return `
-      <li class="p-3 hover:bg-gray-50 rounded-lg transition-colors${extraClasses}">
-        <div class="flex justify-between items-center">
-          <div>
-            <span class="font-medium">${icons[type]} ${order.address}</span>
-            <div class="text-sm text-gray-600">
-              <span>📞 ${order.phone}</span>
-              <span class="mx-2">•</span>
-              <span>📦 ${order.ship}</span>
-            </div>
-          </div>
-          ${rightContent}
-        </div>
-      </li>
-    `;
-  }
-
-  // Orders fetching with loading states
-  async function fetchOrders() {
-    toggleLoading('available-loading', true);
-    toggleLoading('ongoing-loading', true);
-    toggleLoading('completed-loading', true);
-
-    try {
-      const response = await fetch('/delivery_men/orders');
-      const data = await response.json();
-
-      // Simplified rendering using the helper function
-      document.getElementById('available_orders').innerHTML =
-        data.available.map(order => renderOrder(order, 'available')).join('');
-
-      document.getElementById('ongoing_orders').innerHTML =
-        data.ongoing.map(order => renderOrder(order, 'ongoing')).join('');
-
-      document.getElementById('completed_orders').innerHTML =
-        data.completed.map(order => renderOrder(order, 'completed')).join('');
-
-    } catch (error) {
-      showToast('Erreur lors du chargement des commandes', 'error');
-    } finally {
-      toggleLoading('available-loading', false);
-      toggleLoading('ongoing-loading', false);
-      toggleLoading('completed-loading', false);
-    }
-  }
-
   //--------------------------------------------------
   // 2) Fetch capacities (jacuzzi4p, jacuzzi6p)
   //--------------------------------------------------

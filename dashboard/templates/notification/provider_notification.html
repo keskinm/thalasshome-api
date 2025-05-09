@@ -4,7 +4,11 @@
     ship: {{ ship }} <br>
     addr: {{ adr }} <br>
     <strong> Total restant pour vous: {{ amount }}€ </strong> <br>
-    <a href="{{ protocol }}://{{ flask_address }}/delivery_men/orders/{{ token_id }}/accept">Je me charge de cette commande !</a><br>
+    <button style="background-color: #7cb5f1; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; margin: 10px 0;">
+      <a href="{{ protocol }}://{{ flask_address }}/delivery_men/orders/{{ token_id }}/accept" style="color: white; text-decoration: none;">Je me charge de cette commande !</a>
+    </button>
+    <br>
+    (Si vous ne pouvez pas voir le bouton, suivez ce lien: <a href="{{ protocol }}://{{ flask_address }}/delivery_men/orders/{{ token_id }}/accept">Je me charge de cette commande</a>)
     </p>
   </body>
 </html>

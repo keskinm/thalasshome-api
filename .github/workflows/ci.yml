@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+
+      - name: Setup env
+        env:
+          EMAIL_SENDER_PASSWORD: ${{ secrets.EMAIL_SENDER_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SHOPIFY_ADMIN_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_ACCESS_TOKEN }}
+          SHOPIFY_WEBHOOK_SECRET: ${{ secrets.SHOPIFY_WEBHOOK_SECRET }}
+        run: |
+          mkdir -p env
+          echo "env_variables:" > env/danger.yaml
+          echo "  EMAIL_SENDER_PASSWORD: $EMAIL_SENDER_PASSWORD" >> env/danger.yaml
+          echo "  SUPABASE_URL: $SUPABASE_URL" >> env/danger.yaml
+          echo "  SUPABASE_KEY: $SUPABASE_KEY" >> env/danger.yaml
+          echo "  SHOPIFY_ADMIN_API_ACCESS_TOKEN: $SHOPIFY_ADMIN_API_ACCESS_TOKEN" >> env/danger.yaml
+          echo "  SHOPIFY_WEBHOOK_SECRET: $SHOPIFY_WEBHOOK_SECRET" >> env/danger.yaml
+
+      - name: Run tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        run: |
+          poetry run pytest .

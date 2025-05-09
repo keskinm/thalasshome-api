@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ThalassHome</title>
+    <title>Connexion - ThalassHome</title>
     <link rel="stylesheet" href="/static/login.css" type="text/css">
 </head>
 <body>
@@ -11,7 +11,7 @@
         <form action="/auth/login" method="POST" class="login">
             <div class="login-screen">
                 <div class="app-title">
-                    <h1>Login</h1>
+                    <h1>Connexion</h1>
                 </div>
 
                 <div class="login-form">
@@ -20,13 +20,13 @@
                     </div>
 
                     <div class="control-group">
-                        <input type="password" class="login-field" placeholder="Password" name="password" required minlength="8">
+                        <input type="password" class="login-field" placeholder="Mot de passe" name="password" required minlength="8">
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-large btn-block">Log in</button>
+                    <button type="submit" class="btn btn-primary btn-large btn-block">Se connecter</button>
 
                     <div class="login-link">
-                        <a href="{{ url_for('auth.render_signup') }}">Don't have an account? Sign up</a>
+                        <a href="{{ url_for('auth.render_signup') }}">Vous n'avez pas de compte ? Inscrivez-vous</a>
                     </div>
                 </div>
             </div>

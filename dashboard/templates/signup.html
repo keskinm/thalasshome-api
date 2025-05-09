@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - ThalassHome</title>
+    <title>Inscription - ThalassHome</title>
     <link rel="stylesheet" href="/static/login.css" type="text/css">
 </head>
 <body>
@@ -22,7 +22,7 @@
         <form action="/auth/signup_post" method="post" class="login">
             <div class="login-screen">
                 <div class="app-title">
-                    <h1>Sign Up</h1>
+                    <h1>Inscription</h1>
                 </div>
 
                 <div class="login-form">
@@ -31,24 +31,24 @@
                     </div>
 
                     <div class="field">
-                        <input class="login-field" type="text" name="name" placeholder="Name" required minlength="2">
+                        <input class="login-field" type="text" name="name" placeholder="Nom" required minlength="2">
                     </div>
 
                     <div class="field">
-                        <input class="login-field" type="password" name="password" placeholder="Password" required minlength="8"
+                        <input class="login-field" type="password" name="password" placeholder="Mot de passe" required minlength="8"
                                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                               title="Must contain at least one number, one uppercase and lowercase letter, and at least 8 characters">
+                               title="Doit contenir au moins un chiffre, une lettre majuscule et une lettre minuscule, et au moins 8 caractères">
                     </div>
 
                     <div class="field">
-                        <input class="login-field" type="tel" name="numero_de_telephone" placeholder="Phone Number"
+                        <input class="login-field" type="tel" name="numero_de_telephone" placeholder="Numéro de téléphone"
                                pattern="[0-9\+\-\s]+" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-large btn-block">Sign Up</button>
+                    <button type="submit" class="btn btn-primary btn-large btn-block">S'inscrire</button>
 
                     <div class="login-link">
-                        <a href="{{ url_for('auth.login') }}">Already have an account? Log in</a>
+                        <a href="{{ url_for('auth.login') }}">Vous avez déjà un compte ? Connectez-vous</a>
                     </div>
                 </div>
             </div>

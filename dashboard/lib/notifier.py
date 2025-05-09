@@ -5,7 +5,7 @@ import urllib.parse
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from flask import Blueprint, request
+from flask import request
 from jinja2 import Environment, FileSystemLoader
 
 from dashboard.constants import APP_DIR
@@ -13,7 +13,6 @@ from dashboard.lib.order.order import get_address, get_name, get_ship
 
 
 class Notifier:
-    protocol = "http"
     sender_email = "spa.detente.france@gmail.com"
     email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
     template_dir = str(APP_DIR / "templates" / "notification")
@@ -22,6 +21,7 @@ class Notifier:
         self.flask_address = (
             flask_address or urllib.parse.urlparse(request.host_url).netloc
         )
+        self.protocol = "https" if request.is_secure else "http"
         self.jinja_env = Environment(loader=FileSystemLoader(self.template_dir))
 
     def notify_providers(

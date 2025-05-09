@@ -238,8 +238,8 @@ def notify_receive_command(order, line_items, test=False, flask_address=""):
     notifier.notify_providers(deliv_mens, tokens, order, line_items)
 
 
-def create_tokens(order_id, providers: list[dict]) -> list[str]:
+def create_tokens(order_id, delivery_mens: list[dict]) -> list[str]:
     tokens = []
-    for provider in providers:
-        tokens.append(f"{str(order_id)}|{provider['username']}")
+    for delivery_man in delivery_mens:
+        tokens.append(f"{str(order_id)}|{delivery_man['username']}")
     return tokens

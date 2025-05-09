@@ -45,12 +45,16 @@ jobs:
           EMAIL_SENDER_PASSWORD: ${{ secrets.EMAIL_SENDER_PASSWORD }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SHOPIFY_ADMIN_API_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_ACCESS_TOKEN }}
+          SHOPIFY_WEBHOOK_SECRET: ${{ secrets.SHOPIFY_WEBHOOK_SECRET }}
         run: |
           mkdir -p env
           echo "env_variables:" > env/danger.yaml
           echo "  EMAIL_SENDER_PASSWORD: $EMAIL_SENDER_PASSWORD" >> env/danger.yaml
           echo "  SUPABASE_URL: $SUPABASE_URL" >> env/danger.yaml
           echo "  SUPABASE_KEY: $SUPABASE_KEY" >> env/danger.yaml
+          echo "  SHOPIFY_ADMIN_API_ACCESS_TOKEN: $SHOPIFY_ADMIN_API_ACCESS_TOKEN" >> env/danger.yaml
+          echo "  SHOPIFY_WEBHOOK_SECRET: $SHOPIFY_WEBHOOK_SECRET" >> env/danger.yaml
 
       - name: Run tests
         env:

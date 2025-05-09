@@ -83,12 +83,12 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Insert logout button in every header nav
+    // Insert logout button at the end of every header nav
     const commonNav = document.getElementById('common-nav');
     const headerNavs = document.querySelectorAll('header nav');
     headerNavs.forEach(nav => {
       const logoutBtn = commonNav.querySelector('a').cloneNode(true);
-      nav.insertBefore(logoutBtn, nav.firstChild);
+      nav.appendChild(logoutBtn);
     });
   });
 </script>

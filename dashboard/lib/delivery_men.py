@@ -94,7 +94,7 @@ def accept_order_route(token_id):
     order_id, provider_username = decoded_token.split("|")
 
     order = container.get("DB_CLIENT").select_from_table(
-        "orders", select_columns="*", conditions={"id": order_id}, single=True
+        "orders", select_columns="*", conditions={"id": order_id}, maybe_single=True
     )
 
     error = None
@@ -268,7 +268,11 @@ def accept_order(token_id, flask_address=""):
     order_id, provider_username = decoded_token.split("|")
 
     order = container.get("DB_CLIENT").select_from_table(
-        "orders", select_columns="*", conditions={"id": order_id}, single=True
+        "orders",
+        select_columns="*",
+        conditions={"id": order_id},
+        single=True,
+        maybe_single=True,
     )
 
     if order is None:

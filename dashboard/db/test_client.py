@@ -60,10 +60,10 @@ class TestDBClient(DBClientInterface):
         conn = self.get_connection()
         result = conn.execute(sql_query, conditions)
         rows = result.mappings().all()
-        if single:
-            return rows[0]
-        elif maybe_single:
+        if maybe_single:
             return rows[0] if rows else None
+        elif single:
+            return rows[0]
         return rows
 
     def insert_into_table(

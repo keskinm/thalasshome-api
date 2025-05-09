@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "master" ]
 
 jobs:
   test:
@@ -43,10 +43,14 @@ jobs:
       - name: Setup env
         env:
           EMAIL_SENDER_PASSWORD: ${{ secrets.EMAIL_SENDER_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
           mkdir -p env
           echo "env_variables:" > env/danger.yaml
           echo "  EMAIL_SENDER_PASSWORD: $EMAIL_SENDER_PASSWORD" >> env/danger.yaml
+          echo "  SUPABASE_URL: $SUPABASE_URL" >> env/danger.yaml
+          echo "  SUPABASE_KEY: $SUPABASE_KEY" >> env/danger.yaml
 
       - name: Run tests
         env:

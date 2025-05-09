@@ -2,6 +2,7 @@ import email
 from pathlib import Path
 
 import pytest
+from flask import request
 
 from dashboard.lib.delivery_men import accept_order, get_delivery_mens
 from dashboard.lib.notifier import Notifier
@@ -18,6 +19,27 @@ def setup_inspect_dir():
     inspect_dir = Path("inspect")
     inspect_dir.mkdir(exist_ok=True)
     yield
+
+
+@pytest.fixture
+def flask_test_context(app, monkeypatch):
+    """Creates a proper Flask test request context and configures it for testing.
+
+    This fixture:
+    1. Creates a test request context using Flask's built-in test_request_context
+    2. Ensures request.is_secure is properly set for protocol determination
+
+    Use this fixture in any test that needs to access Flask request context
+    (e.g., when using flask.request or other request-dependent functionality)
+    """
+
+    class MockRequest:
+        is_secure = False
+
+    monkeypatch.setattr("flask.request", MockRequest())
+
+    with app.test_request_context():
+        yield
 
 
 def save_email_content(email_str: str, filename: str):
@@ -54,7 +76,9 @@ def mock_smtp(mocker):
     return smtp_mock
 
 
-def test_notify_providers(mock_smtp, sample_order, sample_provider, sample_line_items):
+def test_notify_providers(
+    mock_smtp, flask_test_context, sample_order, sample_provider, sample_line_items
+):
     notifier = Notifier(flask_address="test.com")
     providers = [sample_provider]
     tokens = [f"{sample_order['id']}|{sample_provider['username']}"]
@@ -68,7 +92,7 @@ def test_notify_providers(mock_smtp, sample_order, sample_provider, sample_line_
     assert "Une nouvelle commande ThalassHome !" in args[2]
 
 
-def test_notify_customer(mock_smtp, sample_provider):
+def test_notify_customer(mock_smtp, flask_test_context, sample_provider):
     notifier = Notifier(flask_address="test.com")
     notifier.notify_customer(sample_provider, "customer@yopmail.com")
 
@@ -79,7 +103,9 @@ def test_notify_customer(mock_smtp, sample_provider):
     assert "ThalassHome - Contact prestataire" in args[2]
 
 
-def test_notify_admins(mock_smtp, sample_order, sample_provider, sample_line_items):
+def test_notify_admins(
+    mock_smtp, flask_test_context, sample_order, sample_provider, sample_line_items
+):
     notifier = Notifier(flask_address="test.com")
     notifier.notify_admins(sample_order, sample_provider, sample_line_items)
 
@@ -91,7 +117,11 @@ def test_notify_admins(mock_smtp, sample_order, sample_provider, sample_line_ite
 
 
 def test_accept_command(
-    test_db_client, mock_smtp, sample_provider, sample_order_line_item
+    test_db_client,
+    mock_smtp,
+    flask_test_context,
+    sample_provider,
+    sample_order_line_item,
 ):
     sample_order, sample_line_items = sample_order_line_item
     result = accept_order(
@@ -114,7 +144,12 @@ def test_get_delivery_mens(sample_order_line_item):
 
 
 def test_notification_flow_integration(
-    client, test_db_client, mock_smtp, sample_order_line_item, sample_provider
+    client,
+    test_db_client,
+    mock_smtp,
+    flask_test_context,
+    sample_order_line_item,
+    sample_provider,
 ):
     """Test the complete notification flow:
     1. Notify providers about new order

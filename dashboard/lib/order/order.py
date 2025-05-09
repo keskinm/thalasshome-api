@@ -66,14 +66,13 @@ def get_ship(_item):
 
 def get_address(item):
     adr_item = item["shipping_address"]
-    adr = " ".join(
-        [
-            adr_item.get("city", "") or "",
-            adr_item.get("zip", "") or "",
-            adr_item.get("address1", "") or "",
-            adr_item.get("address2", "") or "",
-        ]
-    )
+    adr = [
+        adr_item.get("city", "") or "",
+        adr_item.get("zip", "") or "",
+        adr_item.get("address1", "") or "",
+        adr_item.get("address2", "") or "",
+    ]
+    adr = " ".join([s for s in adr if s not in ["", None, "None"]])
     return adr
 
 

@@ -83,3 +83,16 @@ class ProdDBClient(DBClientInterface):
     ) -> Any:
         response = self.supabase_client.rpc(function_name, params).execute()
         return response.data
+
+    def upsert_into_table(
+        self,
+        table: str,
+        values: Union[Dict, List[Dict]],
+        unique_columns: List[str],
+    ) -> Any:
+        response = (
+            self.supabase_client.table(table)
+            .upsert(values, on_conflict=",".join(unique_columns))
+            .execute()
+        )
+        return response.data

@@ -139,14 +139,26 @@ def get_delivery_capacity():
 
 @delivery_men_bp.route("/delivery_capacity", methods=["PATCH"])
 def patch_delivery_capacity():
-    data = request.get_json()
-    user_id = session["user_id"]
+    try:
+        data = request.get_json()
+        user_id = session["user_id"]
 
-    j4p = {"user_id": user_id, "product": JACUZZI4P, "quantity": data[JACUZZI4P]}
-    j6p = {"user_id": user_id, "product": JACUZZI6P, "quantity": data[JACUZZI6P]}
+        j4p = {"user_id": user_id, "product": JACUZZI4P, "quantity": data[JACUZZI4P]}
+        j6p = {"user_id": user_id, "product": JACUZZI6P, "quantity": data[JACUZZI6P]}
 
-    _ = container.get("DB_CLIENT").insert_into_table("delivery_capacity", [j4p, j6p])
-    return jsonify({"message": "Mise à jour réussie !"}), 200
+        # Use upsert with user_id and product as unique columns
+        _ = container.get("DB_CLIENT").upsert_into_table(
+            "delivery_capacity", [j4p, j6p], unique_columns=["user_id", "product"]
+        )
+        return jsonify({"message": "Mise à jour réussie !"}), 200
+    except Exception as e:
+        logging.error("Error updating delivery capacity: %s", str(e))
+        return (
+            jsonify(
+                {"error": "Erreur lors de la mise à jour de la capacité de livraison"}
+            ),
+            500,
+        )
 
 
 # ----------------------------

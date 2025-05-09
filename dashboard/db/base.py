@@ -26,6 +26,23 @@ class DBClientInterface(ABC):
         pass
 
     @abstractmethod
+    def upsert_into_table(
+        self,
+        table: str,
+        values: Union[Dict, List[Dict]],
+        unique_columns: List[str],
+    ) -> Any:
+        """
+        Insert or update records in a table based on unique columns.
+
+        Args:
+            table: The name of the table
+            values: A dictionary or list of dictionaries containing the values to insert/update
+            unique_columns: List of column names that form the unique constraint
+        """
+        pass
+
+    @abstractmethod
     def update_table(
         self,
         table: str,

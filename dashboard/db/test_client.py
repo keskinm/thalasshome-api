@@ -128,3 +128,40 @@ class TestDBClient(DBClientInterface):
         conn = self.get_connection()
         result = conn.execute(query, params)
         return result.mappings().all()
+
+    def upsert_into_table(
+        self,
+        table: str,
+        record: Union[Dict, List[Dict]],
+        unique_columns: List[str],
+    ) -> Any:
+        if isinstance(record, dict):
+            records = [record]
+        else:
+            records = record
+
+        results = []
+        conn = self.get_connection()
+
+        for item in records:
+            # Build the ON CONFLICT clause
+            conflict_target = ", ".join(unique_columns)
+            update_columns = [k for k in item.keys() if k not in unique_columns]
+            update_set = ", ".join(f"{k} = EXCLUDED.{k}" for k in update_columns)
+
+            columns = ", ".join(item.keys())
+            placeholders = ", ".join(":" + key for key in item.keys())
+
+            query = sqlalchemy.text(
+                f"""
+                INSERT INTO {table} ({columns})
+                VALUES ({placeholders})
+                ON CONFLICT ({conflict_target})
+                DO UPDATE SET {update_set}
+                """
+            )
+
+            result = conn.execute(query, item)
+            results.append(result.rowcount)
+
+        return sum(results)

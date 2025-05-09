@@ -13,7 +13,7 @@ from dashboard.lib.order.order import get_address, get_name, get_ship
 
 
 class Notifier:
-    protocol = "http"
+    protocol = "https"
     sender_email = "spa.detente.france@gmail.com"
     email_sender_password = os.getenv("EMAIL_SENDER_PASSWORD")
     template_dir = str(APP_DIR / "templates" / "notification")

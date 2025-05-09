@@ -11,6 +11,7 @@ from flask import Blueprint, current_app, jsonify, redirect, request
 
 from dashboard.constants import APP_DIR, normalize_jac_string, parse_rent_duration_jac
 from dashboard.container import container
+from dashboard.lib.delivery_men import get_delivery_mens
 from dashboard.lib.notifier import Notifier
 from dashboard.lib.order.order import (
     extract_line_items_keys,
@@ -227,29 +228,14 @@ def test_notification():
 
 
 def notify_receive_command(order, line_items, test=False, flask_address=""):
-    providers = get_delivery_mens(order, test=test)
+    deliv_mens = get_delivery_mens(order, test=test)
     logging.info(
         "notified providers: %s for a new order!",
-        [(d.get("username"), d.get("email")) for d in providers],
+        [(d.get("username"), d.get("email")) for d in deliv_mens],
     )
-    tokens = create_tokens(order["id"], providers)
+    tokens = create_tokens(order["id"], deliv_mens)
     notifier = Notifier(flask_address=flask_address)
-    notifier.notify_providers(providers, tokens, order, line_items)
-
-
-def get_delivery_mens(order, test=False) -> list[dict]:
-    lat, lon = order["shipping_lat"], order["shipping_lon"]
-
-    delivery_mens = container.get("DB_CLIENT").call_rpc(
-        "check_delivery_men_around_point",
-        {
-            "in_shipping_lon": lon,
-            "in_shipping_lat": lat,
-        },
-    )
-    if test:
-        delivery_mens = list(filter(lambda x: "neuneu" in x["email"], delivery_mens))
-    return delivery_mens
+    notifier.notify_providers(deliv_mens, tokens, order, line_items)
 
 
 def create_tokens(order_id, providers: list[dict]) -> list[str]:

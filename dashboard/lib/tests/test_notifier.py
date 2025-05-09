@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from dashboard.lib.delivery_men import accept_order
+from dashboard.lib.delivery_men import accept_order, get_delivery_mens
 from dashboard.lib.notifier import Notifier
-from dashboard.lib.services import get_delivery_mens, notify_receive_command
+from dashboard.lib.services import notify_receive_command
 
 
 @pytest.fixture(autouse=True)

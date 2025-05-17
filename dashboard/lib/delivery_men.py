@@ -15,11 +15,26 @@ delivery_men_bp = Blueprint("delivery_men", __name__)
 def get_orders():
     user_id = session["user_id"]
 
+    # Get all orders with status "ask" and no assigned delivery person
     available_orders = container.get("DB_CLIENT").select_from_table(
         "orders",
         select_columns="*",
         conditions={"delivery_men_id": None, "status": "ask"},
     )
+
+    # Filter available orders based on delivery zones
+    filtered_available = []
+    for order in available_orders:
+        delivery_mens = container.get("DB_CLIENT").call_rpc(
+            "check_delivery_men_around_point",
+            {
+                "in_shipping_lon": order["shipping_lon"],
+                "in_shipping_lat": order["shipping_lat"],
+            },
+        )
+        # Check if current user is in the list of possible delivery men
+        if any(dm["id"] == user_id for dm in delivery_mens):
+            filtered_available.append(order)
 
     ongoing_orders = container.get("DB_CLIENT").select_from_table(
         "orders",
@@ -57,7 +72,7 @@ def get_orders():
     return (
         jsonify(
             {
-                "available": process_orders(available_orders),
+                "available": process_orders(filtered_available),
                 "ongoing": process_orders(ongoing_orders),
                 "completed": process_orders(completed_orders),
             }

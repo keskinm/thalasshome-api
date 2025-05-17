@@ -10,7 +10,7 @@ auth_bp = Blueprint("auth", __name__)
 def login():
     POST_EMAIL = str(
         request.form["username"]
-    )  # form field still named "username" for compatibility
+    ).lower()  # form field still named "username" for compatibility
     POST_PASSWORD = str(request.form["password"])
 
     data = container.get("DB_CLIENT").select_from_table(
@@ -47,7 +47,7 @@ def render_signup():
 def signup_post():
     from dashboard.lib.splash import splash
 
-    email = request.form.get("email")
+    email = request.form.get("email").lower()
     name = request.form.get("name")
     password = request.form.get("password")
     phone_number = request.form.get("numero_de_telephone")

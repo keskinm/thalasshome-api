@@ -43,12 +43,14 @@
 {% from "common/components/order_section.html" import order_section %}
 
 <section class="container mx-auto p-6">
-  {{ order_section(
-    title="Commandes disponibles dans vos zones de livraison",
-    list_id="available_orders",
-    loading_id="available-loading",
-    container_class="mb-6"
-  ) }}
+  <div id="available_section" style="display: none;">
+    {{ order_section(
+      title="Commandes disponibles dans vos zones de livraison",
+      list_id="available_orders",
+      loading_id="available-loading",
+      container_class="mb-6"
+    ) }}
+  </div>
 
   {{ order_section(
     title="Mes commandes en cours",
@@ -177,6 +179,10 @@ async function fetchOrders() {
   try {
     const response = await fetch('/delivery_men/orders');
     const data = await response.json();
+
+    // Show/hide available section based on data
+    const availableSection = document.getElementById('available_section');
+    availableSection.style.display = data.available.length ? 'block' : 'none';
 
     // Simplified rendering using the helper function
     document.getElementById('available_orders').innerHTML =

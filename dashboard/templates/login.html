@@ -23,9 +23,12 @@
                     <button type="submit" class="btn btn-primary btn-large btn-block">Se connecter</button>
 
                     <div class="login-link">
-                        <a href="{{ url_for('auth.render_signup') }}">Vous n'avez pas de compte ?
-                            <br><br>Inscrivez-vous et commencez à livrer vos jacuzzis.
+                        Vous n'avez pas de compte ?
+                        <a href="{{ url_for('auth.render_signup') }}">
+                            <br>Inscrivez-vous et commencez à livrer vos jacuzzis.
                         </a>
+                        <br><br>
+                        <a href="mailto:contact@thalasshome.com" class="text-blue-600 hover:underline">contact@thalasshome.com</a>
                     </div>
                 </div>
             </div>

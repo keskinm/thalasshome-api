@@ -22,19 +22,28 @@ def get_orders():
         conditions={"delivery_men_id": None, "status": "ask"},
     )
 
-    # Filter available orders based on delivery zones
+    # Get user info to check if admin
+    user = container.get("DB_CLIENT").select_from_table(
+        "users", select_columns=["is_staff"], conditions={"id": user_id}, single=True
+    )
+
+    # Only filter for non-admin users
     filtered_available = []
-    for order in available_orders:
-        delivery_mens = container.get("DB_CLIENT").call_rpc(
-            "check_delivery_men_around_point",
-            {
-                "in_shipping_lon": order["shipping_lon"],
-                "in_shipping_lat": order["shipping_lat"],
-            },
-        )
-        # Check if current user is in the list of possible delivery men
-        if any(dm["id"] == user_id for dm in delivery_mens):
-            filtered_available.append(order)
+    if not user["is_staff"]:
+        for order in available_orders:
+            delivery_mens = container.get("DB_CLIENT").call_rpc(
+                "check_delivery_men_around_point",
+                {
+                    "in_shipping_lon": order["shipping_lon"],
+                    "in_shipping_lat": order["shipping_lat"],
+                },
+            )
+            # Check if current user is in the list of possible delivery men
+            if any(dm["id"] == user_id for dm in delivery_mens):
+                filtered_available.append(order)
+    else:
+        # Admin sees all available orders
+        filtered_available = available_orders
 
     ongoing_orders = container.get("DB_CLIENT").select_from_table(
         "orders",

@@ -19,7 +19,7 @@ BEGIN
 
     -- Insertion des données dans la table user_delivery_zones
     INSERT INTO user_delivery_zones (user_id, zone_name, center_geog, radius_km) VALUES
-    (user1_id, 'Île de France', ST_GeogFromText('SRID=4326;POINT(2.3522 48.8566)'), 30),
+    (user1_id, 'Bréhan', ST_GeogFromText('SRID=4326;POINT(-2.6898 48.0595)'), 30),
     (user2_id, 'Var', ST_GeogFromText('SRID=4326;POINT(5.9280 43.1242)'), 30),
     (user3_id, 'Pays de Gex', ST_GeogFromText('SRID=4326;POINT(6.0167 46.3333)'), 30),
     (user4_id, 'Loire', ST_GeogFromText('SRID=4326;POINT(4.31 45.39)'), 30);

@@ -29,8 +29,8 @@ def test_check_no_availability_jacuzzi(test_db_client, client):
 def test_check_availability_jacuzzi(
     test_db_client, client, sample_order_line_item, sample_provider
 ):
-    lat, long = 48.8566, 2.3522
-    # AVAILABLE (1 delivery men can)
+    long, lat = -2.6898, 48.0595
+    # AVAILABLE (1 delivery men should)
     send_data = {
         "location": {"lat": lat, "lon": long},
         "productName": "Jacuzzi 4 places 1 nuit",
@@ -41,23 +41,17 @@ def test_check_availability_jacuzzi(
     data = response.json
     assert data["rent_duration_day"] == 1
     assert data["product_available"] is True
-    assert data["unavailable_dates"] == []
+    assert len(data["unavailable_dates"]) == 2
 
     parsed_order, line_items = sample_order_line_item
 
-    # Les modifications seront automatiquement rollback à la fin du test
     test_db_client.update_table(
         "orders",
         {"delivery_men_id": sample_provider["id"], "status": "assigned"},
         conditions={"id": parsed_order["id"]},
     )
 
-    send_data = {
-        "location": {"lat": lat, "lon": long},
-        "productName": "Jacuzzi 4 places 1 nuit",
-    }
-
-    # 2 days are unavailable!
+    # 2 days are unavailable also
     response = client.post("/services/check_availability", json=send_data)
     assert response.status_code == 200
     data = response.json
@@ -71,7 +65,7 @@ def test_check_availability_jacuzzi(
         "user_delivery_zones",
         {
             "user_id": sample_provider["id"] + 1,
-            "zone_name": "Lyon",
+            "zone_name": "Bréhan",
             "radius_km": 30,
             "center_geog": f"SRID=4326;POINT({long} {lat})",
         },

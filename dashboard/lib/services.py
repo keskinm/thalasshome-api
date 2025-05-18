@@ -51,6 +51,7 @@ def order_creation_webhook():
         raise ValueError("Webhook verification failed. Check logs for details.")
 
     order = json.loads(data.decode("utf-8"))
+    logging.info("Received order creation webhook: \n\n\n %s \n\n\n ----------", order)
     parsed_order, line_items = parse_order(order)
 
     container.get("DB_CLIENT").insert_into_table("orders", parsed_order)

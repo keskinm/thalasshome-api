@@ -121,6 +121,21 @@ def create_20_draft():
                 ),
                 "customer": {"email": customer_email},
                 "use_customer_default_address": False,
+                "shipping_address": {
+                    "first_name": "",
+                    "last_name": "",
+                    "address1": "",
+                    "city": "",
+                    "province": "",
+                    "country": "",
+                    "zip": "",
+                    "phone": "",
+                },
+                "shipping_line": {
+                    "title": "Livraison standard",
+                    "price": "0.00",
+                    "code": "GRATUIT",
+                },
             }
         }
 

@@ -115,11 +115,12 @@ def create_20_draft():
                         "price": str(deposit_price),
                     }
                 ],
-                "note": f"Acompte de 20% pour {product_title}. "
-                f"Reste {round(full_price - deposit_price, 2)} € à payer à la livraison.",
+                "note": (
+                    f"Acompte de 20% pour {product_title}. "
+                    f"Reste {round(full_price - deposit_price, 2)} € à payer à la livraison."
+                ),
                 "customer": {"email": customer_email},
-                "use_customer_default_address": True,
-                # We can add "shipping_line", "taxes_included", etc. if necessary
+                "use_customer_default_address": False,
             }
         }
 

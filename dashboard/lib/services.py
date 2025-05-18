@@ -75,8 +75,8 @@ def parse_order(order: dict):
     return parsed_order, line_items
 
 
-@services_bp.route("/create-20pct-draft", methods=["POST"])
-def create_20pct_draft():
+@services_bp.route("/create-20-draft", methods=["POST"])
+def create_20_draft():
     """
     Reçoit (JSON):
       {
@@ -100,6 +100,9 @@ def create_20pct_draft():
         # Compute acount = 20% of total
         deposit_price = round(full_price * 0.20, 2)  # 2 décimales
 
+        # Fixed deposit of 20€
+        # deposit_price = 20.00
+
         # Prepare draft orders API payload
         url = f"https://{SHOPIFY_STORE_DOMAIN}/admin/api/{SHOPIFY_ADMIN_API_VERSION}/draft_orders.json"
         draft_payload = {
@@ -112,7 +115,7 @@ def create_20pct_draft():
                     }
                 ],
                 "note": f"Acompte de 20% pour {product_title}. "
-                f"Reste {round(full_price * 0.8,2)} € à payer à la livraison.",
+                f"Reste {round(full_price - deposit_price, 2)} € à payer à la livraison.",
                 "customer": {"email": customer_email},
                 "use_customer_default_address": True,
                 # We can add "shipping_line", "taxes_included", etc. if necessary

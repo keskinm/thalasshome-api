@@ -122,14 +122,17 @@ def create_20_draft():
                 "customer": {"email": customer_email},
                 "use_customer_default_address": False,
                 "shipping_address": {
-                    "first_name": "",
-                    "last_name": "",
-                    "address1": "",
-                    "city": "",
-                    "province": "",
-                    "country": "",
-                    "zip": "",
-                    "phone": "",
+                    "first_name": "Prénom",  # obligatoire
+                    "last_name": "Nom",  # obligatoire
+                    "address1": "123 rue Exemple",
+                    "address2": "",  # optionnel
+                    "city": "Paris",  # obligatoire
+                    "province": "Île-de-France",
+                    "province_code": "IDF",
+                    "country": "France",  # ou ISO “FR”
+                    "country_code": "FR",
+                    "zip": "75000",  # obligatoire
+                    "phone": "+33 7 77 77 77 77",
                 },
                 "shipping_line": {
                     "title": "Livraison standard",

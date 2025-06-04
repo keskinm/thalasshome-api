@@ -38,11 +38,9 @@ class ProdDBClient(DBClientInterface):
             query_builder = query_builder.limit(limit)
         if maybe_single:
             query_builder = query_builder.maybe_single()
-            response = query_builder.execute()
-            if response is None:
-                return None
         elif single:
             query_builder = query_builder.single()
+
         response = query_builder.execute()
         return response.data
 
